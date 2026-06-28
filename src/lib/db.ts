@@ -3,7 +3,7 @@ import type { UserProgress, TimetableData, TestEntry, ErrorEntry, FormulaEntry, 
 import { syncUpsert, syncAdd, syncDelete, syncClear } from './supabase-sync'
 
 export class JeeDatabase extends Dexie {
-  progress!: Table<UserProgress, string>
+  progress!: Table<ChapterProgress & { chapterId: string }, string>
   timetable!: Table<{ id: string; data: TimetableData }, string>
   tests!: Table<TestEntry, string>
   errors!: Table<ErrorEntry, string>
@@ -36,20 +36,21 @@ const dexie = new JeeDatabase()
 /* ─── Synced table wrapper ─── */
 const TABLE_KEY = {
   progress: 'chapterId', timetable: 'id', tests: 'id', errors: 'id',
-  formulas: 'id', dailyLogs: 'date', settings: 'id', pomodoro: 'id',
-  dailyPlans: 'date', questions: 'id',
+  formulas: 'id', dailylogs: 'date', settings: 'id', pomodoro: 'id',
+  dailyplans: 'date', questions: 'id',
 } as Record<string, string>
 
-function synced<T>(tableName: string, keyField?: string) {
-  const raw = dexie[tableName as keyof JeeDatabase] as unknown as Table<T, string>
-  const key = keyField || TABLE_KEY[tableName] || 'id'
+function synced<T>(dexieKey: string, keyField?: string, supabaseTable?: string) {
+  const table = supabaseTable || dexieKey
+  const raw = dexie[dexieKey as keyof JeeDatabase] as unknown as Table<T, string>
+  const key = keyField || TABLE_KEY[table] || 'id'
   return {
     toArray:  () => raw.toArray(),
     get:      (k: string) => raw.get(k),
-    add:      async (item: T) => { const id = await raw.add(item); syncAdd(tableName, item as any); return id },
-    put:      async (item: T) => { await raw.put(item); syncUpsert(tableName, item as any) },
-    delete:   async (k: string) => { await raw.delete(k); syncDelete(tableName, key, k) },
-    clear:    async () => { await raw.clear(); syncClear(tableName) },
+    add:      async (item: T) => { const id = await raw.add(item); syncAdd(table, item as any); return id },
+    put:      async (item: T) => { await raw.put(item); syncUpsert(table, item as any) },
+    delete:   async (k: string) => { await raw.delete(k); syncDelete(table, key, k) },
+    clear:    async () => { await raw.clear(); syncClear(table) },
     _raw:     raw,
   }
 }
@@ -72,10 +73,10 @@ export const db = {
   tests:      useSync ? synced<TestEntry>('tests') : noop(),
   errors:     useSync ? synced<ErrorEntry>('errors') : noop(),
   formulas:   useSync ? synced<FormulaEntry>('formulas') : noop(),
-  dailyLogs:  useSync ? synced<DailyLog>('dailylogs', 'date') : noop(),
+  dailyLogs:  useSync ? synced<DailyLog>('dailyLogs', 'date', 'dailylogs') : noop(),
   settings:   useSync ? synced<{ id: string; value: unknown }>('settings') : noop(),
   pomodoro:   useSync ? synced<PomodoroSession>('pomodoro') : noop(),
-  dailyPlans: useSync ? synced<DailyPlan>('dailyplans', 'date') : noop(),
+  dailyPlans: useSync ? synced<DailyPlan>('dailyPlans', 'date', 'dailyplans') : noop(),
   questions:  useSync ? synced<QuestionsEntry>('questions') : noop(),
 }
 
