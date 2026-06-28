@@ -4,7 +4,7 @@ let userId: string | null = null
 
 export function setSyncUser(uid: string | null) { userId = uid }
 
-/* ─── camelCase → snake_case column mapping ─── */
+/* ─── camelCase ↔ snake_case column mapping ─── */
 
 const CAMEL_TO_SNAKE: Record<string, string> = {
   chapterId: 'chapter_id',
@@ -18,10 +18,22 @@ const CAMEL_TO_SNAKE: Record<string, string> = {
   pomodoroSessions: 'pomodoro_sessions',
 }
 
+const SNAKE_TO_CAMEL: Record<string, string> = {}
+for (const [k, v] of Object.entries(CAMEL_TO_SNAKE)) SNAKE_TO_CAMEL[v] = k
+
 function toSnake(data: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(data)) {
     out[CAMEL_TO_SNAKE[k] || k] = v
+  }
+  return out
+}
+
+function toCamel(data: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(data)) {
+    if (k === 'user_id') continue
+    out[SNAKE_TO_CAMEL[k] || k] = v
   }
   return out
 }
@@ -63,6 +75,24 @@ export async function syncClear(tableName: string) {
     if (!sb) return
     await (sb.from(tableName) as any).delete().eq('user_id', userId)
   } catch { /* silent */ }
+}
+
+/* ─── Supabase pull (cloud → local sync on sign-in) ─── */
+
+const ALL_TABLES = ['progress', 'timetable', 'tests', 'errors', 'formulas', 'dailylogs', 'settings', 'pomodoro', 'dailyplans', 'questions'] as const
+
+export async function syncPullAll(): Promise<Record<string, unknown[]>> {
+  if (!userId) return {}
+  const sb = getSupabase()
+  if (!sb) return {}
+  const result: Record<string, unknown[]> = {}
+  for (const table of ALL_TABLES) {
+    try {
+      const { data } = await (sb.from(table) as any).select('*').eq('user_id', userId)
+      if (data) result[table] = data.map(toCamel)
+    } catch { /* silent */ }
+  }
+  return result
 }
 
 /* ─── Supabase Storage helpers for formula files ─── */
