@@ -4,6 +4,28 @@ let userId: string | null = null
 
 export function setSyncUser(uid: string | null) { userId = uid }
 
+/* ─── camelCase → snake_case column mapping ─── */
+
+const CAMEL_TO_SNAKE: Record<string, string> = {
+  chapterId: 'chapter_id',
+  completedOn: 'completed_on',
+  topicStatus: 'topic_status',
+  customTopics: 'custom_topics',
+  updatedAt: 'updated_at',
+  studyMinutes: 'study_minutes',
+  chaptersCompleted: 'chapters_completed',
+  questionsAttempted: 'questions_attempted',
+  pomodoroSessions: 'pomodoro_sessions',
+}
+
+function toSnake(data: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(data)) {
+    out[CAMEL_TO_SNAKE[k] || k] = v
+  }
+  return out
+}
+
 /* ─── Supabase DB sync helpers ─── */
 
 export async function syncUpsert(tableName: string, data: Record<string, unknown>) {
@@ -11,7 +33,7 @@ export async function syncUpsert(tableName: string, data: Record<string, unknown
   try {
     const sb = getSupabase()
     if (!sb) return
-    await sb.from(tableName).upsert({ ...data, user_id: userId })
+    await sb.from(tableName).upsert({ ...toSnake(data), user_id: userId })
   } catch { /* silent */ }
 }
 
@@ -20,7 +42,7 @@ export async function syncAdd(tableName: string, data: Record<string, unknown>) 
   try {
     const sb = getSupabase()
     if (!sb) return
-    await sb.from(tableName).insert({ ...data, user_id: userId })
+    await sb.from(tableName).insert({ ...toSnake(data), user_id: userId })
   } catch { /* silent */ }
 }
 
@@ -29,7 +51,8 @@ export async function syncDelete(tableName: string, column: string, value: strin
   try {
     const sb = getSupabase()
     if (!sb) return
-    await sb.from(tableName).delete().eq(column, value).eq('user_id', userId)
+    const col = CAMEL_TO_SNAKE[column] || column
+    await sb.from(tableName).delete().eq(col, value).eq('user_id', userId)
   } catch { /* silent */ }
 }
 
@@ -44,10 +67,7 @@ export async function syncClear(tableName: string) {
 
 /* ─── Supabase Storage helpers for formula files ─── */
 
-export async function uploadFile(
-  chapterId: string,
-  file: File,
-): Promise<string> {
+export async function uploadFile(chapterId: string, file: File): Promise<string> {
   const sb = getSupabase()
   if (!sb) throw new Error('Supabase not configured')
   const { data: { user } } = await sb.auth.getUser()

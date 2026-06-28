@@ -72,10 +72,10 @@ export const db = {
   tests:      useSync ? synced<TestEntry>('tests') : noop(),
   errors:     useSync ? synced<ErrorEntry>('errors') : noop(),
   formulas:   useSync ? synced<FormulaEntry>('formulas') : noop(),
-  dailyLogs:  useSync ? synced<DailyLog>('dailyLogs', 'date') : noop(),
+  dailyLogs:  useSync ? synced<DailyLog>('dailylogs', 'date') : noop(),
   settings:   useSync ? synced<{ id: string; value: unknown }>('settings') : noop(),
   pomodoro:   useSync ? synced<PomodoroSession>('pomodoro') : noop(),
-  dailyPlans: useSync ? synced<DailyPlan>('dailyPlans', 'date') : noop(),
+  dailyPlans: useSync ? synced<DailyPlan>('dailyplans', 'date') : noop(),
   questions:  useSync ? synced<QuestionsEntry>('questions') : noop(),
 }
 
