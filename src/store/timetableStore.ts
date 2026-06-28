@@ -6,7 +6,7 @@ interface TimetableState {
   timetable: TimetableData
   loaded: boolean
   load: () => Promise<void>
-  setCell: (day: string, hour: string, activity: Activity | '') => Promise<void>
+  setCell: (day: keyof TimetableData, hour: string, activity: Activity | '') => Promise<void>
   applyTemplate: (template: 'gym' | 'full_study' | 'test_day') => Promise<void>
 }
 
@@ -58,7 +58,7 @@ export const useTimetableStore = create<TimetableState>((set, get) => ({
   applyTemplate: async (template) => {
     if (template === 'test_day') {
       const current = { ...get().timetable }
-      const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()
+      const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as keyof TimetableData
       current[today] = { ...TEST_DAY }
       set({ timetable: current })
       try { await db.timetable.put({ id: 'main', data: current }) } catch { /* */ }

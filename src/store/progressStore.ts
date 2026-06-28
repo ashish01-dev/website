@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { UserProgress, Subject, ChapterProgress } from '@/types'
+import type { UserProgress, Subject, ChapterProgress, Topic } from '@/types'
 import { db } from '@/lib/db'
 import syllabusData from '@/data/syllabus.json'
 import type { SyllabusData } from '@/types'
@@ -59,9 +59,10 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
   markAllTopics: async (chapterId) => {
     const entry: ChapterProgress = { status: 'done', completedOn: new Date().toISOString().split('T')[0], topicStatus: {} }
     for (const subj of Object.values(syllabus)) {
-      for (const d of (subj as Subject).divisions || []) {
+      if (!subj?.divisions) continue
+      for (const d of subj.divisions) {
         for (const ch of d.chapters) {
-          if (ch.id === chapterId) ch.topics.forEach(t => { entry.topicStatus[t.id] = true })
+          if (ch.id === chapterId) ch.topics.forEach((t: Topic) => { entry.topicStatus[t.id] = true })
         }
       }
     }

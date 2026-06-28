@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import type { UserProgress, TimetableData, TestEntry, ErrorEntry, FormulaEntry, DailyLog, PomodoroSession, DailyPlan, QuestionsEntry } from '@/types'
+import type { UserProgress, TimetableData, TestEntry, ErrorEntry, FormulaEntry, DailyLog, PomodoroSession, DailyPlan, QuestionsEntry, ChapterProgress } from '@/types'
 import { syncUpsert, syncAdd, syncDelete, syncClear } from './supabase-sync'
 
 export class JeeDatabase extends Dexie {
@@ -67,7 +67,7 @@ const noop = () => ({
 const useSync = typeof window !== 'undefined'
 
 export const db = {
-  progress:   useSync ? synced<UserProgress & { chapterId: string }>('progress', 'chapterId') : noop(),
+  progress:   useSync ? synced<ChapterProgress & { chapterId: string }>('progress', 'chapterId') : noop(),
   timetable:  useSync ? synced<{ id: string; data: TimetableData }>('timetable') : noop(),
   tests:      useSync ? synced<TestEntry>('tests') : noop(),
   errors:     useSync ? synced<ErrorEntry>('errors') : noop(),

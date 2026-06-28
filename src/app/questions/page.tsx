@@ -43,6 +43,7 @@ export default function QuestionsPage() {
       subject,
       chapter,
       count,
+      correct: 0,
     }
     await db.questions.add(entry)
     setEntries(prev => [...prev, entry])

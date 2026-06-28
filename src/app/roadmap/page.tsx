@@ -106,7 +106,7 @@ export default function RoadmapPage() {
   }, [progress])
 
   const planChapters = useMemo(() => {
-    if (!todaysPlan) return null
+    if (!todaysPlan?.subjects) return null
     const result: { subject: Subject; chapter: Chapter; topics: { id: string; name: string; done: boolean }[] }[] = []
     for (const ps of todaysPlan.subjects) {
       for (const chName of ps.chapters) {

@@ -7,7 +7,8 @@ import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import { useSettingsStore } from '@/store/settingsStore'
 import { db } from '@/lib/db'
 import { downloadJSON } from '@/lib/utils'
-import { getSupabase, setSyncUser } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
+import { setSyncUser } from '@/lib/supabase-sync'
 import type { User } from '@supabase/supabase-js'
 
 export default function SettingsPage() {

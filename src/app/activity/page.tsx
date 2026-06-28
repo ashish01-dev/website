@@ -197,7 +197,7 @@ export default function ActivityPage() {
                   {selPomodoro.slice(0, 5).map(s => (
                     <div key={s.id} className="flex items-center justify-between text-xs">
                       <span className="text-notion-muted-dark">
-                        {new Date(s.startTime).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true })} → {s.endTime ? new Date(s.endTime).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'now'}
+                        {new Date(s.start).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true })} → {s.end ? new Date(s.end).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'now'}
                       </span>
                       <span className="text-notion-text-dark font-medium">
                         {Math.floor(s.duration / 60)}m {s.duration % 60}s

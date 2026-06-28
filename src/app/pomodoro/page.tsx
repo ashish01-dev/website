@@ -14,8 +14,8 @@ function fmt(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-function fmtTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true })
+function fmtTime(ts: number): string {
+  return new Date(ts).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true })
 }
 
 function getLast7Days(): string[] {
@@ -34,7 +34,7 @@ export default function PomodoroPage() {
   const [paused, setPaused] = useState(false)
   const [sessions, setSessions] = useState<PomodoroSession[]>([])
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const startTimeRef = useRef<string | null>(null)
+  const startTimeRef = useRef<number | null>(null)
   const startTsRef = useRef<number>(0)
   const pauseOffsetRef = useRef<number>(0)
 
@@ -54,8 +54,7 @@ export default function PomodoroPage() {
 
   const startSession = useCallback(() => {
     stopTimer()
-    const now = new Date().toISOString()
-    startTimeRef.current = now
+    startTimeRef.current = Date.now()
     startTsRef.current = Date.now()
     pauseOffsetRef.current = 0
     setElapsed(0)
@@ -81,25 +80,23 @@ export default function PomodoroPage() {
     stopTimer()
     const totalElapsed = Math.floor((Date.now() - startTsRef.current) / 1000) + pauseOffsetRef.current
     if (totalElapsed < 5) { setRunning(false); setPaused(false); setElapsed(0); return }
-    const now = new Date().toISOString()
     const session: PomodoroSession = {
       id: generateId(),
       date: today,
-      startTime: startTimeRef.current || now,
-      endTime: now,
+      start: startTimeRef.current || Date.now(),
+      end: Date.now(),
       duration: totalElapsed,
+      completed: true,
     }
     await db.pomodoro.add(session)
 
     const existing = await db.dailyLogs.get(today)
-    const prevHours = existing?.hoursStudied || 0
-    const prevTopics = existing?.topicsStudied || []
     await db.dailyLogs.put({
       date: today,
-      completed: true,
-      topicsStudied: prevTopics,
-      hoursStudied: prevHours + totalElapsed / 3600,
-      subjects: existing?.subjects || [],
+      studyMinutes: (existing?.studyMinutes || 0) + Math.floor(totalElapsed / 60),
+      chaptersCompleted: existing?.chaptersCompleted || [],
+      questionsAttempted: existing?.questionsAttempted || 0,
+      pomodoroSessions: (existing?.pomodoroSessions || 0) + 1,
     })
 
     setSessions(prev => [...prev, session])
@@ -206,7 +203,7 @@ export default function PomodoroPage() {
               {[...sessions].reverse().slice(0, 20).map(s => (
                 <div key={s.id} className="flex items-center justify-between px-2 py-1 rounded hover:bg-notion-sidebar-hover-dark">
                   <div className="text-xs text-notion-muted-dark">
-                    {new Date(s.startTime).toLocaleDateString('en', { month: 'short', day: 'numeric' })} &middot; {fmtTime(s.startTime)} &rarr; {fmtTime(s.endTime || s.startTime)}
+                    {new Date(s.start).toLocaleDateString('en', { month: 'short', day: 'numeric' })} &middot; {fmtTime(s.start)} &rarr; {fmtTime(s.end || s.start)}
                   </div>
                   <span className="text-xs font-medium text-notion-text-dark">{fmt(s.duration)}</span>
                 </div>

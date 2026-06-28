@@ -5,6 +5,7 @@ export type Activity = 'physics' | 'chemistry' | 'maths' | 'break' | 'revision' 
 export interface Topic {
   id: string
   name: string
+  deleted?: boolean
 }
 
 export interface Chapter {
@@ -12,13 +13,22 @@ export interface Chapter {
   name: string
   class: number
   weightage: string
+  ncertRef?: string
+  verified?: boolean
   deleted?: boolean
   topics: Topic[]
 }
 
 export interface Division {
+  id: string
   name: string
   chapters: Chapter[]
+}
+
+export interface DeletedChapter {
+  name: string
+  reason: string
+  verified?: boolean
 }
 
 export interface SubjectData {
@@ -26,6 +36,7 @@ export interface SubjectData {
   icon: string
   color: string
   divisions: Division[]
+  deletedChapters: DeletedChapter[]
 }
 
 export interface SyllabusData {
@@ -62,10 +73,12 @@ export interface TestEntry {
   date: string
   subject: Subject
   subjects?: string[]
+  chapters?: string[]
   score: number
   total: number
   accuracy: number
   notes?: string
+  timeTaken?: number
 }
 
 export interface ErrorEntry {
@@ -110,15 +123,16 @@ export interface PomodoroSession {
   completed: boolean
 }
 
-export interface DailyPlanChapter {
-  name: string
+export interface DailyPlanSubject {
   subject: Subject
-  hours: number
+  chapters: string[]
+  questions: number
 }
 
 export interface DailyPlan {
   date: string
-  chapters: DailyPlanChapter[]
+  hoursGoal?: number
+  subjects?: DailyPlanSubject[]
 }
 
 export interface QuestionsEntry {
@@ -128,6 +142,39 @@ export interface QuestionsEntry {
   chapter: string
   count: number
   correct: number
+}
+
+export const ACTIVITY_COLORS: Record<Activity, string> = {
+  physics: '#2383e2',
+  chemistry: '#0f8a5e',
+  maths: '#d9730d',
+  break: '#6b7280',
+  sleep: '#374151',
+  gym: '#8b5cf6',
+  revision: '#f59e0b',
+  mock_test: '#ef4444',
+}
+
+export const ACTIVITY_LABELS: Record<Activity, string> = {
+  physics: 'Physics',
+  chemistry: 'Chemistry',
+  maths: 'Maths',
+  break: 'Break',
+  sleep: 'Sleep',
+  gym: 'Gym',
+  revision: 'Revision',
+  mock_test: 'Mock Test',
+}
+
+export interface PaceResult {
+  daysUntilFreeze: number
+  remainingTopics: Record<Subject, number>
+  requiredPace: Record<Subject, number>
+  actualPace: Record<Subject, number>
+  paceStatus: Record<Subject, 'on_track' | 'behind'>
+  behindByDays: Record<Subject, number>
+  currentPhase: 'foundation' | 'consolidation' | 'sprint'
+  overallProgress: number
 }
 
 export interface Settings {

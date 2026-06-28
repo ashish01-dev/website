@@ -63,7 +63,7 @@ export default function RevisionPage() {
     const existing = formulaEntries[chapterId]
     const newFiles: FormulaFile[] = []
 
-    for (const file of files) {
+    for (const file of Array.from(files)) {
       let url = ''
       let storagePath = ''
       try {

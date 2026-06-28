@@ -17,23 +17,6 @@ const syllabus = syllabusData as unknown as SyllabusData
 
 const SUBJECT_EMOJIS: Record<Subject, string> = { physics: '⚡', chemistry: '🧪', maths: '📐' }
 
-function getFlatChapters(): { chapter: Chapter; subject: Subject; allTopicIds: string[] }[] {
-  const out: { chapter: Chapter; subject: Subject; allTopicIds: string[] }[] = []
-  const subs: Subject[] = ['physics', 'chemistry', 'maths']
-  for (const sub of subs) {
-    for (const div of syllabus[sub].divisions) {
-      for (const ch of div.chapters) {
-        if (!ch.deleted) {
-          const ids = [...ch.topics.filter(t => !t.deleted).map(t => t.id)]
-          if (progress[ch.id]?.customTopics) ids.push(...Object.keys(progress[ch.id].customTopics!))
-          out.push({ chapter: ch, subject: sub, allTopicIds: ids })
-        }
-      }
-    }
-  }
-  return out
-}
-
 export default function DashboardPage() {
   const { progress, getProgress, loaded } = useProgressStore()
   const { settings } = useSettingsStore()
@@ -137,7 +120,7 @@ export default function DashboardPage() {
               {new Date().toLocaleDateString('en-US', { weekday: 'long' })}, {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
             </h1>
             <p className="text-sm text-notion-muted-dark">
-              {plan ? `${plan.hoursGoal}h planned today` : `${Math.ceil((new Date(settings.examDate).getTime() - Date.now()) / 86400000)} days until JEE Main 2027`}
+              {plan ? `${plan.hoursGoal || 0}h planned today` : `${Math.ceil((new Date(settings.examDate).getTime() - Date.now()) / 86400000)} days until JEE Main 2027`}
             </p>
           </div>
           {plan && (
@@ -183,16 +166,16 @@ export default function DashboardPage() {
         <div className="mb-6">
           <h2 className="section-title text-notion-text-dark mb-3">Today&apos;s Targets</h2>
           <div className="space-y-2">
-            {plan && plan.subjects.length > 0 ? (
+            {plan && plan.subjects && plan.subjects.length > 0 ? (
               plan.subjects.map(s => (
                 <div key={s.subject}>
                   {s.chapters.map((ch, i) => (
-                    <div key={ch} className="notion-card p-3 flex items-center gap-3 mb-2">
+                    <div key={ch + i} className="notion-card p-3 flex items-center gap-3 mb-2">
                       <input type="checkbox" className="w-4 h-4 rounded-sm border-white/[0.08] text-[#2383e2] focus:ring-[#2383e2]" />
                       <span className="text-base">{SUBJECT_EMOJIS[s.subject]}</span>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium text-notion-text-dark">{ch}</div>
-                        <div className="text-xs text-notion-muted-dark capitalize">{s.subject}{s.questions > 0 ? ` · ${s.questions} questions` : ''}</div>
+                        <div className="text-xs text-notion-muted-dark capitalize">{s.subject}</div>
                       </div>
                     </div>
                   ))}

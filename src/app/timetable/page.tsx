@@ -5,9 +5,9 @@ import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import { useTimetableStore } from '@/store/timetableStore'
-import { ACTIVITY_COLORS, ACTIVITY_LABELS, type Activity } from '@/types'
+import { ACTIVITY_COLORS, ACTIVITY_LABELS, type Activity, type TimetableData } from '@/types'
 
-const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+const DAYS: (keyof TimetableData)[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 
@@ -31,12 +31,12 @@ export default function TimetablePage() {
   }
 
   const getColor = (day: string, hour: string) => {
-    const a = timetable[day]?.[hour]
+    const a = timetable[day as keyof TimetableData]?.[hour]
     return a ? ACTIVITY_COLORS[a as Activity] : 'transparent'
   }
 
   const getLabel = (day: string, hour: string) => {
-    const a = timetable[day]?.[hour]
+    const a = timetable[day as keyof TimetableData]?.[hour]
     return a ? ACTIVITY_LABELS[a as Activity]?.slice(0, 4) : ''
   }
 

@@ -33,7 +33,7 @@ export async function syncUpsert(tableName: string, data: Record<string, unknown
   try {
     const sb = getSupabase()
     if (!sb) return
-    await sb.from(tableName).upsert({ ...toSnake(data), user_id: userId })
+    await (sb.from(tableName) as any).upsert({ ...toSnake(data), user_id: userId })
   } catch { /* silent */ }
 }
 
@@ -42,7 +42,7 @@ export async function syncAdd(tableName: string, data: Record<string, unknown>) 
   try {
     const sb = getSupabase()
     if (!sb) return
-    await sb.from(tableName).insert({ ...toSnake(data), user_id: userId })
+    await (sb.from(tableName) as any).insert({ ...toSnake(data), user_id: userId })
   } catch { /* silent */ }
 }
 
@@ -52,7 +52,7 @@ export async function syncDelete(tableName: string, column: string, value: strin
     const sb = getSupabase()
     if (!sb) return
     const col = CAMEL_TO_SNAKE[column] || column
-    await sb.from(tableName).delete().eq(col, value).eq('user_id', userId)
+    await (sb.from(tableName) as any).delete().eq(col, value).eq('user_id', userId)
   } catch { /* silent */ }
 }
 
@@ -61,7 +61,7 @@ export async function syncClear(tableName: string) {
   try {
     const sb = getSupabase()
     if (!sb) return
-    await sb.from(tableName).delete().eq('user_id', userId)
+    await (sb.from(tableName) as any).delete().eq('user_id', userId)
   } catch { /* silent */ }
 }
 
