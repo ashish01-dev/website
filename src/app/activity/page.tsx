@@ -90,8 +90,8 @@ export default function ActivityPage() {
 
     for (const log of dailyLogs) {
       const day = addDay(log.date)
-      if (log.hoursStudied > 0) {
-        day.studySeconds = Math.max(day.studySeconds, log.hoursStudied * 3600)
+      if (log.studyMinutes > 0) {
+        day.studySeconds = Math.max(day.studySeconds, log.studyMinutes * 60)
       }
     }
 
