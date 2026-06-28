@@ -55,12 +55,12 @@ function synced<T>(tableName: string, keyField?: string) {
 }
 
 const noop = () => ({
-  toArray: <T>() => Promise.resolve([] as T[]),
-  get:     () => Promise.resolve(undefined),
-  add:     <T>(item: T) => Promise.resolve(''),
-  put:     () => Promise.resolve(),
-  delete:  () => Promise.resolve(),
-  clear:   () => Promise.resolve(),
+  toArray: (): Promise<never[]> => Promise.resolve([]),
+  get:     (): Promise<undefined> => Promise.resolve(undefined),
+  add:     (): Promise<string> => Promise.resolve(''),
+  put:     (): Promise<void> => Promise.resolve(),
+  delete:  (): Promise<void> => Promise.resolve(),
+  clear:   (): Promise<void> => Promise.resolve(),
   _raw:    null as never,
 })
 
