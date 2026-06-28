@@ -1,0 +1,173 @@
+{
+  "physics": {
+    "divisions": [
+      {
+        "id": "mechanics",
+        "name": "Mechanics",
+        "chapters": [
+          { "id": "phy-physics-measurement", "name": "Physics & Measurement", "class": 11, "ncertRef": "Class 11 Physics — Units & Measurements", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"pm1","name":"Units — SI, fundamental & derived","deleted":false},{"id":"pm2","name":"Dimensional analysis & applications","deleted":false},{"id":"pm3","name":"Significant figures & rounding off","deleted":false},{"id":"pm4","name":"Error analysis & propagation","deleted":false}] },
+          { "id": "phy-kinematics", "name": "Kinematics", "class": 11, "ncertRef": "Class 11 Physics — Motion in a Straight Line & Plane", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"kin1","name":"Motion in 1D — equations of motion","deleted":false},{"id":"kin2","name":"Motion in 2D — vectors & projectile","deleted":false},{"id":"kin3","name":"Projectile motion on inclined plane","deleted":false},{"id":"kin4","name":"Relative velocity & rain-man problems","deleted":false}] },
+          { "id": "phy-laws-of-motion", "name": "Laws of Motion", "class": 11, "ncertRef": "Class 11 Physics — Laws of Motion", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"lom1","name":"Newton's three laws & free body diagrams","deleted":false},{"id":"lom2","name":"Static & kinetic friction","deleted":false},{"id":"lom3","name":"Circular motion dynamics & banking","deleted":false},{"id":"lom4","name":"Connected motion — pulleys & strings","deleted":false}] },
+          { "id": "phy-work-energy-power", "name": "Work, Energy & Power", "class": 11, "ncertRef": "Class 11 Physics — Work, Energy & Power", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"wep1","name":"Work done by constant & variable forces","deleted":false},{"id":"wep2","name":"Work-energy theorem & its applications","deleted":false},{"id":"wep3","name":"Conservation of mechanical energy","deleted":false},{"id":"wep4","name":"Elastic & inelastic collisions","deleted":false}] },
+          { "id": "phy-rotational-motion", "name": "Rotational Motion", "class": 11, "ncertRef": "Class 11 Physics — System of Particles & Rotational Motion", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"rot1","name":"Centre of mass of discrete & continuous systems","deleted":false},{"id":"rot2","name":"Torque & angular momentum","deleted":false},{"id":"rot3","name":"Moment of inertia — theorems & calculations","deleted":false},{"id":"rot4","name":"Rolling motion — pure rolling & energy","deleted":false}] },
+          { "id": "phy-gravitation", "name": "Gravitation", "class": 11, "ncertRef": "Class 11 Physics — Gravitation", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"grav1","name":"Universal law & gravitational field","deleted":false},{"id":"grav2","name":"Gravitational potential & escape velocity","deleted":false},{"id":"grav3","name":"Kepler's laws & planetary motion","deleted":false},{"id":"grav4","name":"Satellites — orbital velocity & geostationary","deleted":false}] }
+        ]
+      },
+      {
+        "id": "heat-thermodynamics",
+        "name": "Heat & Thermodynamics",
+        "chapters": [
+          { "id": "phy-properties-solids-liquids", "name": "Properties of Solids & Liquids", "class": 11, "ncertRef": "Class 11 Physics — Mechanical Properties", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"sol1","name":"Elasticity — Young's, bulk, rigidity modulus","deleted":false},{"id":"sol2","name":"Viscosity — Stokes' law & terminal velocity","deleted":false},{"id":"sol3","name":"Surface tension — capillary rise & drops","deleted":false},{"id":"sol4","name":"Bernoulli's theorem & applications","deleted":false}] },
+          { "id": "phy-thermodynamics", "name": "Thermodynamics", "class": 11, "ncertRef": "Class 11 Physics — Thermodynamics", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"th1","name":"Zeroth, first & second laws of thermodynamics","deleted":false},{"id":"th2","name":"Heat transfer — conduction, convection, radiation","deleted":false},{"id":"th3","name":"Carnot engine & refrigerator","deleted":false},{"id":"th4","name":"Isothermal & adiabatic processes","deleted":false}] },
+          { "id": "phy-kinetic-theory", "name": "Kinetic Theory of Gases", "class": 11, "ncertRef": "Class 11 Physics — Kinetic Theory", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"kt1","name":"Ideal gas equation & PV = nRT","deleted":false},{"id":"kt2","name":"Degrees of freedom & equipartition","deleted":false},{"id":"kt3","name":"Mean free path & molecular speeds","deleted":false},{"id":"kt4","name":"Real gases — Van der Waals equation","deleted":false}] }
+        ]
+      },
+      {
+        "id": "waves-oscillations",
+        "name": "Waves & Oscillations",
+        "chapters": [
+          { "id": "phy-oscillations-waves", "name": "Oscillations & Waves", "class": 11, "ncertRef": "Class 11 Physics — Oscillations & Waves", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"osc1","name":"Simple harmonic motion — equations & graphs","deleted":false},{"id":"osc2","name":"Spring-mass & simple pendulum","deleted":false},{"id":"osc3","name":"Wave equation — transverse & longitudinal","deleted":false},{"id":"osc4","name":"Doppler effect & beats","deleted":false}] }
+        ]
+      },
+      {
+        "id": "electrostatics-current",
+        "name": "Electrostatics & Current Electricity",
+        "chapters": [
+          { "id": "phy-electrostatics", "name": "Electrostatics", "class": 12, "ncertRef": "Class 12 Physics — Electrostatic Potential & Capacitance", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"es1","name":"Coulomb's law & electric field","deleted":false},{"id":"es2","name":"Gauss law & its applications","deleted":false},{"id":"es3","name":"Electric potential & equipotential surfaces","deleted":false},{"id":"es4","name":"Capacitors — series, parallel & energy stored","deleted":false}] },
+          { "id": "phy-current-electricity", "name": "Current Electricity", "class": 12, "ncertRef": "Class 12 Physics — Current Electricity", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"ce1","name":"Ohm's law & drift velocity","deleted":false},{"id":"ce2","name":"Kirchhoff's laws & Wheatstone bridge","deleted":false},{"id":"ce3","name":"Meter bridge & potentiometer","deleted":false},{"id":"ce4","name":"Electrical power, energy & cells","deleted":false}] }
+        ]
+      },
+      {
+        "id": "magnetism-emi",
+        "name": "Magnetism & EMI/AC",
+        "chapters": [
+          { "id": "phy-magnetism", "name": "Magnetic Effects of Current & Magnetism", "class": 12, "ncertRef": "Class 12 Physics — Moving Charges & Magnetism", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"mag1","name":"Biot-Savart law & Ampere's law","deleted":false},{"id":"mag2","name":"Lorentz force & cyclotron","deleted":false},{"id":"mag3","name":"Magnetic materials — dia, para, ferro","deleted":false},{"id":"mag4","name":"Earth's magnetism & magnetic moment","deleted":false}] },
+          { "id": "phy-emi-ac", "name": "Electromagnetic Induction & AC", "class": 12, "ncertRef": "Class 12 Physics — EMI & Alternating Current", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"emi1","name":"Faraday's law & Lenz's law","deleted":false},{"id":"emi2","name":"Self & mutual inductance","deleted":false},{"id":"emi3","name":"AC circuits — LCR, resonance & power","deleted":false},{"id":"emi4","name":"Transformers & AC generators","deleted":false}] },
+          { "id": "phy-em-waves", "name": "Electromagnetic Waves", "class": 12, "ncertRef": "Class 12 Physics — EM Waves", "weightage": "low", "verified": false, "deleted": false, "topics": [{"id":"emw1","name":"EM spectrum & properties","deleted":false},{"id":"emw2","name":"Maxwell's equations (qualitative)","deleted":false},{"id":"emw3","name":"Applications of EM waves","deleted":false}] }
+        ]
+      },
+      {
+        "id": "optics-modern",
+        "name": "Optics & Modern Physics",
+        "chapters": [
+          { "id": "phy-optics", "name": "Optics", "class": 12, "ncertRef": "Class 12 Physics — Ray & Wave Optics", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"opt1","name":"Reflection & refraction — spherical mirrors & lenses","deleted":false},{"id":"opt2","name":"Total internal reflection & optical fibres","deleted":false},{"id":"opt3","name":"Wave optics — Huygens, interference & Young's experiment","deleted":false},{"id":"opt4","name":"Diffraction & polarisation","deleted":false}] },
+          { "id": "phy-dual-nature", "name": "Dual Nature of Matter & Radiation", "class": 12, "ncertRef": "Class 12 Physics — Dual Nature of Radiation", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"dn1","name":"Photoelectric effect & Einstein equation","deleted":false},{"id":"dn2","name":"de Broglie wavelength & matter waves","deleted":false},{"id":"dn3","name":"Davisson-Germer experiment","deleted":false}] },
+          { "id": "phy-atoms-nuclei", "name": "Atoms & Nuclei", "class": 12, "ncertRef": "Class 12 Physics — Atoms & Nuclei", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"an1","name":"Bohr model & atomic spectra","deleted":false},{"id":"an2","name":"Radioactivity — alpha, beta, gamma decay","deleted":false},{"id":"an3","name":"Nuclear fission & fusion","deleted":false},{"id":"an4","name":"Binding energy & mass defect","deleted":false}] },
+          { "id": "phy-electronic-devices", "name": "Electronic Devices", "class": 12, "ncertRef": "Class 12 Physics — Semiconductor Electronics", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"ed1","name":"Semiconductors — intrinsic, extrinsic, p-n junction","deleted":false},{"id":"ed2","name":"Diodes — rectifier, Zener & LED","deleted":false},{"id":"ed3","name":"Transistors — npn, pnp, amplifier & switch","deleted":false},{"id":"ed4","name":"Logic gates — AND, OR, NOT, NAND, NOR","deleted":false}] }
+        ]
+      }
+    ],
+    "deletedChapters": [
+      { "name": "Communication Systems", "reason": "Removed in 2024 NTA syllabus revision", "verified": true }
+    ]
+  },
+  "chemistry": {
+    "divisions": [
+      {
+        "id": "physical",
+        "name": "Physical Chemistry",
+        "chapters": [
+          { "id": "chem-basic-concepts", "name": "Basic Concepts", "class": 11, "ncertRef": "Class 11 Chemistry — Some Basic Concepts", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"bc1","name":"Mole concept — Avogadro, molar mass","deleted":false},{"id":"bc2","name":"Stoichiometry — limiting reagent & yield","deleted":false},{"id":"bc3","name":"Empirical & molecular formula","deleted":false},{"id":"bc4","name":"Concentration terms — molarity, molality, normality","deleted":false}] },
+          { "id": "chem-atomic-structure", "name": "Atomic Structure", "class": 11, "ncertRef": "Class 11 Chemistry — Structure of Atom", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"as1","name":"Bohr model & hydrogen spectrum","deleted":false},{"id":"as2","name":"Quantum numbers & Pauli's principle","deleted":false},{"id":"as3","name":"Electronic configuration — Aufbau & Hund's rule","deleted":false},{"id":"as4","name":"Photoelectric effect & dual nature","deleted":false}] },
+          { "id": "chem-chemical-bonding", "name": "Chemical Bonding", "class": 11, "ncertRef": "Class 11 Chemistry — Chemical Bonding", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"cb1","name":"Ionic & covalent bonds — Fajans' rules","deleted":false},{"id":"cb2","name":"VSEPR theory & molecular shapes","deleted":false},{"id":"cb3","name":"Hybridisation & bond parameters","deleted":false},{"id":"cb4","name":"Molecular orbital theory — bond order & magnetism","deleted":false}] },
+          { "id": "chem-states-of-matter", "name": "States of Matter", "class": 11, "ncertRef": "Class 11 Chemistry — States of Matter", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"sm1","name":"Ideal gas equation & Dalton's law","deleted":false},{"id":"sm2","name":"Real gases — Van der Waals & compressibility","deleted":false},{"id":"sm3","name":"Liquefaction & critical temperature","deleted":false},{"id":"sm4","name":"Surface tension & viscosity","deleted":false}] },
+          { "id": "chem-thermodynamics", "name": "Thermodynamics", "class": 11, "ncertRef": "Class 11 Chemistry — Thermodynamics", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"ct1","name":"Enthalpy — formation, combustion, reaction","deleted":false},{"id":"ct2","name":"Hess's law & calorimetry","deleted":false},{"id":"ct3","name":"Entropy & Gibbs free energy","deleted":false},{"id":"ct4","name":"Spontaneity & equilibrium conditions","deleted":false}] },
+          { "id": "chem-solutions", "name": "Solutions", "class": 12, "ncertRef": "Class 12 Chemistry — Solutions", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"sol1","name":"Concentration — ppm, mole fraction","deleted":false},{"id":"sol2","name":"Raoult's law & ideal/non-ideal solutions","deleted":false},{"id":"sol3","name":"Colligative properties — elevation, depression, osmosis","deleted":false},{"id":"sol4","name":"Azeotropes & fractional distillation","deleted":false}] },
+          { "id": "chem-equilibrium", "name": "Equilibrium", "class": 11, "ncertRef": "Class 11 Chemistry — Equilibrium", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"eq1","name":"Kc & Kp — equilibrium constants","deleted":false},{"id":"eq2","name":"Le Chatelier's principle","deleted":false},{"id":"eq3","name":"Ionic equilibrium — pH, Ka, Kb, buffers","deleted":false},{"id":"eq4","name":"Solubility product & common ion effect","deleted":false}] },
+          { "id": "chem-redox-electrochemistry", "name": "Redox & Electrochemistry", "class": 12, "ncertRef": "Class 12 Chemistry — Electrochemistry", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"re1","name":"Balancing redox reactions","deleted":false},{"id":"re2","name":"Nernst equation & cell potential","deleted":false},{"id":"re3","name":"Electrochemical cells — galvanic & electrolytic","deleted":false},{"id":"re4","name":"Faraday's laws & conductance","deleted":false}] },
+          { "id": "chem-chemical-kinetics", "name": "Chemical Kinetics", "class": 12, "ncertRef": "Class 12 Chemistry — Chemical Kinetics", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"ck1","name":"Rate laws — zero, first, second order","deleted":false},{"id":"ck2","name":"Arrhenius equation & activation energy","deleted":false},{"id":"ck3","name":"Half-life & integrated rate equations","deleted":false},{"id":"ck4","name":"Catalysis — homogeneous & heterogeneous","deleted":false}] },
+          { "id": "chem-surface-chemistry", "name": "Surface Chemistry", "class": 12, "ncertRef": "Class 12 Chemistry — Surface Chemistry", "weightage": "low", "verified": false, "deleted": false, "topics": [{"id":"sc1","name":"Adsorption — physisorption vs chemisorption","deleted":false},{"id":"sc2","name":"Langmuir & Freundlich isotherms","deleted":false},{"id":"sc3","name":"Colloids — types, preparation, properties","deleted":false},{"id":"sc4","name":"Emulsions & their applications","deleted":false}] }
+        ]
+      },
+      {
+        "id": "inorganic",
+        "name": "Inorganic Chemistry",
+        "chapters": [
+          { "id": "chem-periodicity", "name": "Periodicity", "class": 11, "ncertRef": "Class 11 Chemistry — Classification of Elements", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"per1","name":"Periodic trends — atomic radii, IE, EN","deleted":false},{"id":"per2","name":"s, p, d, f block characteristics","deleted":false},{"id":"per3","name":"Anomalous properties of second period","deleted":false},{"id":"per4","name":"Periodicity in chemical properties","deleted":false}] },
+          { "id": "chem-hydrogen", "name": "Hydrogen", "class": 11, "ncertRef": "Class 11 Chemistry — Hydrogen", "weightage": "low", "verified": false, "deleted": false, "topics": [{"id":"h1","name":"Isotopes of hydrogen & their properties","deleted":false},{"id":"h2","name":"Hydrides — ionic, covalent, interstitial","deleted":false},{"id":"h3","name":"Water — hardness & its removal","deleted":false},{"id":"h4","name":"Hydrogen peroxide — preparation & reactions","deleted":false}] },
+          { "id": "chem-s-block", "name": "s-Block", "class": 11, "ncertRef": "Class 11 Chemistry — s-Block Elements", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"sb1","name":"Group 1 — alkali metals & their trends","deleted":false},{"id":"sb2","name":"Group 2 — alkaline earth metals","deleted":false},{"id":"sb3","name":"Anomalous behaviour of Li & Be","deleted":false},{"id":"sb4","name":"Important compounds — NaOH, Na2CO3, CaO","deleted":false}] },
+          { "id": "chem-p-block", "name": "p-Block", "class": 11, "ncertRef": "Class 11 Chemistry — p-Block Elements", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"pb1","name":"Boron family — structure of diborane","deleted":false},{"id":"pb2","name":"Carbon family — allotropes of carbon","deleted":false},{"id":"pb3","name":"Nitrogen family — ammonia, HNO3","deleted":false},{"id":"pb4","name":"Oxygen family — ozone, sulphur compounds","deleted":false}] },
+          { "id": "chem-d-f-block", "name": "d- & f-Block", "class": 12, "ncertRef": "Class 12 Chemistry — d & f Block Elements", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"df1","name":"Transition elements — electronic config & properties","deleted":false},{"id":"df2","name":"Colour, magnetic & catalytic properties","deleted":false},{"id":"df3","name":"Lanthanoids — contraction & separation","deleted":false},{"id":"df4","name":"Actinoids — comparison with lanthanoids","deleted":false}] },
+          { "id": "chem-coordination-compounds", "name": "Coordination Compounds", "class": 12, "ncertRef": "Class 12 Chemistry — Coordination Compounds", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"cc1","name":"Werner's theory & valence bond theory","deleted":false},{"id":"cc2","name":"IUPAC nomenclature of coordination compounds","deleted":false},{"id":"cc3","name":"Isomerism — structural & stereo","deleted":false},{"id":"cc4","name":"Crystal field theory & colour","deleted":false}] },
+          { "id": "chem-metallurgy", "name": "Metallurgy", "class": 12, "ncertRef": "Class 12 Chemistry — General Principles of Metallurgy", "weightage": "low", "verified": false, "deleted": false, "topics": [{"id":"met1","name":"Concentration — froth floatation, magnetic","deleted":false},{"id":"met2","name":"Extraction — calcination, roasting, smelting","deleted":false},{"id":"met3","name":"Ellingham diagram & its applications","deleted":false},{"id":"met4","name":"Refining — electrolytic, zone, vapour phase","deleted":false}] }
+        ]
+      },
+      {
+        "id": "organic",
+        "name": "Organic Chemistry",
+        "chapters": [
+          { "id": "chem-goc", "name": "General Organic Chemistry", "class": 11, "ncertRef": "Class 11 Chemistry — Organic Chemistry Basics", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"goc1","name":"Hybridisation & bond line structures","deleted":false},{"id":"goc2","name":"Inductive, resonance, hyperconjugation effects","deleted":false},{"id":"goc3","name":"Reaction intermediates — carbocation, carbanion, free radical","deleted":false},{"id":"goc4","name":"Optical & geometrical isomerism","deleted":false}] },
+          { "id": "chem-hydrocarbons", "name": "Hydrocarbons", "class": 11, "ncertRef": "Class 11 Chemistry — Hydrocarbons", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"hy1","name":"Alkanes — preparation & free radical substitution","deleted":false},{"id":"hy2","name":"Alkenes — preparation, electrophilic addition, ozonolysis","deleted":false},{"id":"hy3","name":"Alkynes — acidic nature, addition reactions","deleted":false},{"id":"hy4","name":"Aromatic compounds — benzene & Huckel rule","deleted":false}] },
+          { "id": "chem-haloalkanes", "name": "Haloalkanes & Haloarenes", "class": 12, "ncertRef": "Class 12 Chemistry — Haloalkanes & Haloarenes", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"ha1","name":"SN1 & SN2 mechanisms","deleted":false},{"id":"ha2","name":"E1 & E2 elimination reactions","deleted":false},{"id":"ha3","name":"Grignard reagent & its applications","deleted":false},{"id":"ha4","name":"Haloarenes — nucleophilic substitution","deleted":false}] },
+          { "id": "chem-alcohols-phenols", "name": "Alcohols, Phenols & Ethers", "class": 12, "ncertRef": "Class 12 Chemistry — Alcohols, Phenols & Ethers", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"ape1","name":"Alcohols — preparation, oxidation & reactions","deleted":false},{"id":"ape2","name":"Phenols — acidity & electrophilic substitution","deleted":false},{"id":"ape3","name":"Ethers — Williamson synthesis & cleavage","deleted":false},{"id":"ape4","name":"Identification tests — Lucas, iodoform","deleted":false}] },
+          { "id": "chem-carbonyl-compounds", "name": "Aldehydes, Ketones & Carboxylic Acids", "class": 12, "ncertRef": "Class 12 Chemistry — Aldehydes, Ketones & Acids", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"ak1","name":"Aldehydes & ketones — nucleophilic addition","deleted":false},{"id":"ak2","name":"Cannizzaro, Aldol & Crossed Aldol reactions","deleted":false},{"id":"ak3","name":"Carboxylic acids — acidity & reduction","deleted":false},{"id":"ak4","name":"Derivatives — acid chlorides, esters, amides","deleted":false}] },
+          { "id": "chem-amines", "name": "Amines", "class": 12, "ncertRef": "Class 12 Chemistry — Amines", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"am1","name":"Basicity of amines & factors affecting it","deleted":false},{"id":"am2","name":"Preparation — reduction, Hoffmann, Gabriel","deleted":false},{"id":"am3","name":"Diazonium salts & coupling reactions","deleted":false},{"id":"am4","name":"Carbylamine reaction & azo dyes","deleted":false}] },
+          { "id": "chem-biomolecules", "name": "Biomolecules", "class": 12, "ncertRef": "Class 12 Chemistry — Biomolecules", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"bio1","name":"Carbohydrates — mono, di, polysaccharides","deleted":false},{"id":"bio2","name":"Proteins — amino acids, peptide bond, enzymes","deleted":false},{"id":"bio3","name":"Nucleic acids — DNA, RNA structure","deleted":false},{"id":"bio4","name":"Vitamins & their deficiency diseases","deleted":false}] },
+          { "id": "chem-chemistry-in-everyday-life", "name": "Chemistry in Everyday Life", "class": 12, "ncertRef": "Class 12 Chemistry — Chemistry in Everyday Life", "weightage": "low", "verified": false, "deleted": false, "topics": [{"id":"el1","name":"Drugs — analgesics, antibiotics, antiseptics","deleted":false},{"id":"el2","name":"Chemicals in food — preservatives, sweeteners","deleted":false},{"id":"el3","name":"Cleansing agents — soaps & detergents","deleted":false}] },
+          { "id": "chem-practical-chemistry", "name": "Practical Chemistry Principles", "class": 12, "ncertRef": "Class 12 Chemistry — Organic Practical", "weightage": "low", "verified": false, "deleted": false, "topics": [{"id":"pr1","name":"Titration — acid-base & redox","deleted":false},{"id":"pr2","name":"Qualitative analysis of cations","deleted":false},{"id":"pr3","name":"Chromatography — paper & thin layer","deleted":false}] }
+        ]
+      }
+    ],
+    "deletedChapters": [
+      { "name": "Polymers", "reason": "Removed in 2024 NTA syllabus revision", "verified": true },
+      { "name": "Environmental Chemistry", "reason": "Removed in 2024 NTA syllabus revision", "verified": true }
+    ]
+  },
+  "maths": {
+    "divisions": [
+      {
+        "id": "algebra",
+        "name": "Algebra",
+        "chapters": [
+          { "id": "math-sets-functions", "name": "Sets & Functions", "class": 11, "ncertRef": "Class 11 Maths — Sets & Functions", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"sf1","name":"Set operations — union, intersection, complement","deleted":false},{"id":"sf2","name":"Relations — types & functions","deleted":false},{"id":"sf3","name":"Domain, range & composite functions","deleted":false},{"id":"sf4","name":"One-one, onto & inverse functions","deleted":false}] },
+          { "id": "math-complex-numbers", "name": "Complex Numbers & Quadratic Equations", "class": 11, "ncertRef": "Class 11 Maths — Complex Numbers", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"cn1","name":"Argand plane & polar representation","deleted":false},{"id":"cn2","name":"De Moivre's theorem & roots of unity","deleted":false},{"id":"cn3","name":"Quadratic equations — nature of roots","deleted":false},{"id":"cn4","name":"Cube roots of unity & geometry of i","deleted":false}] },
+          { "id": "math-matrices-determinants", "name": "Matrices & Determinants", "class": 12, "ncertRef": "Class 12 Maths — Matrices & Determinants", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"md1","name":"Matrix operations — addition, multiplication, transpose","deleted":false},{"id":"md2","name":"Determinants — properties & evaluation","deleted":false},{"id":"md3","name":"Inverse of a matrix — adjoint method","deleted":false},{"id":"md4","name":"Cramer's rule & system of linear equations","deleted":false}] },
+          { "id": "math-permutations-combinations", "name": "Permutations & Combinations", "class": 11, "ncertRef": "Class 11 Maths — Permutations & Combinations", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"pc1","name":"Factorial notation & fundamental principle","deleted":false},{"id":"pc2","name":"Permutations — with & without repetition","deleted":false},{"id":"pc3","name":"Combinations — nCr & its properties","deleted":false},{"id":"pc4","name":"Circular permutations & distributions","deleted":false}] },
+          { "id": "math-binomial-theorem", "name": "Binomial Theorem", "class": 11, "ncertRef": "Class 11 Maths — Binomial Theorem", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"bt1","name":"Binomial expansion — general term","deleted":false},{"id":"bt2","name":"Middle term & independent term","deleted":false},{"id":"bt3","name":"Binomial coefficients — properties & sums","deleted":false},{"id":"bt4","name":"Multinomial theorem (applications)","deleted":false}] },
+          { "id": "math-sequence-series", "name": "Sequence & Series", "class": 11, "ncertRef": "Class 11 Maths — Sequences & Series", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"ss1","name":"Arithmetic progression — nth term & sum","deleted":false},{"id":"ss2","name":"Geometric progression — nth term & sum","deleted":false},{"id":"ss3","name":"Harmonic progression & means","deleted":false},{"id":"ss4","name":"Summation — sigma notation & special series","deleted":false}] }
+        ]
+      },
+      {
+        "id": "calculus",
+        "name": "Calculus",
+        "chapters": [
+          { "id": "math-limits-continuity", "name": "Limit, Continuity & Differentiability", "class": 12, "ncertRef": "Class 12 Maths — Limits & Derivatives", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"lc1","name":"Limits — L'Hopital, standard limits","deleted":false},{"id":"lc2","name":"Continuity — types & intermediate value","deleted":false},{"id":"lc3","name":"Differentiation — chain rule, implicit, parametric","deleted":false},{"id":"lc4","name":"Rolle's & Lagrange's mean value theorems","deleted":false}] },
+          { "id": "math-integral-calculus", "name": "Integral Calculus & Differential Equations", "class": 12, "ncertRef": "Class 12 Maths — Integrals & Diff Equations", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"ic1","name":"Integration methods — substitution, parts, partial fractions","deleted":false},{"id":"ic2","name":"Definite integrals — properties & area under curve","deleted":false},{"id":"ic3","name":"Differential equations — order, degree, solving","deleted":false},{"id":"ic4","name":"Applications of integrals — area, volume","deleted":false}] }
+        ]
+      },
+      {
+        "id": "coordinate-geometry",
+        "name": "Coordinate & 3D Geometry",
+        "chapters": [
+          { "id": "math-coordinate-geometry", "name": "Coordinate Geometry", "class": 11, "ncertRef": "Class 11 Maths — Straight Lines & Conic Sections", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"cg1","name":"Straight lines — slope, intercepts, equations","deleted":false},{"id":"cg2","name":"Circles — general equation, tangents","deleted":false},{"id":"cg3","name":"Parabola, ellipse & hyperbola — standard equations","deleted":false},{"id":"cg4","name":"Conic sections — focus, directrix, eccentricity","deleted":false}] },
+          { "id": "math-3d-geometry", "name": "3D Geometry", "class": 12, "ncertRef": "Class 12 Maths — 3D Geometry", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"td1","name":"Direction cosines & ratios","deleted":false},{"id":"td2","name":"Equation of a line in space","deleted":false},{"id":"td3","name":"Equation of a plane — intercept, normal forms","deleted":false},{"id":"td4","name":"Distance — point to plane, line to line","deleted":false}] }
+        ]
+      },
+      {
+        "id": "trigonometry",
+        "name": "Trigonometry",
+        "chapters": [
+          { "id": "math-trigonometry", "name": "Trigonometry", "class": 11, "ncertRef": "Class 11 Maths — Trigonometric Functions", "weightage": "high", "verified": false, "deleted": false, "topics": [{"id":"tr1","name":"Trigonometric identities & ratios","deleted":false},{"id":"tr2","name":"Inverse trigonometric functions","deleted":false},{"id":"tr3","name":"Trigonometric equations & general solutions","deleted":false},{"id":"tr4","name":"Height & distance problems","deleted":false}] }
+        ]
+      },
+      {
+        "id": "vectors",
+        "name": "Vectors",
+        "chapters": [
+          { "id": "math-vector-algebra", "name": "Vector Algebra", "class": 12, "ncertRef": "Class 12 Maths — Vector Algebra", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"va1","name":"Vector addition & scalar multiplication","deleted":false},{"id":"va2","name":"Dot product — angle & projection","deleted":false},{"id":"va3","name":"Cross product — area & torque","deleted":false},{"id":"va4","name":"Triple product — scalar & vector","deleted":false}] }
+        ]
+      },
+      {
+        "id": "statistics-probability",
+        "name": "Statistics & Probability",
+        "chapters": [
+          { "id": "math-statistics-probability", "name": "Statistics & Probability", "class": 11, "ncertRef": "Class 11 Maths — Statistics & Probability", "weightage": "medium", "verified": false, "deleted": false, "topics": [{"id":"sp1","name":"Mean, median, mode — measures of central tendency","deleted":false},{"id":"sp2","name":"Variance & standard deviation","deleted":false},{"id":"sp3","name":"Probability — addition & multiplication theorems","deleted":false},{"id":"sp4","name":"Bayes' theorem & random variables","deleted":false}] }
+        ]
+      }
+    ],
+    "deletedChapters": [
+      { "name": "Mathematical Reasoning", "reason": "Removed in 2024 NTA syllabus revision", "verified": true },
+      { "name": "Linear Programming", "reason": "Removed in 2024 NTA syllabus revision", "verified": true }
+    ]
+  }
+}

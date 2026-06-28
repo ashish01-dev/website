@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  .dark body,
+  body.dark {
+    background-color: #191919;
+    color: #e2e2e0;
+  }
+}
+
+@layer components {
+  .notion-sidebar-item {
+    @apply flex items-center gap-1.5 px-2 py-1 text-sm rounded-notion cursor-pointer transition-colors;
+  }
+  .notion-sidebar-item:hover {
+    background-color: #e8e7e4;
+  }
+  .dark .notion-sidebar-item:hover {
+    background-color: #3a3a3a;
+  }
+  .notion-sidebar-item.active {
+    background-color: #e8e7e4;
+  }
+  .dark .notion-sidebar-item.active {
+    background-color: #3a3a3a;
+  }
+  .notion-btn {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-notion transition-colors font-medium;
+  }
+  .notion-btn-primary {
+    @apply notion-btn bg-[#2383e2] text-white hover:bg-[#0b6bcb];
+  }
+  .notion-btn-glass {
+    @apply notion-btn bg-white/10 backdrop-blur-xl border border-white/20 text-notion-text-dark hover:bg-white/20;
+  }
+  .dark .notion-btn-glass {
+    @apply bg-white/[0.06] border-white/[0.08] hover:bg-white/[0.12];
+  }
+  .notion-btn-ghost {
+    @apply notion-btn hover:bg-[#efefef];
+  }
+  .dark .notion-btn-ghost {
+    @apply hover:bg-[#2f2f2f];
+  }
+  .notion-input {
+    @apply w-full px-2.5 py-1.5 text-sm border border-[#e9e9e7] rounded-notion outline-none transition-colors focus:border-[#2383e2];
+  }
+  .dark .notion-input {
+    @apply border-[#373737] bg-transparent text-[#e2e2e0] focus:border-[#2383e2];
+  }
+  .notion-progress-bar {
+    @apply h-1.5 bg-[#e9e9e7] rounded-full overflow-hidden;
+  }
+  .dark .notion-progress-bar {
+    @apply bg-[#373737];
+  }
+  .notion-progress-fill {
+    @apply h-full bg-[#2383e2] rounded-full transition-all;
+  }
+  .notion-table {
+    @apply w-full border-collapse;
+  }
+  .notion-table th {
+    @apply text-left text-[11px] font-medium text-[#9b9a97] uppercase tracking-wider px-2 py-2 border-b border-[#e9e9e7];
+  }
+  .dark .notion-table th {
+    @apply border-[#373737];
+  }
+  .notion-table td {
+    @apply px-2 py-2 text-sm border-b border-[#e9e9e7];
+  }
+  .dark .notion-table td {
+    @apply border-[#373737];
+  }
+  .notion-table tr:hover td {
+    @apply bg-[#efefef];
+  }
+  .dark .notion-table tr:hover td {
+    @apply bg-[#2f2f2f];
+  }
+  .notion-card {
+    @apply bg-white border border-[#e9e9e7] rounded-notion transition-shadow;
+  }
+  .dark .notion-card {
+    @apply bg-white/[0.04] backdrop-blur-xl border-white/[0.06];
+  }
+  .notion-card:hover {
+    @apply shadow-[0_2px_8px_rgba(0,0,0,0.08)];
+  }
+  .dark .notion-card:hover {
+    @apply shadow-none;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d0d0cf;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b8b8b6;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+}
+
+/* Hide number input spinners */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Confetti */
+@keyframes confetti-fall {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(var(--fall, 110vh)) translateX(var(--drift, 0px)) rotate(720deg); opacity: 0; }
+}
+@keyframes confetti-message {
+  0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+  20% { opacity: 1; transform: scale(1) translateY(0); }
+  80% { opacity: 1; transform: scale(1) translateY(0); }
+  100% { opacity: 0; transform: scale(0.8) translateY(-20px); }
+}
+.animate-confetti {
+  animation: confetti-fall 2.5s ease-in forwards;
+}
+.animate-confetti-message {
+  animation: confetti-message 3s ease-in-out forwards;
+}

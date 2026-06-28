@@ -1,0 +1,45 @@
+import { create } from 'zustand'
+import type { Settings } from '@/types'
+import { db } from '@/lib/db'
+
+interface SettingsState {
+  settings: Settings
+  loaded: boolean
+  load: () => Promise<void>
+  update: (partial: Partial<Settings>) => Promise<void>
+}
+
+const DEFAULT_SETTINGS: Settings = {
+  examDate: '2027-01-22',
+  dailyStudyHours: 9,
+  theme: 'dark',
+  confettiEnabled: true,
+  freezeDays: 21,
+}
+
+export const useSettingsStore = create<SettingsState>((set, get) => ({
+  settings: DEFAULT_SETTINGS,
+  loaded: false,
+  load: async () => {
+    try {
+      const saved = await db.settings.get('main')
+      const merged = saved?.value ? { ...DEFAULT_SETTINGS, ...(saved.value as Partial<Settings>) } : DEFAULT_SETTINGS
+      document.documentElement.classList.toggle('dark', merged.theme === 'dark')
+      document.documentElement.classList.toggle('light', merged.theme === 'light')
+      set({ settings: merged, loaded: true })
+    } catch { set({ loaded: true }) }
+  },
+  update: async (partial: Partial<Settings>) => {
+    const current = get().settings
+    const updated = { ...current, ...partial }
+    set({ settings: updated })
+    try {
+      await db.settings.put({ id: 'main', value: updated })
+      localStorage.setItem('jee-theme', updated.theme)
+    } catch { /* */ }
+    if (partial.theme) {
+      document.documentElement.classList.toggle('dark', updated.theme === 'dark')
+      document.documentElement.classList.toggle('light', updated.theme === 'light')
+    }
+  },
+}))

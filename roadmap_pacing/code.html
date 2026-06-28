@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JEE 2027 Roadmap - Command Center</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with custom config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#001f26",
+                    "tertiary-container": "#a15100",
+                    "on-primary-fixed-variant": "#5a00c6",
+                    "surface-container-highest": "#35343a",
+                    "outline": "#958da1",
+                    "error": "#ffb4ab",
+                    "surface-container-low": "#1b1b20",
+                    "surface-border": "rgba(255, 255, 255, 0.1)",
+                    "surface-tint": "#d2bbff",
+                    "status-success": "#10B981",
+                    "on-surface": "#e4e1e9",
+                    "on-surface-variant": "#ccc3d8",
+                    "secondary-fixed-dim": "#4cd7f6",
+                    "on-background": "#e4e1e9",
+                    "tertiary-fixed": "#ffdcc6",
+                    "surface": "#131318",
+                    "primary": "#d2bbff",
+                    "primary-fixed-dim": "#d2bbff",
+                    "surface-bright": "#39383e",
+                    "surface-dim": "#131318",
+                    "on-secondary-fixed-variant": "#004e5c",
+                    "status-error": "#EF4444",
+                    "on-secondary": "#003640",
+                    "inverse-surface": "#e4e1e9",
+                    "surface-card": "rgba(255, 255, 255, 0.05)",
+                    "secondary": "#4cd7f6",
+                    "background": "#131318",
+                    "secondary-container": "#03b5d3",
+                    "on-tertiary": "#4f2500",
+                    "error-container": "#93000a",
+                    "inverse-on-surface": "#303036",
+                    "surface-container": "#1f1f25",
+                    "primary-container": "#7c3aed",
+                    "tertiary": "#ffb784",
+                    "on-tertiary-container": "#ffe0cd",
+                    "on-tertiary-fixed": "#301400",
+                    "primary-fixed": "#eaddff",
+                    "tertiary-fixed-dim": "#ffb784",
+                    "on-error-container": "#ffdad6",
+                    "outline-variant": "#4a4455",
+                    "secondary-fixed": "#acedff",
+                    "on-primary": "#3f008e",
+                    "surface-container-high": "#2a292f",
+                    "on-error": "#690005",
+                    "on-primary-fixed": "#25005a",
+                    "surface-variant": "#35343a",
+                    "surface-container-lowest": "#0e0e13",
+                    "text-muted": "#9CA3AF",
+                    "on-tertiary-fixed-variant": "#713700",
+                    "inverse-primary": "#732ee4",
+                    "on-primary-container": "#ede0ff",
+                    "on-secondary-container": "#00424e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-gap": "0.75rem",
+                    "card-padding": "1.5rem",
+                    "container-margin": "2rem",
+                    "gutter-bento": "1.25rem"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Geist", "sans-serif"],
+                    "body-base": ["Inter", "sans-serif"],
+                    "display-stat": ["Geist", "sans-serif"],
+                    "headline-lg": ["Geist", "sans-serif"],
+                    "display-hero": ["Geist", "sans-serif"],
+                    "label-caps": ["Inter", "sans-serif"],
+                    "body-sm": ["Inter", "sans-serif"],
+                    "mono-stat": ["Geist", "monospace"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-stat": ["48px", {"lineHeight": "1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "display-hero": ["72px", {"lineHeight": "80px", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "mono-stat": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom utilities for glassmorphism and animations */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--tw-colors-surface-border);
+        }
+        .glow-border:hover {
+            border-color: rgba(210, 187, 255, 0.5); /* primary with opacity */
+            box-shadow: 0 0 15px rgba(210, 187, 255, 0.2);
+        }
+        .timeline-line {
+            background: linear-gradient(to right, var(--tw-colors-primary-container), var(--tw-colors-secondary-container));
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-base text-body-base flex h-screen overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- Shell: SideNavBar (Hidden on Mobile) -->
+<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest/50 backdrop-blur-2xl border-r border-surface-border shadow-xl py-6 gap-stack-gap z-50">
+<!-- Header -->
+<div class="px-6 pb-4 border-b border-surface-border/50">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-container to-secondary-container flex items-center justify-center">
+<img alt="User Profile" class="w-full h-full rounded-full object-cover" data-alt="A highly detailed, ultra-modern abstract geometric user avatar with deep purples and bright cyans, glowing subtly in a dark tech environment. Minimalist, premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpZgJwZ-3HOMGYtaZWbe9lu3hoGiEKlCyzbDFe-EnBLGmFhyqGyrb5WNuKEDIcQdzbLaKfNsl7MLw4At0XCrKaCrBnzihZ3S0E41HY4fnYuWMJQOFUBQTyjY4H_BpwK7jcYe5cw3vhLqMjVYv-ByzM4n2QEP7WtCTYM7W7WVoQXbypktgWnhU8YPjYQTIzNG-uF8hXsxtqTFpI7ij1L2q1aU1uOFI3i_ugETlZXS7ZO7KWmvzzW_vz1xqoCBrao2VMPsmuh_LBIWNX"/>
+</div>
+<div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile font-black text-primary leading-none">Aspirant Elite</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">JEE Main 2025</p>
+</div>
+</div>
+</div>
+<!-- Primary Navigation -->
+<div class="flex-1 overflow-y-auto px-2 space-y-1">
+<!-- Dashboard (Inactive) -->
+<a class="text-on-surface-variant hover:bg-surface-container-highest/30 px-4 py-3 flex items-center gap-3 rounded-lg hover:scale-[1.02] hover:bg-surface-card transition-all duration-300 active:scale-98" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Syllabus (Inactive) -->
+<a class="text-on-surface-variant hover:bg-surface-container-highest/30 px-4 py-3 flex items-center gap-3 rounded-lg hover:scale-[1.02] hover:bg-surface-card transition-all duration-300 active:scale-98" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span>Syllabus</span>
+</a>
+<!-- Roadmap (Active) -->
+<a class="bg-primary-container/20 text-primary border-r-4 border-primary px-4 py-3 flex items-center gap-3 rounded-l-lg hover:scale-[1.02] hover:bg-surface-card transition-all duration-300 active:scale-98" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">alt_route</span>
+<span class="font-bold">Roadmap</span>
+</a>
+<!-- Timetable (Inactive) -->
+<a class="text-on-surface-variant hover:bg-surface-container-highest/30 px-4 py-3 flex items-center gap-3 rounded-lg hover:scale-[1.02] hover:bg-surface-card transition-all duration-300 active:scale-98" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Timetable</span>
+</a>
+<!-- Progress (Inactive) -->
+<a class="text-on-surface-variant hover:bg-surface-container-highest/30 px-4 py-3 flex items-center gap-3 rounded-lg hover:scale-[1.02] hover:bg-surface-card transition-all duration-300 active:scale-98" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span>Progress</span>
+</a>
+<!-- Settings (Inactive) -->
+<a class="text-on-surface-variant hover:bg-surface-container-highest/30 px-4 py-3 flex items-center gap-3 rounded-lg hover:scale-[1.02] hover:bg-surface-card transition-all duration-300 active:scale-98" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<!-- CTA & Footer -->
+<div class="px-4 mt-auto space-y-4">
+<button class="w-full bg-gradient-to-r from-primary-container to-inverse-primary text-white font-label-caps text-label-caps uppercase tracking-wider py-3 rounded-lg shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:shadow-[0_0_30px_rgba(124,58,237,0.5)] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">timer</span>
+                Start Pomodoro
+            </button>
+<div class="border-t border-surface-border pt-2">
+<a class="text-on-surface-variant hover:bg-surface-container-highest/30 px-4 py-2 flex items-center gap-3 rounded-lg text-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span> Support
+                </a>
+<a class="text-on-surface-variant hover:bg-surface-container-highest/30 px-4 py-2 flex items-center gap-3 rounded-lg text-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span> Log Out
+                </a>
+</div>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 flex flex-col h-screen md:ml-64 relative bg-[radial-gradient(ellipse_at_top_right,_var(--tw-colors-surface-container-lowest),_var(--tw-colors-background)_80%)]">
+<!-- Shell: TopAppBar -->
+<header class="sticky top-0 w-full bg-surface/80 backdrop-blur-xl border-b border-surface-border shadow-2xl shadow-black/40 z-40">
+<div class="flex justify-between items-center px-container-margin py-4 max-w-full mx-auto">
+<!-- Brand / Page Title -->
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Icon (mock) -->
+<button class="md:hidden text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg font-bold tracking-tighter text-primary">JEE Command Center</h1>
+</div>
+<!-- Search & Actions -->
+<div class="flex items-center gap-6">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="bg-surface-container-low border border-surface-border rounded-full py-2 pl-10 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all w-64" placeholder="Search syllabus, topics..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors duration-200 scale-95 active:scale-90 transition-transform rounded-full hover:bg-surface-container-highest">
+<span class="material-symbols-outlined">timer</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors duration-200 scale-95 active:scale-90 transition-transform rounded-full hover:bg-surface-container-highest relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-status-error rounded-full animate-pulse"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors duration-200 scale-95 active:scale-90 transition-transform rounded-full hover:bg-surface-container-highest">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Content: Roadmap -->
+<div class="flex-1 overflow-y-auto p-4 md:p-container-margin">
+<!-- Context Header & View Toggles -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 rounded text-[10px] font-label-caps uppercase tracking-widest bg-primary-container/20 text-primary border border-primary/30">Target 2027</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-label-caps uppercase tracking-widest bg-status-success/10 text-status-success border border-status-success/20 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trending_up</span> On Track
+                        </span>
+</div>
+<h2 class="font-display-stat text-display-stat text-inverse-surface">Strategic Roadmap</h2>
+<p class="font-body-base text-body-base text-on-surface-variant mt-2 max-w-2xl">Pacing Engine dictates a 1.2x velocity multiplier required this week to clear the backlog before Consolidation phase.</p>
+</div>
+<!-- Tabs -->
+<div class="flex p-1 bg-surface-container-low rounded-lg border border-surface-border w-fit">
+<button class="px-6 py-2 rounded-md bg-surface-bright text-primary shadow-sm font-label-caps text-label-caps transition-all">DAILY</button>
+<button class="px-6 py-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-card transition-all font-label-caps text-label-caps">WEEKLY</button>
+<button class="px-6 py-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-card transition-all font-label-caps text-label-caps">MONTHLY</button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-bento">
+<!-- MACRO TIMELINE (Spans full width) -->
+<div class="lg:col-span-12 glass-panel rounded-xl p-card-padding relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 group-hover:bg-primary-container/20 transition-all duration-700"></div>
+<div class="flex justify-between items-center mb-6 relative z-10">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">linear_scale</span>
+                            Macro Execution Phases
+                        </h3>
+<button class="text-sm font-mono-stat text-mono-stat text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                            Expand View <span class="material-symbols-outlined text-[16px]">open_in_full</span>
+</button>
+</div>
+<div class="relative pt-8 pb-4 px-2 z-10 overflow-x-auto">
+<!-- Connecting Line -->
+<div class="absolute top-12 left-0 w-full h-[2px] bg-surface-container-highest">
+<!-- Progress Fill -->
+<div class="h-full timeline-line w-[35%] shadow-[0_0_10px_rgba(210,187,255,0.8)] relative">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-primary rounded-full shadow-[0_0_15px_rgba(210,187,255,1)]"></div>
+</div>
+</div>
+<!-- Phase Nodes -->
+<div class="flex justify-between relative min-w-[600px]">
+<!-- Phase 1 -->
+<div class="flex flex-col items-center -mt-[14px]">
+<div class="w-8 h-8 rounded-full bg-surface-container border-2 border-primary flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<span class="mt-4 font-label-caps text-label-caps text-on-surface">Foundation</span>
+<span class="text-xs text-on-surface-variant mt-1">Months 1-8</span>
+</div>
+<!-- Phase 2 (Current) -->
+<div class="flex flex-col items-center -mt-[14px]">
+<div class="w-8 h-8 rounded-full bg-primary-container border-2 border-primary flex items-center justify-center z-10 shadow-[0_0_20px_rgba(124,58,237,0.5)]">
+<span class="material-symbols-outlined text-[16px] text-white">bolt</span>
+</div>
+<span class="mt-4 font-label-caps text-label-caps text-primary font-bold">Coverage</span>
+<span class="text-xs text-primary/70 mt-1">Current Focus</span>
+</div>
+<!-- Phase 3 -->
+<div class="flex flex-col items-center -mt-[14px]">
+<div class="w-8 h-8 rounded-full bg-surface-container border-2 border-surface-container-highest flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[16px] text-surface-container-highest">lock</span>
+</div>
+<span class="mt-4 font-label-caps text-label-caps text-on-surface-variant">Consolidation</span>
+<span class="text-xs text-on-surface-variant/50 mt-1">Months 16-20</span>
+</div>
+<!-- Phase 4 -->
+<div class="flex flex-col items-center -mt-[14px]">
+<div class="w-8 h-8 rounded-full bg-surface-container border-2 border-surface-container-highest flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[16px] text-surface-container-highest">flag</span>
+</div>
+<span class="mt-4 font-label-caps text-label-caps text-on-surface-variant">Sprint</span>
+<span class="text-xs text-on-surface-variant/50 mt-1">Final 4 Months</span>
+</div>
+</div>
+</div>
+</div>
+<!-- DAILY ASSIGNMENTS (Spans 8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter-bento">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Today's Directive</h3>
+<span class="font-mono-stat text-mono-stat text-secondary bg-secondary/10 px-3 py-1 rounded-full">Day 214 of 730</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-bento">
+<!-- Subject 1 -->
+<div class="glass-panel glow-border rounded-xl p-card-padding transition-all duration-300 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent z-0 pointer-events-none"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-blue-400"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant tracking-widest">PHYSICS</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">more_vert</span>
+</div>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-inverse-surface mb-2 leading-tight">Rotational Mechanics</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6 line-clamp-2">Focus on Moment of Inertia calculations for continuous bodies and parallel/perpendicular axis theorems.</p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-surface-border flex items-center justify-center text-xs font-mono-stat text-on-surface" title="Theory">Th</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-surface-border flex items-center justify-center text-xs font-mono-stat text-on-surface opacity-50" title="Illustrations">Il</div>
+</div>
+<button class="text-sm font-label-caps text-label-caps text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
+                                        Start <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Subject 2 -->
+<div class="glass-panel glow-border rounded-xl p-card-padding transition-all duration-300 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent z-0 pointer-events-none"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-green-400"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant tracking-widest">CHEMISTRY</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">more_vert</span>
+</div>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-inverse-surface mb-2 leading-tight">Chemical Bonding</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6 line-clamp-2">VSEPR Theory applications and hybridization determination for complex molecules.</p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-status-success/20 border border-status-success/50 flex items-center justify-center text-xs font-mono-stat text-status-success" title="Theory Done">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-surface-border flex items-center justify-center text-xs font-mono-stat text-on-surface" title="Illustrations">Il</div>
+</div>
+<button class="text-sm font-label-caps text-label-caps text-green-400 hover:text-green-300 transition-colors flex items-center gap-1">
+                                        Resume <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- DRILL BLOCK -->
+<div class="glass-panel glow-border rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-l-4 border-l-status-error/70">
+<div class="flex items-center gap-4 w-full sm:w-auto">
+<div class="w-12 h-12 rounded-lg bg-status-error/10 flex items-center justify-center text-status-error">
+<span class="material-symbols-outlined text-[24px]">target</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Daily Drill Block</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">50 Mixed MCQs (Kinematics + Mole Concept)</p>
+</div>
+</div>
+<div class="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
+<div class="text-right">
+<div class="font-mono-stat text-mono-stat text-inverse-surface">45 mins</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant text-[10px]">Est. Time</div>
+</div>
+<button class="bg-white text-black px-4 py-2 rounded-lg font-label-caps text-label-caps hover:bg-gray-200 transition-colors shadow-lg active:scale-95">
+                                INITIATE
+                            </button>
+</div>
+</div>
+</div>
+<!-- PACING & METRICS (Spans 4 cols) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter-bento">
+<!-- Pacing Engine Card -->
+<div class="glass-panel rounded-xl p-card-padding h-full flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">speed</span>
+                                Pacing Engine
+                            </h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-on-surface">info</span>
+</div>
+<!-- Radial Progress (CSS mock) -->
+<div class="flex-1 flex flex-col items-center justify-center py-4">
+<div class="relative w-32 h-32 flex items-center justify-center">
+<!-- Outer Track -->
+<svg class="absolute inset-0 w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="var(--tw-colors-surface-container-highest)" stroke-dasharray="283" stroke-dashoffset="0" stroke-width="8"></circle>
+<!-- Inner Track (Progress) - 78% -->
+<circle class="transition-all duration-1000 ease-out drop-shadow-[0_0_8px_rgba(210,187,255,0.6)]" cx="50" cy="50" fill="none" r="45" stroke="var(--tw-colors-primary)" stroke-dasharray="283" stroke-dashoffset="62.26" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="text-center z-10 flex flex-col items-center">
+<span class="font-display-stat text-display-stat text-inverse-surface text-3xl">78%</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px] mt-1">Syllabus Vel.</span>
+</div>
+</div>
+</div>
+<!-- Metrics -->
+<div class="grid grid-cols-2 gap-4 mt-4">
+<div class="bg-surface-container-low rounded-lg p-3 border border-surface-border">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">Backlog</div>
+<div class="font-mono-stat text-mono-stat text-status-error flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> 2 Topics
+                                </div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-3 border border-surface-border">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">Retention</div>
+<div class="font-mono-stat text-mono-stat text-status-success flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">psychology</span> High (88%)
+                                </div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-surface-border/50 text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                                System recommendation: <strong class="text-secondary">Increase problem-solving throughput</strong> this weekend to align with sprint trajectory.
+                            </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom spacing for mobile nav if it existed, or just general breathing room -->
+<div class="h-24 md:h-12"></div>
+</div>
+</main>
+</body></html>
