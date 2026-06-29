@@ -46,7 +46,7 @@ export default function TimetablePage() {
       <TopBar />
       <MobileBottomNav />
 
-      <div className="max-w-[1000px] mx-auto px-4 md:px-6 py-8">
+      <div className="max-w-[1000px] mx-auto px-4 md:px-6 py-8" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         <div className="flex items-start justify-between mb-6">
           <div>
             <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>Timetable</h1>

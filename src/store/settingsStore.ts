@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS: Settings = {
   freezeDays: 21,
   avatarUrl: '',
   sidebarHover: false,
+  sidebarAutoHide: true,
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({

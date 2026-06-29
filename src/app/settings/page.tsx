@@ -142,7 +142,7 @@ export default function SettingsPage() {
       <TopBar />
       <MobileBottomNav />
 
-      <div className="max-w-[700px] mx-auto px-4 md:px-6 py-8">
+      <div className="max-w-[700px] mx-auto px-4 md:px-6 py-8" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-6" style={{ color: 'var(--c-text)' }}>Settings</h1>
 
         <div className="space-y-4">
@@ -273,6 +273,22 @@ export default function SettingsPage() {
                     }}
                   >
                     {settings.sidebarHover ? 'On' : 'Off'}
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Auto-Hide Sidebar</div>
+                    <div className="text-xs" style={{ color: 'var(--c-muted)' }}>When OFF, sidebar stays pinned and content adjusts</div>
+                  </div>
+                  <button onClick={() => update({ sidebarAutoHide: !settings.sidebarAutoHide })}
+                    className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${!settings.sidebarAutoHide ? 'text-white' : ''}`}
+                    style={{
+                      background: !settings.sidebarAutoHide ? 'var(--c-blue)' : 'var(--c-input)',
+                      border: !settings.sidebarAutoHide ? 'none' : '1px solid var(--c-border-input)',
+                      color: !settings.sidebarAutoHide ? '#fff' : 'var(--c-text-secondary)',
+                    }}
+                  >
+                    {settings.sidebarAutoHide ? 'On' : 'Off'}
                   </button>
                 </div>
             </div>

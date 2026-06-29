@@ -16,6 +16,8 @@ export default function TopBar() {
   const [avatarUrl, setAvatarUrl] = useState('')
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const isPermanent = !settings.sidebarAutoHide
+
   const handleTriggerHover = () => {
     if (settings.sidebarHover) {
       hoverTimerRef.current = setTimeout(() => setSidebarOpen(true), 200)
@@ -70,30 +72,51 @@ export default function TopBar() {
       backdropFilter: 'blur(12px)',
       WebkitBackdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--c-border-card)',
+      paddingLeft: 'var(--sidebar-w, 0px)',
+      transition: 'padding-left 0.3s ease',
     }}>
       <div className="max-w-[1100px] mx-auto flex items-center justify-between h-12 px-4 md:px-6">
-        <button
-          onClick={() => router.push('/settings')}
-          className="flex items-center gap-2.5 group"
-          title="Settings"
-        >
-          <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{
-            background: avatarUrl ? 'transparent' : 'var(--c-tag)',
-            border: '1px solid var(--c-border)',
-          }}>
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-sm font-semibold" style={{ color: 'var(--c-muted)' }}>
-                {(settings.name || 'U').charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
-          <div className="hidden sm:block text-left">
-            <div className="text-[13px] font-medium leading-tight" style={{ color: 'var(--c-text)' }}>{settings.name || 'User'}</div>
-            <div className="text-[10px] leading-tight" style={{ color: 'var(--c-muted)' }}>JEE 2027</div>
-          </div>
-        </button>
+        <div className="flex items-center gap-1">
+          {!isPermanent && (
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              onMouseEnter={handleTriggerHover}
+              onMouseLeave={handleTriggerLeave}
+              className="sidebar-trigger w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
+              title="Toggle navigation"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round">
+                {sidebarOpen ? (
+                  <path d="M18 6L6 18M6 6l12 12" />
+                ) : (
+                  <path d="M3 6h18M3 12h18M3 18h18" />
+                )}
+              </svg>
+            </button>
+          )}
+          <button
+            onClick={() => router.push('/settings')}
+            className="flex items-center gap-2.5 group"
+            title="Settings"
+          >
+            <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{
+              background: avatarUrl ? 'transparent' : 'var(--c-tag)',
+              border: '1px solid var(--c-border)',
+            }}>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-sm font-semibold" style={{ color: 'var(--c-muted)' }}>
+                  {(settings.name || 'U').charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div className="hidden sm:block text-left">
+              <div className="text-[13px] font-medium leading-tight" style={{ color: 'var(--c-text)' }}>{settings.name || 'User'}</div>
+              <div className="text-[10px] leading-tight" style={{ color: 'var(--c-muted)' }}>JEE 2027</div>
+            </div>
+          </button>
+        </div>
 
         <div className="flex items-center gap-3">
           <button
@@ -106,24 +129,6 @@ export default function TopBar() {
             ) : (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             )}
-          </button>
-          <div className="h-5 w-px" style={{ background: 'var(--c-border)' }} />
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            onMouseEnter={handleTriggerHover}
-            onMouseLeave={handleTriggerLeave}
-            className="sidebar-trigger w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
-            title="Toggle navigation"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round">
-              {sidebarOpen ? (
-                <path d="M18 6L6 18M6 6l12 12" />
-              ) : (
-                <>
-                  <path d="M3 6h18M3 12h18M3 18h18" />
-                </>
-              )}
-            </svg>
           </button>
           <span className="text-[12px] font-mono tabular-nums" style={{ color: 'var(--c-muted)' }}>
             {liveTime}

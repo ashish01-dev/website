@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { create } from 'zustand'
 import { useSettingsStore } from '@/store/settingsStore'
+
+export const SIDEBAR_WIDTH = 260
 
 export const useSidebarStore = create<{ open: boolean; setOpen: (v: boolean) => void }>((set) => ({
   open: false,
@@ -66,8 +68,59 @@ export default function Sidebar() {
   const [openGroup, setOpenGroup] = useState<number | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
+  const autoHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const isPermanent = !settings.sidebarAutoHide
+
+  // Set CSS variable for content margin
+  useEffect(() => {
+    const el = document.documentElement
+    if (isPermanent) {
+      el.style.setProperty('--sidebar-w', `${SIDEBAR_WIDTH}px`)
+    } else {
+      el.style.setProperty('--sidebar-w', '0px')
+    }
+    return () => el.style.setProperty('--sidebar-w', '0px')
+  }, [isPermanent])
+
+  // Auto-hide timer logic
+  const resetAutoHideTimer = useCallback(() => {
+    if (autoHideTimer.current) clearTimeout(autoHideTimer.current)
+    if (settings.sidebarAutoHide && sidebarOpen) {
+      autoHideTimer.current = setTimeout(() => {
+        setSidebarOpen(false)
+      }, 5000)
+    }
+  }, [settings.sidebarAutoHide, sidebarOpen, setSidebarOpen])
+
+  useEffect(() => {
+    if (settings.sidebarAutoHide && sidebarOpen) {
+      resetAutoHideTimer()
+    }
+    return () => {
+      if (autoHideTimer.current) clearTimeout(autoHideTimer.current)
+    }
+  }, [sidebarOpen, settings.sidebarAutoHide, resetAutoHideTimer])
+
+  const handleSidebarInteraction = useCallback(() => {
+    resetAutoHideTimer()
+  }, [resetAutoHideTimer])
+
+  // Click-outside for auto-hide mode overlay
+  useEffect(() => {
+    if (!settings.sidebarAutoHide || !sidebarOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node) &&
+          !(e.target as HTMLElement)?.closest?.('.sidebar-trigger')) {
+        setSidebarOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [sidebarOpen, settings.sidebarAutoHide, setSidebarOpen])
+
+  // Mobile click-outside for group panel
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
@@ -79,18 +132,6 @@ export default function Sidebar() {
       return () => document.removeEventListener('mousedown', handleClick)
     }
   }, [openGroup])
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node) && !(e.target as HTMLElement)?.closest?.('.sidebar-trigger')) {
-        setSidebarOpen(false)
-      }
-    }
-    if (sidebarOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [sidebarOpen, setSidebarOpen])
 
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href)
 
@@ -111,44 +152,80 @@ export default function Sidebar() {
     }
   }
 
-  return (
+  const sidebarContent = (
     <>
-      {/* Desktop sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 hidden md:block" style={{ background: 'rgba(0,0,0,0.3)' }} onClick={() => setSidebarOpen(false)} />
-      )}
-
-      {/* Desktop sidebar panel */}
-      <div ref={sidebarRef} className={`fixed top-0 right-0 z-50 h-full w-64 transition-transform duration-300 hidden md:block ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
-        style={{
-          background: 'var(--c-card)',
-          borderLeft: '1px solid var(--c-border)',
-          boxShadow: '-4px 0 24px rgba(0,0,0,0.1)',
-        }}>
-        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--c-border)' }}>
-          <span className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>Navigation</span>
+      <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--c-border)' }}>
+        <span className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>Navigation</span>
+        {!isPermanent && (
           <button onClick={() => setSidebarOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/[0.04]" style={{ cursor: 'pointer', color: 'var(--c-muted)' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
-        </div>
-        <div className="px-3 py-3 space-y-0.5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 60px)' }}>
-          {NAV_ITEMS.map(item => {
-            const active = isActive(item.href)
-            return (
-              <Link key={item.href} href={item.href} onClick={handleNavClick}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${active ? 'font-medium' : ''}`}
-                style={{
-                  color: active ? 'var(--c-blue)' : 'var(--c-text-secondary)',
-                  background: active ? 'rgba(35,131,226,0.08)' : 'transparent',
-                }}>
-                <span className="text-[18px]">{item.icon}</span>
-                <span>{item.label}</span>
-                {active && <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: 'var(--c-blue)' }} />}
-              </Link>
-            )
-          })}
-        </div>
+        )}
       </div>
+      <div className="px-3 py-3 space-y-0.5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 60px)' }}>
+        {NAV_ITEMS.map(item => {
+          const active = isActive(item.href)
+          return (
+            <Link key={item.href} href={item.href} onClick={handleNavClick}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${active ? 'font-medium' : ''}`}
+              style={{
+                color: active ? 'var(--c-blue)' : 'var(--c-text-secondary)',
+                background: active ? 'rgba(35,131,226,0.08)' : 'transparent',
+              }}>
+              <span className="text-[18px]">{item.icon}</span>
+              <span>{item.label}</span>
+              {active && <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: 'var(--c-blue)' }} />}
+            </Link>
+          )
+        })}
+      </div>
+    </>
+  )
+
+  return (
+    <>
+      {/* Desktop sidebar — auto-hide mode (overlay, slides in) */}
+      {settings.sidebarAutoHide && (
+        <>
+          {sidebarOpen && (
+            <div
+              className="fixed inset-0 z-40 hidden md:block"
+              style={{ background: 'rgba(0,0,0,0.3)' }}
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+          <div
+            ref={sidebarRef}
+            onMouseMove={handleSidebarInteraction}
+            onClick={handleSidebarInteraction}
+            className={`fixed top-0 left-0 z-50 h-full hidden md:block transition-transform duration-300 will-change-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+            style={{
+              width: SIDEBAR_WIDTH,
+              background: 'var(--c-card)',
+              borderRight: '1px solid var(--c-border)',
+              boxShadow: '4px 0 24px rgba(0,0,0,0.1)',
+            }}
+          >
+            {sidebarContent}
+          </div>
+        </>
+      )}
+
+      {/* Desktop sidebar — permanent mode (always visible, pushes content) */}
+      {!settings.sidebarAutoHide && (
+        <div
+          ref={sidebarRef}
+          className={`fixed top-0 left-0 h-full z-30 hidden md:block`}
+          style={{
+            width: SIDEBAR_WIDTH,
+            background: 'var(--c-card)',
+            borderRight: '1px solid var(--c-border)',
+            boxShadow: '4px 0 24px rgba(0,0,0,0.1)',
+          }}
+        >
+          {sidebarContent}
+        </div>
+      )}
 
       {/* Mobile 3-button bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pb-3 pt-1">
