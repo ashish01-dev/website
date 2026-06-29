@@ -34,6 +34,15 @@ const PLANS = [
   },
 ]
 
+const FAQS = [
+  { q: 'Is JEEIFY really free?', a: 'Yes! The Free tier includes full syllabus tracking, timetable planner, Pomodoro timer, test score logging, activity journal, and 500 MB of storage — completely free, no credit card required.' },
+  { q: 'What happens when I hit the 500 MB storage limit?', a: 'The Free version caps at 500 MB of storage. Upgrade to Pro ($9/month) for 5 GB storage, 1-on-1 live support, advanced analytics, faster support resolution, and priority access to new features.' },
+  { q: 'How does the pace tracking algorithm work?', a: 'It analyzes your daily chapter completions, study hours, and test scores against your exam date and syllabus size. It determines whether you\'re ahead, on track, or behind — and adjusts recommendations accordingly.' },
+  { q: 'Can I use JEEIFY on my phone?', a: 'Absolutely. The entire app is fully responsive and works seamlessly on mobile, tablet, and desktop. The mobile layout includes a compact bottom nav bar for easy one-handed use.' },
+  { q: 'How is my data stored and synced?', a: 'All your progress is stored locally via IndexedDB and synced to your Google account through Supabase. Your data stays safe and accessible across devices.' },
+  { q: 'Can I collaborate with study partners?', a: 'The Teams plan includes collaborative dashboards, shared progress tracking, and unlimited storage — perfect for study groups and coaching centers.' },
+]
+
 const STEPS = [
   { step: '01', title: 'Connect Google', desc: 'Sign in with your Google account in under 10 seconds. No credit card needed.' },
   { step: '02', title: 'Set Your Target', desc: 'Pick your exam date and daily study goals. We calculate the perfect pace for you.' },
@@ -112,6 +121,15 @@ export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
   const [topHovered, setTopHovered] = useState<number | null>(null)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [showFloatingBar, setShowFloatingBar] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setShowFloatingBar(window.scrollY > window.innerHeight * 0.6)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     const sb = getSupabase()
@@ -148,7 +166,7 @@ export default function LandingPage() {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/auth" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Sign In</Link>
+            <Link href="/auth?mode=login" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Sign In</Link>
             <Link
               href="/auth"
               className="flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
@@ -190,7 +208,7 @@ export default function LandingPage() {
             { label: 'Results', href: '#results' },
             { label: 'Pricing', href: '#pricing' },
             { label: 'About', href: '#about' },
-            { label: 'Sign In', href: '/auth', isLink: true },
+            { label: 'Sign In', href: '/auth?mode=login', isLink: true },
           ].map(item => {
             if (item.isLink) {
               return (
@@ -421,6 +439,39 @@ export default function LandingPage() {
         </div>
       </motion.section>
 
+      {/* FAQ */}
+      <motion.section {...fadeUp} className="px-5 py-24 md:py-32 max-w-[800px] mx-auto">
+        <div className="text-center mb-12">
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>FAQ</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>Got questions?<span className="text-[#888]"> We&apos;ve got answers.</span></h2>
+        </div>
+        <div className="space-y-3">
+          {FAQS.map((faq, i) => (
+            <div key={i} className="rounded-[18px] transition-all duration-200" style={{
+              background: '#fff',
+              border: '1px solid rgba(0,0,0,0.05)',
+              boxShadow: openFaq === i ? '0 4px 20px rgba(0,0,0,0.06)' : '0 2px 12px rgba(0,0,0,0.04)',
+            }}>
+              <button
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                className="w-full flex items-center justify-between px-[22px] py-[16px] text-left"
+              >
+                <span className="text-[14px] font-medium pr-4" style={{ color: '#0f0f0f' }}>{faq.q}</span>
+                <span className="text-[#888] text-lg flex-shrink-0 transition-transform duration-200" style={{ transform: openFaq === i ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+              </button>
+              <div className="overflow-hidden transition-all duration-300" style={{
+                maxHeight: openFaq === i ? '300px' : '0px',
+                opacity: openFaq === i ? 1 : 0,
+              }}>
+                <div className="px-[22px] pb-[16px] text-[13px] leading-relaxed" style={{ color: '#888' }}>
+                  {faq.a}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.section>
+
       {/* CTA */}
       <motion.section {...fadeUp} className="px-5 py-24 md:py-32 text-center">
         <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-4" style={{ color: '#888' }}>Ready</p>
@@ -443,7 +494,11 @@ export default function LandingPage() {
       </motion.section>
 
       {/* Floating Nav Bar */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500" style={{
+        transform: showFloatingBar ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)',
+        opacity: showFloatingBar ? 1 : 0,
+        pointerEvents: showFloatingBar ? 'auto' : 'none',
+      }}>
         <div className="flex items-center gap-1 px-3 py-2 rounded-[18px]" style={{
           background: 'rgba(255,255,255,0.85)',
           backdropFilter: 'blur(16px)',
@@ -493,7 +548,7 @@ export default function LandingPage() {
             <ul className="space-y-2.5">
               <li><a href="#about" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>About</a></li>
               <li><Link href="/contact" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Contact</Link></li>
-              <li><Link href="/auth" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Login</Link></li>
+              <li><Link href="/auth?mode=login" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Login</Link></li>
             </ul>
           </div>
           <div>
@@ -506,9 +561,9 @@ export default function LandingPage() {
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-black/[0.06]">
-          <div className="flex items-center gap-2 text-sm" style={{ color: '#888' }}>
-            <div className="w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold text-white" style={{ background: '#111' }}>J</div>
-            JEEIFY
+          <div className="flex items-center gap-[9px]">
+            <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 22, filter: 'brightness(0)' }} />
+            <span className="text-[18px] font-bold tracking-[-0.3px]" style={{ color: '#111' }}>JEEIFY</span>
           </div>
           <div className="text-[12px]" style={{ color: '#aaa' }}>
             Made with <span style={{ color: '#E03E3E' }}>&#9829;</span> by Ashish

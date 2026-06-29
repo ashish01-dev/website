@@ -130,7 +130,7 @@ export default function RoadmapPage() {
   const allSubjects: Subject[] = ['physics', 'chemistry', 'maths']
 
   return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
@@ -138,46 +138,47 @@ export default function RoadmapPage() {
       <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8">
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-page-title text-notion-text-dark mb-1">Roadmap</h1>
-            <p className="text-sm text-notion-muted-dark">{phase.desc}</p>
+            <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: '#0f0f0f' }}>Roadmap</h1>
+            <p className="text-sm" style={{ color: '#888' }}>{phase.desc}</p>
           </div>
-          <div className={`text-xs px-2 py-1 rounded-notion font-medium ${Object.values(pace.paceStatus).every(s => s === 'on_track') ? 'bg-[#0f8a5e]/10 text-[#0f8a5e]' : 'bg-[#e03e3e]/10 text-[#e03e3e]'}`}>
+          <div className="text-xs px-2 py-1 rounded-[10px] font-medium" style={{
+            color: Object.values(pace.paceStatus).every(s => s === 'on_track') ? '#0f8a5e' : '#e03e3e',
+            background: Object.values(pace.paceStatus).every(s => s === 'on_track') ? 'rgba(15,138,94,0.1)' : 'rgba(224,62,62,0.1)',
+          }}>
             {Object.values(pace.paceStatus).every(s => s === 'on_track') ? '● On Track' : '● Behind'}
           </div>
         </div>
 
-        {/* Progress journey */}
-        <div className="notion-card p-4 mb-6">
+        <div className="rounded-[18px] p-4 mb-6" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
           <div className="flex items-center gap-3 mb-4">
             <span className="text-lg">🛣️</span>
             <div>
-              <div className="text-sm font-medium text-notion-text-dark">Your Journey</div>
-              <div className="text-xs text-notion-muted-dark">{overallPct}% of syllabus completed</div>
+              <div className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Your Journey</div>
+              <div className="text-xs" style={{ color: '#888' }}>{overallPct}% of syllabus completed</div>
             </div>
           </div>
-          <div className="relative h-6 bg-white/[0.06] rounded-full overflow-hidden">
+          <div className="relative h-6 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
             <div className="h-full bg-gradient-to-r from-[#2383e2] to-[#4da6ff] rounded-full transition-all duration-500" style={{ width: `${overallPct}%` }} />
             <div className="absolute top-1/2 -translate-y-1/2 text-lg transition-all duration-500" style={{ left: `${Math.min(overallPct, 95)}%` }}>🚩</div>
           </div>
-          <div className="flex justify-between text-[10px] text-notion-muted-dark mt-1">
+          <div className="flex justify-between text-[10px] mt-1" style={{ color: '#888' }}>
             <span>Start</span>
             <span>{overallPct >= 50 ? 'Halfway!' : ''}</span>
             <span>JEE Main 2027</span>
           </div>
         </div>
 
-        {/* Phase indicator */}
-        <div className="notion-card p-4 mb-6">
+        <div className="rounded-[18px] p-4 mb-6" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm font-medium text-notion-text-dark">Macro Phase</span>
-            <span className="text-xs text-[#2383e2]">{phase.label}</span>
+            <span className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Macro Phase</span>
+            <span className="text-xs" style={{ color: '#2383e2' }}>{phase.label}</span>
           </div>
           <div className="flex items-center gap-1">
             {['foundation', 'consolidation', 'sprint'].map((p, i) => (
               <div key={p} className="flex-1 relative">
-                <div className={`h-1.5 rounded-full ${pace.currentPhase === p ? 'bg-[#2383e2]' : 'bg-[#2f2f2f]'} ${i > 0 ? 'ml-0.5' : ''}`} />
+                <div className={`h-1.5 rounded-full ${pace.currentPhase === p ? 'bg-[#2383e2]' : ''}`} style={{ background: pace.currentPhase !== p ? '#e0e0e0' : undefined }} />
                 <div className="flex justify-center mt-1.5">
-                  <span className={`text-[10px] ${pace.currentPhase === p ? 'text-[#2383e2] font-medium' : 'text-notion-muted-dark'}`}>
+                  <span className={`text-[10px] ${pace.currentPhase === p ? 'text-[#2383e2] font-medium' : ''}`} style={{ color: pace.currentPhase !== p ? '#888' : undefined }}>
                     {p === 'foundation' ? 'Foundation' : p === 'consolidation' ? 'Consolidation' : 'Sprint'}
                   </span>
                 </div>
@@ -186,15 +187,15 @@ export default function RoadmapPage() {
           </div>
         </div>
 
-        {/* View tabs */}
-        <div className="flex items-center gap-1 mb-4 border-b border-notion-border-dark pb-0">
+        <div className="flex items-center gap-1 mb-4 border-b pb-0" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
           {(['daily', 'weekly', 'monthly'] as ViewType[]).map(v => (
             <button
               key={v}
               onClick={() => setView(v)}
               className={`px-3 py-2 text-sm border-b-2 -mb-[1px] transition-colors ${
-                view === v ? 'border-[#2383e2] text-[#2383e2] font-medium' : 'border-transparent text-notion-muted-dark hover:text-notion-text-dark'
+                view === v ? 'border-[#2383e2] text-[#2383e2] font-medium' : 'border-transparent hover:text-[#0f0f0f]'
               }`}
+              style={{ color: view !== v ? '#888' : undefined }}
             >
               {v.charAt(0).toUpperCase() + v.slice(1)}
             </button>
@@ -204,47 +205,54 @@ export default function RoadmapPage() {
         {view === 'daily' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="section-title text-notion-text-dark">{today.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</h2>
-              <span className="text-xs text-notion-muted-dark">Day {Math.floor((today.getTime() - new Date('2025-12-01').getTime()) / 86400000) + 1}</span>
+              <h2 className="text-[15px] font-semibold" style={{ color: '#0f0f0f' }}>{today.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</h2>
+              <span className="text-xs" style={{ color: '#888' }}>Day {Math.floor((today.getTime() - new Date('2025-12-01').getTime()) / 86400000) + 1}</span>
             </div>
 
-            {/* Planned chapters from DailyPlan */}
             {planChapters && planChapters.length > 0 && (
               <div className="space-y-3 mb-4">
-                <h3 className="text-xs text-notion-muted-dark uppercase tracking-wider font-medium">Today&apos;s Plan</h3>
+                <h3 className="text-xs uppercase tracking-wider font-medium" style={{ color: '#888' }}>Today&apos;s Plan</h3>
                 {planChapters.map(({ subject, chapter, topics }, idx) => (
-                  <div key={chapter.id} className="notion-card p-4 border-l-[3px]" style={{ borderLeftColor: SUBJECT_STYLES[subject].color }}>
+                  <div key={chapter.id} className="rounded-[18px] p-4 border-l-[3px]" style={{
+                    background: '#fff',
+                    border: '1px solid rgba(0,0,0,0.05)',
+                    borderLeftColor: SUBJECT_STYLES[subject].color,
+                    borderLeftWidth: '3px',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                  }}>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-sm">{SUBJECT_STYLES[subject].emoji}</span>
-                      <span className="text-xs font-medium capitalize text-notion-text-dark">{subject}</span>
-                      <span className="text-xs text-notion-muted-dark">· {chapter.name}</span>
-                      <span className={`ml-auto text-[10px] px-1.5 py-0.5 rounded ${
-                        chStatus(chapter.id) === 'done' ? 'bg-[#0f8a5e]/10 text-[#0f8a5e]' : chStatus(chapter.id) === 'in_progress' ? 'bg-[#2383e2]/10 text-[#2383e2]' : 'bg-white/[0.04] text-notion-muted-dark'
-                      }`}>
+                      <span className="text-xs font-medium capitalize" style={{ color: '#0f0f0f' }}>{subject}</span>
+                      <span className="text-xs" style={{ color: '#888' }}>· {chapter.name}</span>
+                      <span className={`ml-auto text-[10px] px-1.5 py-0.5 rounded`} style={{
+                        color: chStatus(chapter.id) === 'done' ? '#0f8a5e' : chStatus(chapter.id) === 'in_progress' ? '#2383e2' : '#888',
+                        background: chStatus(chapter.id) === 'done' ? 'rgba(15,138,94,0.1)' : chStatus(chapter.id) === 'in_progress' ? 'rgba(35,131,226,0.1)' : '#f0f0f0',
+                      }}>
                         {chStatus(chapter.id) === 'done' ? '✓ Done' : chStatus(chapter.id) === 'in_progress' ? 'In Progress' : 'Not Started'}
                       </span>
                     </div>
                     {topics.length > 0 && (
                       <div className="space-y-1 ml-4 mb-3">
                         {topics.map(t => (
-                          <label key={t.id} className="flex items-center gap-2 cursor-pointer hover:bg-white/[0.04] px-1 py-0.5 rounded">
+                          <label key={t.id} className="flex items-center gap-2 cursor-pointer hover:bg-black/[0.02] px-1 py-0.5 rounded">
                             <input
                               type="checkbox"
                               checked={t.done}
                               onChange={e => setTopicDone(chapter.id, t.id, e.target.checked)}
-                              className="w-3 h-3 rounded-sm border-white/[0.08] text-[#2383e2] focus:ring-[#2383e2]"
+                              className="w-3 h-3 rounded-sm text-[#2383e2] focus:ring-[#2383e2]"
+                              style={{ borderColor: 'rgba(0,0,0,0.15)' }}
                             />
-                            <span className={`text-xs ${t.done ? 'line-through text-notion-muted-dark' : 'text-notion-text-dark'}`}>{t.name}</span>
+                            <span className={`text-xs ${t.done ? 'line-through' : ''}`} style={{ color: t.done ? '#888' : '#0f0f0f' }}>{t.name}</span>
                           </label>
                         ))}
                       </div>
                     )}
                     <div className="flex gap-2 ml-4">
                       {chStatus(chapter.id) !== 'done' && (
-                        <button onClick={() => setChapterStatus(chapter.id, 'done')} className="notion-btn-ghost text-xs text-[#0f8a5e]">Mark Complete ✓</button>
+                        <button onClick={() => setChapterStatus(chapter.id, 'done')} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f8a5e' }}>Mark Complete ✓</button>
                       )}
                       {chStatus(chapter.id) === 'done' && (
-                        <button onClick={() => setChapterStatus(chapter.id, 'not_started')} className="notion-btn-ghost text-xs text-notion-muted-dark">Undo</button>
+                        <button onClick={() => setChapterStatus(chapter.id, 'not_started')} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#888' }}>Undo</button>
                       )}
                     </div>
                   </div>
@@ -252,20 +260,20 @@ export default function RoadmapPage() {
               </div>
             )}
 
-            {/* Item 1 — subject/division/chapter selector */}
-            <div className="notion-card p-4">
+            <div className="rounded-[18px] p-4" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2 h-2 rounded-full bg-[#2383e2]" />
                 <div className="flex flex-wrap gap-1 flex-1">
-                  {/* Subject buttons */}
                   {allSubjects.map(s => (
                     <button
                       key={s}
                       onClick={() => { setSelSubject1(s); setSelDivision1(null); setSelChapter1(null) }}
-                      className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
-                        selSubject1 === s ? 'text-white border-transparent' : 'text-notion-muted-dark border-white/[0.08] hover:border-white/[0.2]'
-                      }`}
-                      style={{ backgroundColor: selSubject1 === s ? SUBJECT_STYLES[s].color : 'transparent' }}
+                      className="text-xs px-2 py-0.5 rounded-full border transition-colors"
+                      style={{
+                        color: selSubject1 === s ? '#fff' : '#888',
+                        borderColor: selSubject1 === s ? 'transparent' : 'rgba(0,0,0,0.1)',
+                        backgroundColor: selSubject1 === s ? SUBJECT_STYLES[s].color : 'transparent',
+                      }}
                     >
                       {SUBJECT_STYLES[s].emoji} {s.charAt(0).toUpperCase() + s.slice(1)}
                     </button>
@@ -273,16 +281,17 @@ export default function RoadmapPage() {
                 </div>
               </div>
 
-              {/* Division buttons */}
               {selSubject1 && (
                 <div className="flex flex-wrap gap-1 mb-3 ml-1">
                   {divisions1.map(d => (
                     <button
                       key={d.id}
                       onClick={() => { setSelDivision1(d.id); setSelChapter1(null) }}
-                      className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
-                        selDivision1 === d.id ? 'bg-white/[0.1] text-notion-text-dark font-medium' : 'text-notion-muted-dark hover:bg-white/[0.04]'
-                      }`}
+                      className="text-[10px] px-2 py-0.5 rounded-full transition-colors"
+                      style={{
+                        color: selDivision1 === d.id ? '#0f0f0f' : '#888',
+                        background: selDivision1 === d.id ? '#f0f0f0' : 'transparent',
+                      }}
                     >
                       {d.name}
                     </button>
@@ -290,7 +299,6 @@ export default function RoadmapPage() {
                 </div>
               )}
 
-              {/* Chapters list */}
               {currentDiv1 && (
                 <div className="space-y-1 mb-3 ml-1">
                   {currentDiv1.chapters.map(ch => {
@@ -300,54 +308,55 @@ export default function RoadmapPage() {
                       <div
                         key={ch.id}
                         onClick={() => setSelChapter1(isSelected ? null : ch.id)}
-                        className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer hover:bg-white/[0.04] ${
-                          isSelected ? 'bg-white/[0.06] border-l-2 border-[#2383e2]' : 'border-l-2 border-transparent'
-                        }`}
+                        className="flex items-center gap-2 px-2 py-1 rounded cursor-pointer hover:bg-black/[0.02]"
+                        style={{
+                          background: isSelected ? '#f5f5f5' : 'transparent',
+                          borderLeft: isSelected ? '2px solid #2383e2' : '2px solid transparent',
+                        }}
                       >
-                        <span className={`text-xs ${status === 'done' ? 'text-[#0f8a5e]' : 'text-notion-muted-dark'}`}>
+                        <span className="text-xs" style={{ color: status === 'done' ? '#0f8a5e' : '#888' }}>
                           {status === 'done' ? '✓' : status === 'in_progress' ? '🔄' : '○'}
                         </span>
-                        <span className={`text-xs flex-1 ${status === 'done' ? 'line-through text-notion-muted-dark' : 'text-notion-text-dark'}`}>
+                        <span className="text-xs flex-1" style={{ color: status === 'done' ? '#888' : '#0f0f0f', textDecoration: status === 'done' ? 'line-through' : 'none' }}>
                           {ch.name}
                         </span>
-                        <span className="text-[10px] text-notion-muted-dark">{ch.topics.filter(t => !t.deleted).length} topics</span>
+                        <span className="text-[10px]" style={{ color: '#888' }}>{ch.topics.filter(t => !t.deleted).length} topics</span>
                       </div>
                     )
                   })}
                 </div>
               )}
 
-              {/* Selected chapter detail */}
               {selChObj1 && (
                 <>
-                  <div className="text-sm font-medium text-notion-text-dark mb-0.5">{selChObj1.name}</div>
-                  <p className="text-xs text-notion-muted-dark mb-3">Class {selChObj1.class} · {selChObj1.weightage} weightage</p>
+                  <div className="text-sm font-medium mb-0.5" style={{ color: '#0f0f0f' }}>{selChObj1.name}</div>
+                  <p className="text-xs mb-3" style={{ color: '#888' }}>Class {selChObj1.class} · {selChObj1.weightage} weightage</p>
                   <div className="space-y-1 mb-3 ml-1">
                     {selChObj1.topics.filter(t => !t.deleted).map(t => {
                       const done = progress[selChObj1.id]?.topicStatus[t.id] || false
                       return (
-                        <label key={t.id} className="flex items-center gap-2 cursor-pointer hover:bg-white/[0.04] px-1 py-0.5 rounded">
+                        <label key={t.id} className="flex items-center gap-2 cursor-pointer hover:bg-black/[0.02] px-1 py-0.5 rounded">
                           <input
                             type="checkbox"
                             checked={done}
                             onChange={e => setTopicDone(selChObj1.id, t.id, e.target.checked)}
-                            className="w-3 h-3 rounded-sm border-white/[0.08] text-[#2383e2] focus:ring-[#2383e2]"
+                            className="w-3 h-3 rounded-sm text-[#2383e2] focus:ring-[#2383e2]"
+                            style={{ borderColor: 'rgba(0,0,0,0.15)' }}
                           />
-                          <span className={`text-xs ${done ? 'line-through text-notion-muted-dark' : 'text-notion-text-dark'}`}>{t.name}</span>
+                          <span className="text-xs" style={{ color: done ? '#888' : '#0f0f0f', textDecoration: done ? 'line-through' : 'none' }}>{t.name}</span>
                         </label>
                       )
                     })}
                   </div>
-                  <button onClick={() => setChapterStatus(selChObj1.id, 'done')} className="notion-btn-ghost text-xs text-[#0f8a5e]">Mark Complete ✓</button>
+                  <button onClick={() => setChapterStatus(selChObj1.id, 'done')} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f8a5e' }}>Mark Complete ✓</button>
                 </>
               )}
               {selSubject1 && !selChapter1 && (
-                <p className="text-xs text-notion-muted-dark italic">Select a chapter above to see its topics</p>
+                <p className="text-xs italic" style={{ color: '#888' }}>Select a chapter above to see its topics</p>
               )}
             </div>
 
-            {/* Item 2 */}
-            <div className="notion-card p-4">
+            <div className="rounded-[18px] p-4" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2 h-2 rounded-full bg-[#0f8a5e]" />
                 <div className="flex flex-wrap gap-1 flex-1">
@@ -355,10 +364,12 @@ export default function RoadmapPage() {
                     <button
                       key={s}
                       onClick={() => { setSelSubject2(s); setSelDivision2(null); setSelChapter2(null) }}
-                      className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
-                        selSubject2 === s ? 'text-white border-transparent' : 'text-notion-muted-dark border-white/[0.08] hover:border-white/[0.2]'
-                      }`}
-                      style={{ backgroundColor: selSubject2 === s ? SUBJECT_STYLES[s].color : 'transparent' }}
+                      className="text-xs px-2 py-0.5 rounded-full border transition-colors"
+                      style={{
+                        color: selSubject2 === s ? '#fff' : '#888',
+                        borderColor: selSubject2 === s ? 'transparent' : 'rgba(0,0,0,0.1)',
+                        backgroundColor: selSubject2 === s ? SUBJECT_STYLES[s].color : 'transparent',
+                      }}
                     >
                       {SUBJECT_STYLES[s].emoji} {s.charAt(0).toUpperCase() + s.slice(1)}
                     </button>
@@ -372,9 +383,11 @@ export default function RoadmapPage() {
                     <button
                       key={d.id}
                       onClick={() => { setSelDivision2(d.id); setSelChapter2(null) }}
-                      className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
-                        selDivision2 === d.id ? 'bg-white/[0.1] text-notion-text-dark font-medium' : 'text-notion-muted-dark hover:bg-white/[0.04]'
-                      }`}
+                      className="text-[10px] px-2 py-0.5 rounded-full transition-colors"
+                      style={{
+                        color: selDivision2 === d.id ? '#0f0f0f' : '#888',
+                        background: selDivision2 === d.id ? '#f0f0f0' : 'transparent',
+                      }}
                     >
                       {d.name}
                     </button>
@@ -391,17 +404,19 @@ export default function RoadmapPage() {
                       <div
                         key={ch.id}
                         onClick={() => setSelChapter2(isSelected ? null : ch.id)}
-                        className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer hover:bg-white/[0.04] ${
-                          isSelected ? 'bg-white/[0.06] border-l-2 border-[#0f8a5e]' : 'border-l-2 border-transparent'
-                        }`}
+                        className="flex items-center gap-2 px-2 py-1 rounded cursor-pointer hover:bg-black/[0.02]"
+                        style={{
+                          background: isSelected ? '#f5f5f5' : 'transparent',
+                          borderLeft: isSelected ? '2px solid #0f8a5e' : '2px solid transparent',
+                        }}
                       >
-                        <span className={`text-xs ${status === 'done' ? 'text-[#0f8a5e]' : 'text-notion-muted-dark'}`}>
+                        <span className="text-xs" style={{ color: status === 'done' ? '#0f8a5e' : '#888' }}>
                           {status === 'done' ? '✓' : status === 'in_progress' ? '🔄' : '○'}
                         </span>
-                        <span className={`text-xs flex-1 ${status === 'done' ? 'line-through text-notion-muted-dark' : 'text-notion-text-dark'}`}>
+                        <span className="text-xs flex-1" style={{ color: status === 'done' ? '#888' : '#0f0f0f', textDecoration: status === 'done' ? 'line-through' : 'none' }}>
                           {ch.name}
                         </span>
-                        <span className="text-[10px] text-notion-muted-dark">{ch.topics.filter(t => !t.deleted).length} topics</span>
+                        <span className="text-[10px]" style={{ color: '#888' }}>{ch.topics.filter(t => !t.deleted).length} topics</span>
                       </div>
                     )
                   })}
@@ -410,37 +425,44 @@ export default function RoadmapPage() {
 
               {selChObj2 && (
                 <>
-                  <div className="text-sm font-medium text-notion-text-dark mb-0.5">{selChObj2.name}</div>
-                  <p className="text-xs text-notion-muted-dark mb-3">Class {selChObj2.class} · {selChObj2.weightage} weightage</p>
+                  <div className="text-sm font-medium mb-0.5" style={{ color: '#0f0f0f' }}>{selChObj2.name}</div>
+                  <p className="text-xs mb-3" style={{ color: '#888' }}>Class {selChObj2.class} · {selChObj2.weightage} weightage</p>
                   <div className="space-y-1 mb-3 ml-1">
                     {selChObj2.topics.filter(t => !t.deleted).map(t => {
                       const done = progress[selChObj2.id]?.topicStatus[t.id] || false
                       return (
-                        <label key={t.id} className="flex items-center gap-2 cursor-pointer hover:bg-white/[0.04] px-1 py-0.5 rounded">
+                        <label key={t.id} className="flex items-center gap-2 cursor-pointer hover:bg-black/[0.02] px-1 py-0.5 rounded">
                           <input
                             type="checkbox"
                             checked={done}
                             onChange={e => setTopicDone(selChObj2.id, t.id, e.target.checked)}
-                            className="w-3 h-3 rounded-sm border-white/[0.08] text-[#0f8a5e] focus:ring-[#0f8a5e]"
+                            className="w-3 h-3 rounded-sm text-[#0f8a5e] focus:ring-[#0f8a5e]"
+                            style={{ borderColor: 'rgba(0,0,0,0.15)' }}
                           />
-                          <span className={`text-xs ${done ? 'line-through text-notion-muted-dark' : 'text-notion-text-dark'}`}>{t.name}</span>
+                          <span className="text-xs" style={{ color: done ? '#888' : '#0f0f0f', textDecoration: done ? 'line-through' : 'none' }}>{t.name}</span>
                         </label>
                       )
                     })}
                   </div>
-                  <button onClick={() => setChapterStatus(selChObj2.id, 'done')} className="notion-btn-ghost text-xs text-[#0f8a5e]">Mark Complete ✓</button>
+                  <button onClick={() => setChapterStatus(selChObj2.id, 'done')} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f8a5e' }}>Mark Complete ✓</button>
                 </>
               )}
               {selSubject2 && !selChapter2 && (
-                <p className="text-xs text-notion-muted-dark italic">Select a chapter above to see its topics</p>
+                <p className="text-xs italic" style={{ color: '#888' }}>Select a chapter above to see its topics</p>
               )}
             </div>
 
-            <div className="notion-card p-3 flex items-center gap-3 border-l-[3px] border-l-[#e03e3e]">
+            <div className="rounded-[18px] p-3 flex items-center gap-3 border-l-[3px]" style={{
+              background: '#fff',
+              border: '1px solid rgba(0,0,0,0.05)',
+              borderLeftColor: '#e03e3e',
+              borderLeftWidth: '3px',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            }}>
               <span>🎯</span>
               <div className="flex-1">
-                <div className="text-sm font-medium text-notion-text-dark">Daily Drill — 50 MCQs</div>
-                <div className="text-xs text-notion-muted-dark">Check the Tests page to log your daily practice</div>
+                <div className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Daily Drill — 50 MCQs</div>
+                <div className="text-xs" style={{ color: '#888' }}>Check the Tests page to log your daily practice</div>
               </div>
             </div>
           </div>
@@ -452,45 +474,50 @@ export default function RoadmapPage() {
               {weekDates.map((date, i) => {
                 const isToday = date.toDateString() === today.toDateString()
                 return (
-                  <div key={i} className={`notion-card p-2 text-center ${isToday ? 'border-[#2383e2]' : ''}`}>
-                    <div className="text-caption text-notion-muted-dark">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
-                    <div className="text-lg font-semibold text-notion-text-dark mt-1">{date.getDate()}</div>
+                  <div key={i} className="rounded-[18px] p-2 text-center" style={{
+                    background: '#fff',
+                    border: `1px solid ${isToday ? '#2383e2' : 'rgba(0,0,0,0.05)'}`,
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                  }}>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#888' }}>{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                    <div className="text-lg font-semibold mt-1" style={{ color: '#0f0f0f' }}>{date.getDate()}</div>
                     <div className="mt-2 flex justify-center gap-0.5">
-                      <div className={`w-1.5 h-1.5 rounded-full ${i < today.getDay() ? 'bg-[#0f8a5e]' : i === today.getDay() ? 'bg-[#2383e2]' : 'bg-[#2f2f2f]'}`} />
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: i < today.getDay() ? '#0f8a5e' : i === today.getDay() ? '#2383e2' : '#e0e0e0' }} />
                     </div>
                   </div>
                 )
               })}
             </div>
-            <div className="notion-card p-3 flex items-center justify-between">
+            <div className="rounded-[18px] p-3 flex items-center justify-between" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <div>
-                <span className="text-sm text-notion-muted-dark">Chapters completed this week</span>
-                <div className="text-lg font-semibold text-notion-text-dark">Track in Syllabus</div>
+                <span className="text-sm" style={{ color: '#888' }}>Chapters completed this week</span>
+                <div className="text-lg font-semibold" style={{ color: '#0f0f0f' }}>Track in Syllabus</div>
               </div>
-              <a href="/syllabus" className="notion-btn-primary text-xs">Go to Syllabus →</a>
+              <a href="/syllabus" className="text-sm font-medium px-4 py-2 rounded-[40px] text-white" style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}>Go to Syllabus &rarr;</a>
             </div>
           </div>
         )}
 
         {view === 'monthly' && (
           <div>
-            <h2 className="section-title text-notion-text-dark mb-3">{today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h2>
-            <div className="notion-card p-4 mb-4">
+            <h2 className="text-[15px] font-semibold mb-3" style={{ color: '#0f0f0f' }}>{today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h2>
+            <div className="rounded-[18px] p-4 mb-4" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <div className="grid grid-cols-7 gap-0.5">
                 {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
-                  <div key={d} className="text-caption text-notion-muted-dark text-center py-1">{d}</div>
+                  <div key={d} className="text-[10px] font-semibold uppercase tracking-wider text-center py-1" style={{ color: '#888' }}>{d}</div>
                 ))}
                 {monthDays.map((day, i) => (
                   <div
                     key={i}
                     onClick={() => day && setSelectedDay(selectedDay?.toDateString() === day.toDateString() ? null : day)}
-                    className={`text-sm text-center py-1.5 rounded-notion ${
-                      day && day.toDateString() === today.toDateString()
-                        ? 'bg-[#2383e2] text-white font-medium'
-                        : day && selectedDay && day.toDateString() === selectedDay.toDateString()
-                        ? 'bg-[#2383e2]/20 text-[#2383e2] font-medium'
-                        : day ? 'text-notion-text-dark hover:bg-notion-sidebar-hover-dark cursor-pointer' : ''
-                    }`}
+                    className="text-sm text-center py-1.5 rounded-[10px] cursor-pointer"
+                    style={{
+                      color: day && day.toDateString() === today.toDateString() ? '#fff' : day && selectedDay && day.toDateString() === selectedDay.toDateString() ? '#2383e2' : day ? '#0f0f0f' : undefined,
+                      background: day && day.toDateString() === today.toDateString() ? '#2383e2' : day && selectedDay && day.toDateString() === selectedDay.toDateString() ? 'rgba(35,131,226,0.2)' : day ? 'transparent' : undefined,
+                      fontWeight: day && selectedDay && day.toDateString() === selectedDay.toDateString() ? '500' : undefined,
+                    }}
+                    onMouseEnter={e => { if (day && day.toDateString() !== today.toDateString()) e.currentTarget.style.background = '#f0f0f0' }}
+                    onMouseLeave={e => { if (day && day.toDateString() !== today.toDateString() && !(selectedDay && day.toDateString() === selectedDay.toDateString())) e.currentTarget.style.background = 'transparent' }}
                   >
                     {day?.getDate() || ''}
                   </div>
@@ -499,20 +526,20 @@ export default function RoadmapPage() {
             </div>
 
             {selectedDay && (
-              <div className="notion-card p-4 mb-4">
-                <h3 className="text-sm font-medium text-notion-text-dark mb-3">
+              <div className="rounded-[18px] p-4 mb-4" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+                <h3 className="text-sm font-medium mb-3" style={{ color: '#0f0f0f' }}>
                   Targets for {selectedDay.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                 </h3>
                 {monthDetailChapters.length > 0 ? (
                   <div className="space-y-2">
                     {monthDetailChapters.map(({ subject, chapters }) => (
                       <div key={subject} className="flex items-start gap-2">
-                        <span className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                          subject === 'physics' ? 'bg-[#2383e2]' : subject === 'chemistry' ? 'bg-[#0f8a5e]' : 'bg-[#d9730d]'
-                        }`} />
+                        <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{
+                          background: subject === 'physics' ? '#2383e2' : subject === 'chemistry' ? '#0f8a5e' : '#d9730d',
+                        }} />
                         <div className="flex-1 min-w-0">
-                          <span className="text-xs font-medium text-notion-text-dark capitalize">{subject}</span>
-                          <div className="text-xs text-notion-muted-dark">
+                          <span className="text-xs font-medium capitalize" style={{ color: '#0f0f0f' }}>{subject}</span>
+                          <div className="text-xs" style={{ color: '#888' }}>
                             {chapters.map(ch => ch.name).join(', ') || 'All chapters done'}
                           </div>
                         </div>
@@ -520,14 +547,14 @@ export default function RoadmapPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-notion-muted-dark italic">All caught up! No pending chapters.</p>
+                  <p className="text-xs italic" style={{ color: '#888' }}>All caught up! No pending chapters.</p>
                 )}
               </div>
             )}
 
-            <div className="notion-card p-3">
-              <span className="text-xs text-[#2383e2] font-medium">Monthly Target</span>
-              <p className="text-sm text-notion-text-dark mt-0.5">Focus on your weakest subjects from the pace analysis above.</p>
+            <div className="rounded-[18px] p-3" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+              <span className="text-xs font-medium" style={{ color: '#2383e2' }}>Monthly Target</span>
+              <p className="text-sm mt-0.5" style={{ color: '#0f0f0f' }}>Focus on your weakest subjects from the pace analysis above.</p>
             </div>
           </div>
         )}

@@ -25,6 +25,9 @@ interface DailyPlanModalProps {
   presetSubjects?: Subject[]
 }
 
+const SUBJECT_LABELS: Record<Subject, string> = { physics: 'Physics', chemistry: 'Chemistry', maths: 'Maths' }
+const SUBJECT_COLORS: Record<Subject, string> = { physics: '#2383e2', chemistry: '#0f8a5e', maths: '#d9730d' }
+
 export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }: DailyPlanModalProps) {
   const [hoursGoal, setHoursGoal] = useState(8)
   const [hoursInput, setHoursInput] = useState('8')
@@ -86,99 +89,120 @@ export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="notion-card p-6 w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto">
-        <h2 className="text-lg font-bold text-notion-text-dark mb-1">Plan Your Day</h2>
-        <p className="text-sm text-notion-muted-dark mb-4">Set today&apos;s study targets</p>
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40 backdrop-blur-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto rounded-[18px] px-[26px] py-[28px]" style={{
+        background: '#fff',
+        border: '1px solid rgba(0,0,0,0.05)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+      }}>
+        <h2 className="text-[18px] font-semibold tracking-[-0.3px] mb-1" style={{ color: '#0f0f0f' }}>Plan Your Day</h2>
+        <p className="text-[13px] mb-5" style={{ color: '#888' }}>Set today&apos;s study targets</p>
 
-        <div className="mb-4">
-          <label className="text-caption text-notion-muted-dark block mb-1">HOURS GOAL</label>
-          <input type="number" min={1} max={16} value={hoursInput} onChange={e => { setHoursInput(e.target.value); const v = parseInt(e.target.value, 10); if (!isNaN(v) && v > 0) setHoursGoal(v) }} className="notion-input max-w-[100px]" />
+        <div className="mb-5">
+          <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{ color: '#888' }}>HOURS GOAL</label>
+          <input type="number" min={1} max={16} value={hoursInput} onChange={e => { setHoursInput(e.target.value); const v = parseInt(e.target.value, 10); if (!isNaN(v) && v > 0) setHoursGoal(v) }}
+            className="w-full max-w-[100px] px-3 py-2 text-sm outline-none rounded-[40px]"
+            style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
         </div>
 
         {/* Selected subjects */}
         {subjects.length > 0 && (
           <div className="space-y-3 mb-4">
             {subjects.map(s => (
-              <div key={s.subject} className="p-3 rounded-notion bg-white/[0.03] border border-white/[0.06]">
+              <div key={s.subject} className="rounded-[12px] p-3" style={{ background: '#fafafa', border: '1px solid rgba(0,0,0,0.06)' }}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-notion-text-dark capitalize">{s.subject}</span>
-                  <button onClick={() => removeSubject(s.subject)} className="text-[10px] text-[#e03e3e] hover:underline">Remove</button>
+                  <span className="text-sm font-medium" style={{ color: '#0f0f0f' }}>{SUBJECT_LABELS[s.subject]}</span>
+                  <button onClick={() => removeSubject(s.subject)} className="text-[10px] font-medium hover:underline" style={{ color: '#e03e3e' }}>Remove</button>
                 </div>
                 <div className="mb-2">
                   <input
                     value={selectedSubject === s.subject ? chapterSearch : ''}
-                    onFocus={() => setSelectedSubject(s.subject)}
                     onChange={e => { setSelectedSubject(s.subject); setChapterSearch(e.target.value) }}
                     placeholder="Search chapters..."
-                    className="w-full px-2 py-1 text-xs bg-transparent border border-white/[0.08] rounded-notion text-notion-text-dark placeholder:text-notion-muted-dark outline-none focus:border-[#2383e2]"
-                  />
+                    className="w-full px-3 py-1.5 text-xs outline-none rounded-[40px]"
+                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fff' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = SUBJECT_COLORS[s.subject]; setSelectedSubject(s.subject) }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
                   {selectedSubject === s.subject && chapterSearch && (
-                    <div className="mt-1 max-h-28 overflow-y-auto border border-white/[0.06] rounded-notion bg-black/30">
+                    <div className="mt-1 max-h-28 overflow-y-auto rounded-[12px]" style={{ border: '1px solid rgba(0,0,0,0.06)', background: '#fff' }}>
                       {filteredChapters.map(ch => (
                         <button
                           key={ch.id}
                           onClick={() => { toggleChapter(s.subject, ch.name); setChapterSearch('') }}
-                          className="block w-full text-left px-2 py-1 text-xs text-notion-text-dark hover:bg-white/[0.06]"
+                          className="block w-full text-left px-3 py-1.5 text-xs transition-colors hover:bg-black/[0.02]"
+                          style={{ color: '#555' }}
                         >
                           {slotUsed(s.subject, ch.name) && <span className="text-[#2383e2] mr-1">✓</span>}
                           {ch.name}
                         </button>
                       ))}
-                      {filteredChapters.length === 0 && <div className="px-2 py-1 text-xs text-notion-muted-dark">No matches</div>}
+                      {filteredChapters.length === 0 && <div className="px-3 py-1.5 text-xs" style={{ color: '#aaa' }}>No matches</div>}
                     </div>
                   )}
                 </div>
                 {s.chapters.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-2">
                     {s.chapters.map(ch => (
-                      <span key={ch} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] rounded bg-[#2383e2]/10 text-[#2383e2]">
+                      <span key={ch} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full" style={{ background: `${SUBJECT_COLORS[s.subject]}12`, color: SUBJECT_COLORS[s.subject] }}>
                         {ch}
-                        <button onClick={() => toggleChapter(s.subject, ch)} className="hover:text-[#e03e3e]">&times;</button>
+                        <button onClick={() => toggleChapter(s.subject, ch)} className="hover:opacity-60">&times;</button>
                       </span>
                     ))}
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <label className="text-[10px] text-notion-muted-dark">Questions:</label>
-                  <input type="number" min={0} value={s.questions} onChange={e => setQuestions(s.subject, parseInt(e.target.value, 10) || 0)} className="w-16 px-1.5 py-0.5 text-xs bg-transparent border border-white/[0.08] rounded-notion text-notion-text-dark outline-none focus:border-[#2383e2]" />
+                  <label className="text-[10px] font-medium" style={{ color: '#888' }}>Questions:</label>
+                  <input type="number" min={0} value={s.questions} onChange={e => setQuestions(s.subject, parseInt(e.target.value, 10) || 0)}
+                    className="w-16 px-2 py-1 text-xs outline-none rounded-[40px]"
+                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fff' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = SUBJECT_COLORS[s.subject] }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Add subject button */}
-        <div className="relative mb-4">
+        {/* Add subject */}
+        <div className="relative mb-5">
           <input
             ref={subjectInputRef}
             value={subjectSearch}
-            onFocus={() => setShowSubjectDropdown(true)}
-            onBlur={() => setTimeout(() => setShowSubjectDropdown(false), 200)}
             onChange={e => { setSubjectSearch(e.target.value); setShowSubjectDropdown(true) }}
             placeholder="Add a subject..."
-            className="w-full px-2 py-1.5 text-sm bg-transparent border border-white/[0.08] rounded-notion text-notion-text-dark placeholder:text-notion-muted-dark outline-none focus:border-[#2383e2]"
-          />
+            className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
+            style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#2383e2'; setShowSubjectDropdown(true) }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; setTimeout(() => setShowSubjectDropdown(false), 200) }} />
           {showSubjectDropdown && (
-            <div className="mt-1 border border-white/[0.06] rounded-notion bg-black/30 overflow-hidden">
+            <div className="mt-1 rounded-[12px] overflow-hidden" style={{ border: '1px solid rgba(0,0,0,0.06)', background: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
               {filteredSubjects.length > 0 ? filteredSubjects.map(s => (
                 <button
                   key={s}
                   onMouseDown={() => addSubject(s)}
-                  className="block w-full text-left px-2 py-1.5 text-sm text-notion-text-dark hover:bg-white/[0.06] capitalize"
+                  className="block w-full text-left px-3 py-2 text-sm transition-colors hover:bg-black/[0.02]"
+                  style={{ color: '#555' }}
                 >
                   {s.charAt(0).toUpperCase() + s.slice(1)}
                 </button>
               )) : (
-                <div className="px-2 py-1 text-xs text-notion-muted-dark">All subjects added</div>
+                <div className="px-3 py-2 text-xs" style={{ color: '#aaa' }}>All subjects added</div>
               )}
             </div>
           )}
         </div>
 
         <div className="flex gap-2 justify-end">
-          <button onClick={onClose} className="notion-btn-glass text-xs">Skip</button>
-          <button onClick={save} disabled={subjects.length === 0} className="notion-btn-primary text-xs">Save Plan</button>
+          <button onClick={onClose}
+            className="text-xs font-medium px-4 py-2 rounded-[40px] transition-all"
+            style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}
+          >Skip</button>
+          <button onClick={save} disabled={subjects.length === 0}
+            className="text-xs font-medium px-5 py-2 rounded-[40px] text-white transition-all disabled:opacity-40"
+            style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}
+          >Save Plan</button>
         </div>
       </div>
     </div>

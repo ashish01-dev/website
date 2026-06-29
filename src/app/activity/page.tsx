@@ -122,27 +122,26 @@ export default function ActivityPage() {
   }
 
   return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
 
       <div className="max-w-[800px] mx-auto px-4 md:px-6 py-8">
-        <h1 className="text-page-title text-notion-text-dark mb-1">Activity Journal</h1>
-        <p className="text-sm text-notion-muted-dark mb-6">Daily breakdown of your study progress</p>
+        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: '#0f0f0f' }}>Activity Journal</h1>
+        <p className="text-sm mb-6" style={{ color: '#888' }}>Daily breakdown of your study progress</p>
 
-        {/* Calendar */}
-        <div className="notion-card p-4 mb-6">
+        <div className="rounded-[18px] p-4 mb-6" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
           <div className="flex items-center justify-between mb-4">
-            <button onClick={prevMonth} className="notion-btn-ghost text-xs">&larr; Prev</button>
-            <span className="text-sm font-medium text-notion-text-dark">
+            <button onClick={prevMonth} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}>&larr; Prev</button>
+            <span className="text-sm font-medium" style={{ color: '#0f0f0f' }}>
               {new Date(viewYear, viewMonth).toLocaleDateString('en', { month: 'long', year: 'numeric' })}
             </span>
-            <button onClick={nextMonth} className="notion-btn-ghost text-xs">Next &rarr;</button>
+            <button onClick={nextMonth} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}>Next &rarr;</button>
           </div>
           <div className="grid grid-cols-7 gap-1">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-              <div key={d} className="text-[10px] text-notion-muted-dark text-center py-1 font-medium">{d}</div>
+              <div key={d} className="text-[10px] text-center py-1 font-medium" style={{ color: '#888' }}>{d}</div>
             ))}
             {monthDays.map((day, i) => {
               if (!day) return <div key={i} />
@@ -154,13 +153,15 @@ export default function ActivityPage() {
                 <button
                   key={i}
                   onClick={() => setSelectedDate(isSelected ? null : day)}
-                  className={`text-sm text-center py-2 rounded-lg transition-all relative ${
-                    isSelected
-                      ? 'bg-[#2383e2] text-white font-medium'
-                      : isToday
-                      ? 'border border-[#2383e2] text-notion-text-dark'
-                      : 'text-notion-text-dark hover:bg-white/[0.06]'
-                  }`}
+                  className="text-sm text-center py-2 rounded-lg transition-all relative"
+                  style={{
+                    color: isSelected ? '#fff' : isToday ? '#2383e2' : '#0f0f0f',
+                    background: isSelected ? '#2383e2' : isToday ? 'transparent' : 'transparent',
+                    border: isToday && !isSelected ? '1px solid #2383e2' : '1px solid transparent',
+                    fontWeight: isSelected ? '500' : undefined,
+                  }}
+                  onMouseEnter={e => { if (!isSelected && !isToday) e.currentTarget.style.background = '#f0f0f0' }}
+                  onMouseLeave={e => { if (!isSelected && !isToday) e.currentTarget.style.background = 'transparent' }}
                 >
                   {day.getDate()}
                   {hasData && !isSelected && (
@@ -172,34 +173,32 @@ export default function ActivityPage() {
           </div>
         </div>
 
-        {/* Day detail */}
         {selectedDate && (
           <div className="space-y-4">
-            <h2 className="text-sm font-medium text-notion-text-dark">
+            <h2 className="text-sm font-medium" style={{ color: '#0f0f0f' }}>
               {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             </h2>
 
-            {/* Study time */}
-            <div className="notion-card p-4">
+            <div className="rounded-[18px] p-4" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-base">⏱️</span>
-                <span className="text-sm font-medium text-notion-text-dark">Study Time</span>
+                <span className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Study Time</span>
               </div>
               {selActivity && selActivity.studySeconds > 0 ? (
-                <div className="text-2xl font-bold text-[#2383e2]">
+                <div className="text-2xl font-bold" style={{ color: '#2383e2' }}>
                   {Math.floor(selActivity.studySeconds / 3600)}h {Math.floor((selActivity.studySeconds % 3600) / 60)}m
                 </div>
               ) : (
-                <p className="text-sm text-notion-muted-dark">No study sessions logged for this day.</p>
+                <p className="text-sm" style={{ color: '#888' }}>No study sessions logged for this day.</p>
               )}
               {selPomodoro.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {selPomodoro.slice(0, 5).map(s => (
                     <div key={s.id} className="flex items-center justify-between text-xs">
-                      <span className="text-notion-muted-dark">
-                        {new Date(s.start).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true })} → {s.end ? new Date(s.end).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'now'}
+                      <span style={{ color: '#888' }}>
+                        {new Date(s.start).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true })} &rarr; {s.end ? new Date(s.end).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'now'}
                       </span>
-                      <span className="text-notion-text-dark font-medium">
+                      <span className="font-medium" style={{ color: '#0f0f0f' }}>
                         {Math.floor(s.duration / 60)}m {s.duration % 60}s
                       </span>
                     </div>
@@ -208,11 +207,10 @@ export default function ActivityPage() {
               )}
             </div>
 
-            {/* Chapters completed */}
-            <div className="notion-card p-4">
+            <div className="rounded-[18px] p-4" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-base">📚</span>
-                <span className="text-sm font-medium text-notion-text-dark">Chapters Completed</span>
+                <span className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Chapters Completed</span>
               </div>
               {selActivity && selActivity.chapters.length > 0 ? (
                 <div className="space-y-2">
@@ -221,25 +219,24 @@ export default function ActivityPage() {
                     return (
                       <div key={ch.id} className="flex items-center gap-2">
                         <span className="text-xs">{style.emoji}</span>
-                        <span className="text-xs text-notion-text-dark">{ch.name}</span>
+                        <span className="text-xs" style={{ color: '#0f0f0f' }}>{ch.name}</span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded capitalize" style={{ backgroundColor: `${style.color}15`, color: style.color }}>
                           {ch.subject}
                         </span>
-                        <span className="text-xs text-[#0f8a5e] ml-auto">✓</span>
+                        <span className="text-xs ml-auto" style={{ color: '#0f8a5e' }}>✓</span>
                       </div>
                     )
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-notion-muted-dark">No chapters completed on this day.</p>
+                <p className="text-sm" style={{ color: '#888' }}>No chapters completed on this day.</p>
               )}
             </div>
 
-            {/* Questions practiced */}
-            <div className="notion-card p-4">
+            <div className="rounded-[18px] p-4" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-base">❓</span>
-                <span className="text-sm font-medium text-notion-text-dark">Questions Practiced</span>
+                <span className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Questions Practiced</span>
               </div>
               {selQuestions.length > 0 ? (
                 <div className="space-y-2">
@@ -253,13 +250,13 @@ export default function ActivityPage() {
                     const totalQ = selQuestions.reduce((a, q) => a + q.count, 0)
                     return (
                       <>
-                        <div className="text-2xl font-bold text-notion-text-dark">{totalQ} <span className="text-sm text-notion-muted-dark font-normal">questions</span></div>
+                        <div className="text-2xl font-bold" style={{ color: '#0f0f0f' }}>{totalQ} <span className="text-sm font-normal" style={{ color: '#888' }}>questions</span></div>
                         <div className="space-y-1 mt-2">
                           {Object.values(grouped).map(g => (
                             <div key={g.subject} className="flex items-center gap-2 text-xs">
                               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: SUBJECT_STYLES[g.subject].color }} />
-                              <span className="text-notion-text-dark">{g.total} questions</span>
-                              <span className="text-notion-muted-dark capitalize">({g.subject})</span>
+                              <span style={{ color: '#0f0f0f' }}>{g.total} questions</span>
+                              <span className="capitalize" style={{ color: '#888' }}>({g.subject})</span>
                             </div>
                           ))}
                         </div>
@@ -268,15 +265,15 @@ export default function ActivityPage() {
                   })()}
                 </div>
               ) : (
-                <p className="text-sm text-notion-muted-dark">No questions logged for this day.</p>
+                <p className="text-sm" style={{ color: '#888' }}>No questions logged for this day.</p>
               )}
             </div>
           </div>
         )}
 
         {!selectedDate && (
-          <div className="notion-card p-8 text-center">
-            <p className="text-sm text-notion-muted-dark">Click on a date above to see your activity breakdown.</p>
+          <div className="rounded-[18px] p-8 text-center" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+            <p className="text-sm" style={{ color: '#888' }}>Click on a date above to see your activity breakdown.</p>
           </div>
         )}
       </div>

@@ -32,24 +32,24 @@ export default function SyllabusPage() {
   )
 
   return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
 
       <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8">
-        <h1 className="text-page-title text-notion-text-dark mb-1">Syllabus Tracker</h1>
-        <p className="text-sm text-notion-muted-dark mb-6">Track your JEE 2027 syllabus progress</p>
+        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: '#0f0f0f' }}>Syllabus Tracker</h1>
+        <p className="text-sm mb-6" style={{ color: '#888' }}>Track your JEE 2027 syllabus progress</p>
 
-        {/* Subject tabs */}
-        <div className="flex items-center gap-1 mb-6 border-b border-notion-border-dark pb-0">
+        <div className="flex items-center gap-1 mb-6 border-b border-[rgba(0,0,0,0.06)] pb-0">
           {SUBJECTS.map(s => (
             <button
               key={s.id}
               onClick={() => setActiveSubject(s.id)}
               className={`px-3 py-2 text-sm transition-colors border-b-2 -mb-[1px] ${
-                activeSubject === s.id ? 'border-[#2383e2] text-[#2383e2] font-medium' : 'border-transparent text-notion-muted-dark hover:text-notion-text-dark'
+                activeSubject === s.id ? 'border-[#2383e2] text-[#2383e2] font-medium' : 'border-transparent hover:text-[#0f0f0f]' 
               }`}
+              style={{ color: activeSubject === s.id ? undefined : '#888' }}
             >
               {s.label}
             </button>
@@ -60,16 +60,18 @@ export default function SyllabusPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search chapters..."
-              className="notion-input w-48 text-xs"
+              className="w-full px-3 py-2 text-xs outline-none rounded-[40px]"
+              style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }}
             />
           </div>
         </div>
 
-        {/* Chapters */}
         <div className="space-y-6">
           {filteredDivisions.map(div => (
             <div key={div.id}>
-              <h2 className="section-title text-notion-text-dark mb-2">{div.name}</h2>
+              <h2 className="text-[15px] font-semibold mb-2" style={{ color: '#0f0f0f' }}>{div.name}</h2>
               <div className="space-y-1">
                 {div.chapters.map(ch => (
                   <ChapterCard key={ch.id} chapter={ch} />
@@ -80,12 +82,12 @@ export default function SyllabusPage() {
 
           {subjectData.deletedChapters.length > 0 && (
             <div>
-              <h2 className="section-title text-notion-muted-dark mb-2 line-through">Removed Chapters</h2>
+              <h2 className="text-[15px] font-semibold mb-2 line-through" style={{ color: '#888' }}>Removed Chapters</h2>
               <div className="space-y-1">
                 {subjectData.deletedChapters.map((dc, i) => (
-                  <div key={i} className="notion-card p-3 opacity-40">
-                    <span className="text-sm line-through text-notion-muted-dark">{dc.name}</span>
-                    <span className="text-xs text-notion-muted-dark ml-2">({dc.reason})</span>
+                  <div key={i} className="rounded-[18px] p-3 opacity-40" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+                    <span className="text-sm line-through" style={{ color: '#888' }}>{dc.name}</span>
+                    <span className="text-xs ml-2" style={{ color: '#888' }}>({dc.reason})</span>
                   </div>
                 ))}
               </div>
