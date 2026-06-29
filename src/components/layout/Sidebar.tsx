@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { create } from 'zustand'
 import { useSettingsStore } from '@/store/settingsStore'
+import { getSupabase } from '@/lib/supabase'
 
 export const SIDEBAR_WIDTH = 260
 
@@ -14,7 +15,6 @@ export const useSidebarStore = create<{ open: boolean; setOpen: (v: boolean) => 
 }))
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Home', icon: '🏠' },
   { href: '/dashboard', label: 'Dashboard', icon: '📊' },
   { href: '/syllabus', label: 'Syllabus', icon: '📚' },
   { href: '/roadmap', label: 'Roadmap', icon: '🗺️' },
@@ -66,10 +66,12 @@ export default function Sidebar() {
   const sidebarOpen = useSidebarStore(s => s.open)
   const setSidebarOpen = useSidebarStore(s => s.setOpen)
   const [openGroup, setOpenGroup] = useState<number | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState('')
   const panelRef = useRef<HTMLDivElement>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
   const autoHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const router = useRouter()
 
   const isPermanent = !settings.sidebarAutoHide
 
@@ -83,6 +85,17 @@ export default function Sidebar() {
     }
     return () => el.style.setProperty('--sidebar-w', '0px')
   }, [isPermanent])
+
+  // Fetch avatar
+  useEffect(() => {
+    if (settings.avatarUrl) { setAvatarUrl(settings.avatarUrl); return }
+    const sb = getSupabase()
+    if (!sb) return
+    sb.auth.getUser().then((res: any) => {
+      const u = res.data?.user
+      if (u?.user_metadata?.avatar_url) setAvatarUrl(u.user_metadata.avatar_url)
+    })
+  }, [settings.avatarUrl])
 
   // Auto-hide timer logic
   const resetAutoHideTimer = useCallback(() => {
@@ -155,9 +168,26 @@ export default function Sidebar() {
   const sidebarContent = (
     <>
       <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--c-border)' }}>
-        <span className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>Navigation</span>
+        <button onClick={() => router.push('/settings')} className="flex items-center gap-2.5 group min-w-0 flex-1">
+          <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105" style={{
+            background: avatarUrl ? 'transparent' : 'var(--c-tag)',
+            border: '1px solid var(--c-border)',
+          }}>
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-sm font-semibold" style={{ color: 'var(--c-muted)' }}>
+                {(settings.name || 'U').charAt(0).toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div className="text-left min-w-0">
+            <div className="text-[13px] font-medium leading-tight truncate" style={{ color: 'var(--c-text)' }}>{settings.name || 'User'}</div>
+            <div className="text-[10px] leading-tight" style={{ color: 'var(--c-muted)' }}>JEE 2027</div>
+          </div>
+        </button>
         {!isPermanent && (
-          <button onClick={() => setSidebarOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/[0.04]" style={{ cursor: 'pointer', color: 'var(--c-muted)' }}>
+          <button onClick={() => setSidebarOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 hover:bg-black/[0.04]" style={{ cursor: 'pointer', color: 'var(--c-muted)' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
         )}
