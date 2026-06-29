@@ -72,9 +72,9 @@ export default function TestsPage() {
       id: generateId(), date: formDate, subject: primary,
       subjects: selectedSubjects.length > 0 ? [...selectedSubjects] : undefined,
       chapters: [...selectedChapters],
-      score: parseInt(formScore), total: parseInt(formTotal),
-      accuracy: Math.round((parseInt(formScore) / parseInt(formTotal)) * 100),
-      timeTaken: formTime ? parseInt(formTime) : undefined,
+      score: parseInt(formScore, 10), total: parseInt(formTotal, 10),
+      accuracy: Math.round((parseInt(formScore, 10) / parseInt(formTotal, 10)) * 100),
+      timeTaken: formTime ? parseInt(formTime, 10) : undefined,
     }
     await db.tests.add(entry)
     setTests(prev => [...prev, entry])

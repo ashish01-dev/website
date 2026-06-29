@@ -93,7 +93,7 @@ export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }
 
         <div className="mb-4">
           <label className="text-caption text-notion-muted-dark block mb-1">HOURS GOAL</label>
-          <input type="number" min={1} max={16} value={hoursInput} onChange={e => { setHoursInput(e.target.value); const v = parseInt(e.target.value); if (!isNaN(v) && v > 0) setHoursGoal(v) }} className="notion-input max-w-[100px]" />
+          <input type="number" min={1} max={16} value={hoursInput} onChange={e => { setHoursInput(e.target.value); const v = parseInt(e.target.value, 10); if (!isNaN(v) && v > 0) setHoursGoal(v) }} className="notion-input max-w-[100px]" />
         </div>
 
         {/* Selected subjects */}
@@ -141,7 +141,7 @@ export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }
                 )}
                 <div className="flex items-center gap-2">
                   <label className="text-[10px] text-notion-muted-dark">Questions:</label>
-                  <input type="number" min={0} value={s.questions} onChange={e => setQuestions(s.subject, parseInt(e.target.value) || 0)} className="w-16 px-1.5 py-0.5 text-xs bg-transparent border border-white/[0.08] rounded-notion text-notion-text-dark outline-none focus:border-[#2383e2]" />
+                  <input type="number" min={0} value={s.questions} onChange={e => setQuestions(s.subject, parseInt(e.target.value, 10) || 0)} className="w-16 px-1.5 py-0.5 text-xs bg-transparent border border-white/[0.08] rounded-notion text-notion-text-dark outline-none focus:border-[#2383e2]" />
                 </div>
               </div>
             ))}

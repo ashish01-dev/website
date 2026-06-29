@@ -27,7 +27,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       const merged: UserProgress = {}
       for (const item of all) { merged[item.chapterId] = item }
       set({ progress: merged, loaded: true })
-    } catch { set({ loaded: true }) }
+    } catch (err) { console.error('progress.load:', err); set({ loaded: true }) }
   },
   setTopicDone: async (chapterId, topicId, done) => {
     const entry = get().progress[chapterId] || { status: 'not_started', topicStatus: {} }
@@ -35,7 +35,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     if (done) entry.status = 'in_progress'
     const updated = { ...get().progress, [chapterId]: entry }
     set({ progress: updated })
-    try { await db.progress.put({ chapterId, ...entry }) } catch { /* */ }
+    try { await db.progress.put({ chapterId, ...entry }) } catch (err) { console.error('progress.setTopicDone:', err) }
   },
   addCustomTopic: async (chapterId, topicName) => {
     const id = `custom_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
@@ -45,7 +45,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     entry.topicStatus[id] = false
     const updated = { ...get().progress, [chapterId]: entry }
     set({ progress: updated })
-    try { await db.progress.put({ chapterId, ...entry }) } catch { /* */ }
+    try { await db.progress.put({ chapterId, ...entry }) } catch (err) { console.error('progress.addCustomTopic:', err) }
     return id
   },
   setChapterStatus: async (chapterId, status) => {
@@ -54,7 +54,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     if (status === 'done') entry.completedOn = new Date().toISOString().split('T')[0]
     const updated = { ...get().progress, [chapterId]: entry }
     set({ progress: updated })
-    try { await db.progress.put({ chapterId, ...entry }) } catch { /* */ }
+    try { await db.progress.put({ chapterId, ...entry }) } catch (err) { console.error('progress.setChapterStatus:', err) }
   },
   markAllTopics: async (chapterId) => {
     const entry: ChapterProgress = { status: 'done', completedOn: new Date().toISOString().split('T')[0], topicStatus: {} }
@@ -67,7 +67,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
       }
     }
     set({ progress: { ...get().progress, [chapterId]: entry } })
-    try { await db.progress.put({ chapterId, ...entry }) } catch { /* */ }
+    try { await db.progress.put({ chapterId, ...entry }) } catch (err) { console.error('progress.markAllTopics:', err) }
   },
   getProgress: (subject) => {
     const { progress } = get()

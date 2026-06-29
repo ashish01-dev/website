@@ -116,9 +116,12 @@ export default function LandingPage() {
     if (!sb) return
     const { data } = await sb.auth.getUser() as any
     if (data?.user) { router.push('/dashboard'); return }
+    const origin = window.location.origin
+    const allowed = ['http://localhost:3000', 'https://jee-2027.vercel.app', 'https://jeecommandcenter.vercel.app']
+    const redirectTo = allowed.includes(origin) ? `${origin}/auth/callback` : 'https://jee-2027.vercel.app/auth/callback'
     await sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo },
     })
     setShowAuth(false)
   }

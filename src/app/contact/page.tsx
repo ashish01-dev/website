@@ -12,6 +12,9 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !message) return
+    const pending = JSON.parse(localStorage.getItem('contact_messages') || '[]')
+    pending.push({ email, message, date: new Date().toISOString() })
+    localStorage.setItem('contact_messages', JSON.stringify(pending))
     setSent(true)
   }
 

@@ -46,14 +46,14 @@ export const useTimetableStore = create<TimetableState>((set, get) => ({
       const saved = await db.timetable.get('main')
       if (saved?.data) set({ timetable: saved.data as TimetableData, loaded: true })
       else set({ loaded: true })
-    } catch { set({ loaded: true }) }
+    } catch (err) { console.error('timetable.load:', err); set({ loaded: true }) }
   },
   setCell: async (day, hour, activity) => {
     const current = { ...get().timetable }
     if (!current[day]) current[day] = {}
     current[day] = { ...current[day], [hour]: activity }
     set({ timetable: current })
-    try { await db.timetable.put({ id: 'main', data: current }) } catch { /* */ }
+    try { await db.timetable.put({ id: 'main', data: current }) } catch (err) { console.error('timetable.setCell:', err) }
   },
   applyTemplate: async (template) => {
     if (template === 'test_day') {
@@ -61,11 +61,11 @@ export const useTimetableStore = create<TimetableState>((set, get) => ({
       const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as keyof TimetableData
       current[today] = { ...TEST_DAY }
       set({ timetable: current })
-      try { await db.timetable.put({ id: 'main', data: current }) } catch { /* */ }
+      try { await db.timetable.put({ id: 'main', data: current }) } catch (err) { console.error('timetable.applyTemplate:', err) }
     } else {
       const data = template === 'gym' ? GYM : FULL
       set({ timetable: data })
-      try { await db.timetable.put({ id: 'main', data }) } catch { /* */ }
+      try { await db.timetable.put({ id: 'main', data }) } catch (err) { console.error('timetable.applyTemplate:', err) }
     }
   },
 }))

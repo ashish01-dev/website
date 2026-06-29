@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
@@ -12,6 +13,7 @@ import { setSyncUser } from '@/lib/supabase-sync'
 import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 export default function SettingsPage() {
+  const router = useRouter()
   const { settings, update } = useSettingsStore()
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -38,9 +40,12 @@ export default function SettingsPage() {
   const handleGoogleSignIn = async () => {
     const sb = getSupabase()
     if (!sb) return
+    const origin = window.location.origin
+    const allowed = ['http://localhost:3000', 'https://jee-2027.vercel.app', 'https://jeecommandcenter.vercel.app']
+    const redirectTo = allowed.includes(origin) ? `${origin}/auth/callback` : 'https://jee-2027.vercel.app/auth/callback'
     await sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo },
     })
   }
 
@@ -48,6 +53,7 @@ export default function SettingsPage() {
     const sb = getSupabase()
     if (!sb) return
     await sb.auth.signOut()
+    router.push('/')
   }
 
   const exportData = async () => {
@@ -70,10 +76,11 @@ export default function SettingsPage() {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (!file) return
       try {
-        const data = JSON.parse(await file.text())
-        if (data.settings) await update(data.settings)
-        if (data.progress) for (const item of data.progress) await db.progress.put(item)
-        if (data.timetable) await db.timetable.put({ id: 'main', data: data.timetable })
+        const raw = JSON.parse(await file.text())
+        if (typeof raw !== 'object' || !raw) { alert('Invalid backup file.'); return }
+        if (raw.settings && typeof raw.settings === 'object' && typeof raw.settings.id === 'string') await update(raw.settings)
+        if (Array.isArray(raw.progress)) for (const item of raw.progress) { if (item && typeof item.chapterId === 'string') await db.progress.put(item) }
+        if (raw.timetable && typeof raw.timetable === 'object') await db.timetable.put({ id: 'main', data: raw.timetable })
         alert('Imported! Reload to see changes.')
       } catch { alert('Invalid backup file.') }
     }
@@ -95,7 +102,7 @@ export default function SettingsPage() {
             <div className="space-y-4">
               <div>
                 <label className="text-caption text-notion-muted-dark block mb-1">DISPLAY NAME</label>
-                <input type="text" value={settings.name} onChange={e => update({ name: e.target.value })} placeholder="Your name" className="notion-input max-w-[250px]" />
+                <input type="text" value={settings.name} onChange={e => update({ name: e.target.value.slice(0, 50) })} placeholder="Your name" className="notion-input max-w-[250px]" />
               </div>
             </div>
           </div>
@@ -109,11 +116,11 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="text-caption text-notion-muted-dark block mb-1">DAILY STUDY HOURS TARGET</label>
-                <input type="number" min={1} max={16} value={settings.dailyStudyHours} onChange={e => update({ dailyStudyHours: parseInt(e.target.value) || 9 })} className="notion-input max-w-[100px]" />
+                <input type="number" min={1} max={16} value={settings.dailyStudyHours} onChange={e => update({ dailyStudyHours: parseInt(e.target.value, 10) || 9 })} className="notion-input max-w-[100px]" />
               </div>
               <div>
                 <label className="text-caption text-notion-muted-dark block mb-1">FREEZE DAYS (no new content before exam)</label>
-                <input type="number" min={0} max={60} value={settings.freezeDays} onChange={e => update({ freezeDays: parseInt(e.target.value) || 21 })} className="notion-input max-w-[100px]" />
+                <input type="number" min={0} max={60} value={settings.freezeDays} onChange={e => update({ freezeDays: parseInt(e.target.value, 10) || 21 })} className="notion-input max-w-[100px]" />
               </div>
             </div>
           </div>

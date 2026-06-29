@@ -28,7 +28,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       document.documentElement.classList.toggle('dark', merged.theme === 'dark')
       document.documentElement.classList.toggle('light', merged.theme === 'light')
       set({ settings: merged, loaded: true })
-    } catch { set({ loaded: true }) }
+    } catch (err) { console.error('settings.load:', err); set({ loaded: true }) }
   },
   update: async (partial: Partial<Settings>) => {
     const current = get().settings
@@ -37,7 +37,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     try {
       await db.settings.put({ id: 'main', value: updated })
       localStorage.setItem('jee-theme', updated.theme)
-    } catch { /* */ }
+    } catch (err) { console.error('settings.update:', err) }
     if (partial.theme) {
       document.documentElement.classList.toggle('dark', updated.theme === 'dark')
       document.documentElement.classList.toggle('light', updated.theme === 'light')

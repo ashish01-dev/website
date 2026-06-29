@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Script from 'next/script'
 import './globals.css'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useProgressStore } from '@/store/progressStore'
@@ -78,9 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <title>JEE 2027 — Command Center</title>
       </head>
       <body className="min-h-screen bg-notion-bg-dark text-notion-text-dark">
-        <script dangerouslySetInnerHTML={{
-          __html: `try{var t=localStorage.getItem('jee-theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light')}}catch(e){}`
-        }} />
+        <Script id="theme-init" strategy="beforeInteractive">{`try{var t=localStorage.getItem('jee-theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light')}}catch(e){}`}</Script>
         {children}
       </body>
     </html>

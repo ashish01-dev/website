@@ -124,7 +124,7 @@ export default function QuestionsPage() {
               </div>
               <div>
                 <label className="text-caption text-notion-muted-dark block mb-1">QUESTIONS DONE</label>
-                <input type="number" min={0} value={count || ''} onChange={e => setCount(parseInt(e.target.value) || 0)} placeholder="0" className="notion-input max-w-[120px]" />
+                <input type="number" min={0} value={count || ''} onChange={e => setCount(parseInt(e.target.value, 10) || 0)} placeholder="0" className="notion-input max-w-[120px]" />
               </div>
               <button onClick={addEntry} disabled={!chapter || count <= 0} className="notion-btn-primary w-full justify-center text-sm">Log</button>
             </div>

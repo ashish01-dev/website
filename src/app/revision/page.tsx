@@ -69,8 +69,8 @@ export default function RevisionPage() {
       try {
         url = await uploadFile(chapterId, file)
         storagePath = `formulas/${chapterId}/${Date.now()}_${file.name}`
-      } catch {
-        // fallback: if Firebase unavailable, keep url empty
+      } catch (err) {
+        console.error('revision file upload:', err)
       }
       newFiles.push({ name: file.name, size: file.size, type: file.type, url, storagePath })
     }
