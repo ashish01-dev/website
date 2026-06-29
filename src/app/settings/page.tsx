@@ -244,21 +244,37 @@ export default function SettingsPage() {
                 </button>
               </div>
               <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Confetti</div>
-                  <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Celebrate chapter completions</div>
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Confetti</div>
+                    <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Celebrate chapter completions</div>
+                  </div>
+                  <button onClick={() => update({ confettiEnabled: !settings.confettiEnabled })}
+                    className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.confettiEnabled ? 'text-white' : ''}`}
+                    style={{
+                      background: settings.confettiEnabled ? 'var(--c-blue)' : 'var(--c-input)',
+                      border: settings.confettiEnabled ? 'none' : '1px solid var(--c-border-input)',
+                      color: settings.confettiEnabled ? '#fff' : 'var(--c-text-secondary)',
+                    }}
+                  >
+                    {settings.confettiEnabled ? 'On' : 'Off'}
+                  </button>
                 </div>
-                <button onClick={() => update({ confettiEnabled: !settings.confettiEnabled })}
-                  className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.confettiEnabled ? 'text-white' : ''}`}
-                  style={{
-                    background: settings.confettiEnabled ? 'var(--c-blue)' : 'var(--c-input)',
-                    border: settings.confettiEnabled ? 'none' : '1px solid var(--c-border-input)',
-                    color: settings.confettiEnabled ? '#fff' : 'var(--c-text-secondary)',
-                  }}
-                >
-                  {settings.confettiEnabled ? 'On' : 'Off'}
-                </button>
-              </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Open Sidebar on Hover</div>
+                    <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Hover over the menu button to auto-open sidebar</div>
+                  </div>
+                  <button onClick={() => update({ sidebarHover: !settings.sidebarHover })}
+                    className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.sidebarHover ? 'text-white' : ''}`}
+                    style={{
+                      background: settings.sidebarHover ? 'var(--c-blue)' : 'var(--c-input)',
+                      border: settings.sidebarHover ? 'none' : '1px solid var(--c-border-input)',
+                      color: settings.sidebarHover ? '#fff' : 'var(--c-text-secondary)',
+                    }}
+                  >
+                    {settings.sidebarHover ? 'On' : 'Off'}
+                  </button>
+                </div>
             </div>
           </div>
 

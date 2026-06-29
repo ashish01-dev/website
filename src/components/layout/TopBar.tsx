@@ -1,16 +1,32 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSupabase } from '@/lib/supabase'
+import { useSidebarStore } from './Sidebar'
 
 export default function TopBar() {
   const router = useRouter()
   const { settings, update } = useSettingsStore()
+  const sidebarOpen = useSidebarStore(s => s.open)
+  const setSidebarOpen = useSidebarStore(s => s.setOpen)
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 })
   const [liveTime, setLiveTime] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleTriggerHover = () => {
+    if (settings.sidebarHover) {
+      hoverTimerRef.current = setTimeout(() => setSidebarOpen(true), 200)
+    }
+  }
+
+  const handleTriggerLeave = () => {
+    if (settings.sidebarHover) {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
+    }
+  }
 
   useEffect(() => {
     const update = () => {
@@ -90,6 +106,24 @@ export default function TopBar() {
             ) : (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             )}
+          </button>
+          <div className="h-5 w-px" style={{ background: 'var(--c-border)' }} />
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            onMouseEnter={handleTriggerHover}
+            onMouseLeave={handleTriggerLeave}
+            className="sidebar-trigger w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
+            title="Toggle navigation"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round">
+              {sidebarOpen ? (
+                <path d="M18 6L6 18M6 6l12 12" />
+              ) : (
+                <>
+                  <path d="M3 6h18M3 12h18M3 18h18" />
+                </>
+              )}
+            </svg>
           </button>
           <span className="text-[12px] font-mono tabular-nums" style={{ color: 'var(--c-muted)' }}>
             {liveTime}

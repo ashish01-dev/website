@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS: Settings = {
   confettiEnabled: true,
   freezeDays: 21,
   avatarUrl: '',
+  sidebarHover: false,
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({

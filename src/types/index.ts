@@ -185,4 +185,5 @@ export interface Settings {
   confettiEnabled: boolean
   freezeDays: number
   avatarUrl?: string
+  sidebarHover: boolean
 }

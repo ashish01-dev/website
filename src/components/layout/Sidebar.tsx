@@ -2,9 +2,14 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { useProgressStore } from '@/store/progressStore'
+import { usePathname } from 'next/navigation'
+import { create } from 'zustand'
 import { useSettingsStore } from '@/store/settingsStore'
+
+export const useSidebarStore = create<{ open: boolean; setOpen: (v: boolean) => void }>((set) => ({
+  open: false,
+  setOpen: (v) => set({ open: v }),
+}))
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home', icon: '🏠' },
@@ -55,11 +60,13 @@ const MOBILE_GROUPS = [
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const router = useRouter()
   const { settings } = useSettingsStore()
-  const { progress, loaded } = useProgressStore()
+  const sidebarOpen = useSidebarStore(s => s.open)
+  const setSidebarOpen = useSidebarStore(s => s.setOpen)
   const [openGroup, setOpenGroup] = useState<number | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const sidebarRef = useRef<HTMLDivElement>(null)
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -73,37 +80,70 @@ export default function Sidebar() {
     }
   }, [openGroup])
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node) && !(e.target as HTMLElement)?.closest?.('.sidebar-trigger')) {
+        setSidebarOpen(false)
+      }
+    }
+    if (sidebarOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [sidebarOpen, setSidebarOpen])
+
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href)
+
+  const handleNavClick = () => {
+    setSidebarOpen(false)
+    setOpenGroup(null)
+  }
+
+  const handleTriggerHover = () => {
+    if (settings.sidebarHover) {
+      hoverTimer.current = setTimeout(() => setSidebarOpen(true), 200)
+    }
+  }
+
+  const handleTriggerLeave = () => {
+    if (settings.sidebarHover) {
+      if (hoverTimer.current) clearTimeout(hoverTimer.current)
+    }
+  }
 
   return (
     <>
-      {/* Desktop floating bar */}
-      <div className="hidden md:flex fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-        <div className="flex items-center gap-1 px-3 py-2 rounded-[18px]" style={{
-          background: 'var(--c-navbar-bg)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid var(--c-border)',
-          boxShadow: 'var(--c-shadow-nav)',
+      {/* Desktop sidebar overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-40 hidden md:block" style={{ background: 'rgba(0,0,0,0.3)' }} onClick={() => setSidebarOpen(false)} />
+      )}
+
+      {/* Desktop sidebar panel */}
+      <div ref={sidebarRef} className={`fixed top-0 right-0 z-50 h-full w-64 transition-transform duration-300 hidden md:block ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        style={{
+          background: 'var(--c-card)',
+          borderLeft: '1px solid var(--c-border)',
+          boxShadow: '-4px 0 24px rgba(0,0,0,0.1)',
         }}>
+        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--c-border)' }}>
+          <span className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>Navigation</span>
+          <button onClick={() => setSidebarOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/[0.04]" style={{ cursor: 'pointer', color: 'var(--c-muted)' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
+        <div className="px-3 py-3 space-y-0.5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 60px)' }}>
           {NAV_ITEMS.map(item => {
             const active = isActive(item.href)
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all duration-200 hover:bg-black/[0.04] relative group"
-                title={item.label}
-              >
-                <span className={`text-[18px] leading-none transition-transform duration-200 group-hover:scale-110 ${active ? 'scale-110' : ''}`}>
-                  {item.icon}
-                </span>
-                <span className={`text-[9px] font-medium leading-none whitespace-nowrap transition-colors ${active ? 'text-[var(--c-blue)]' : 'text-[var(--c-muted)]'}`}>
-                  {item.label}
-                </span>
-                {active && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--c-blue)]" />
-                )}
+              <Link key={item.href} href={item.href} onClick={handleNavClick}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${active ? 'font-medium' : ''}`}
+                style={{
+                  color: active ? 'var(--c-blue)' : 'var(--c-text-secondary)',
+                  background: active ? 'rgba(35,131,226,0.08)' : 'transparent',
+                }}>
+                <span className="text-[18px]">{item.icon}</span>
+                <span>{item.label}</span>
+                {active && <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: 'var(--c-blue)' }} />}
               </Link>
             )
           })}
