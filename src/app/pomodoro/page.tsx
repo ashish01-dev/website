@@ -44,6 +44,13 @@ export default function PomodoroPage() {
     db.pomodoro.toArray().then(setSessions)
   }, [])
 
+  useEffect(() => {
+    if (!running) return
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = '' }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [running])
+
   const tick = useCallback(() => {
     setElapsed(Math.floor((Date.now() - startTsRef.current) / 1000) + pauseOffsetRef.current)
   }, [])

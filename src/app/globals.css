@@ -46,6 +46,7 @@ body {
 
     --c-topbar-bg: rgba(245,245,245,0.8);
     --c-navbar-bg: rgba(255,255,255,0.85);
+    --c-logo-filter: brightness(0);
 
     --c-blue: #2383e2;
     --c-green: #0f8a5e;
@@ -87,6 +88,7 @@ body {
 
     --c-topbar-bg: rgba(10,10,10,0.85);
     --c-navbar-bg: rgba(0,0,0,0.7);
+    --c-logo-filter: brightness(0) invert(1);
 
     --c-blue: #4da6ff;
     --c-green: #2dbd7a;

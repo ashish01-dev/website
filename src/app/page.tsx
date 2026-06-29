@@ -123,6 +123,19 @@ export default function LandingPage() {
   const [topHovered, setTopHovered] = useState<number | null>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [showFloatingBar, setShowFloatingBar] = useState(false)
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'))
+  }, [])
+
+  const toggleTheme = () => {
+    const newDark = !document.documentElement.classList.contains('dark')
+    document.documentElement.classList.toggle('dark', newDark)
+    document.documentElement.classList.toggle('light', !newDark)
+    localStorage.setItem('jee-theme', newDark ? 'dark' : 'light')
+    setIsDark(newDark)
+  }
 
   useEffect(() => {
     const onScroll = () => setShowFloatingBar(window.scrollY > window.innerHeight * 0.6)
@@ -154,7 +167,7 @@ export default function LandingPage() {
       <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
         <div className="flex items-center justify-between">
           <button onClick={() => router.push('/')} className="flex items-center gap-[9px]" style={{ cursor: 'pointer' }}>
-            <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 28, filter: 'brightness(0)' }} />
+            <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 28, filter: 'var(--c-logo-filter)' }} />
             <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
           </button>
 
@@ -166,14 +179,25 @@ export default function LandingPage() {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
+            <button onClick={toggleTheme} className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/[0.04]" style={{ cursor: 'pointer', color: 'var(--c-text)' }}>
+              {isDark ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              )}
+            </button>
             <Link href="/auth?mode=login" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Sign In</Link>
             <Link
-              href="/auth"
+              href="/auth?mode=signup"
               className="flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
               style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
             >
               <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 18l6-6-6-6" />
                 </svg>
               </span>
@@ -227,11 +251,11 @@ export default function LandingPage() {
           })}
         </div>
         <div className="mt-auto">
-          <Link href="/auth" onClick={() => setMenuOpen(false)}
+          <Link href="/auth?mode=signup" onClick={() => setMenuOpen(false)}
             className="inline-flex items-center gap-3 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px]"
             style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
             <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </span>
@@ -253,11 +277,11 @@ export default function LandingPage() {
           Track syllabus progress, optimize your timetable, analyze tests — a command center built for the systematic mind.
         </p>
         <div className="flex items-center gap-4 mt-8 flex-wrap justify-center">
-          <Link href="/auth"
+          <Link href="/auth?mode=signup"
             className="flex items-center gap-2 text-white text-[14px] font-medium rounded-[40px] px-[22px] py-[8px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
             style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
             <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </span>
@@ -402,7 +426,7 @@ export default function LandingPage() {
                   Contact Us
                 </button>
               ) : (
-                <Link href="/auth"
+                <Link href="/auth?mode=signup"
                   className="block w-full py-3 text-[13px] font-medium rounded-[40px] text-white text-center transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
                   style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
                   {plan.cta}
@@ -483,16 +507,16 @@ export default function LandingPage() {
         <p className="text-[14px] mb-8 max-w-md mx-auto" style={{ color: 'var(--c-muted)', lineHeight: 1.7 }}>
           Free. No credit card. Just your Google account and the determination to succeed.
         </p>
-        <Link href="/auth"
+        <Link href="/auth?mode=signup"
           className="inline-flex items-center gap-2 text-white text-[14px] font-medium rounded-[40px] px-[24px] py-[10px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
           style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
-          <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </span>
-          Get Started Free
-        </Link>
+            <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </span>
+            Get Started Free
+          </Link>
       </motion.section>
 
       {/* Floating Nav Bar */}
@@ -516,7 +540,7 @@ export default function LandingPage() {
             </a>
           ))}
           <div className="w-px h-5 mx-1" style={{ background: 'rgba(0,0,0,0.08)' }} />
-          <Link href="/auth"
+          <Link href="/auth?mode=signup"
             className="px-4 py-1.5 rounded-xl text-[12px] font-medium text-white transition-all duration-200"
             style={{ background: 'var(--c-btn-primary)' }}>
             Get Started
@@ -533,7 +557,7 @@ export default function LandingPage() {
               <li><a href="#features" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Features</a></li>
               <li><a href="#pricing" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Pricing</a></li>
               <li><a href="#about" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Testimonials</a></li>
-              <li><Link href="/auth" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Sign Up</Link></li>
+              <li><Link href="/auth?mode=signup" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Sign Up</Link></li>
             </ul>
           </div>
           <div>
@@ -564,7 +588,7 @@ export default function LandingPage() {
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-[var(--c-border)]">
           <div className="flex items-center gap-[9px]">
-            <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 22, filter: 'brightness(0)' }} />
+            <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 22, filter: 'var(--c-logo-filter)' }} />
             <span className="text-[18px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
           </div>
           <div className="text-[12px]" style={{ color: 'var(--c-caption)' }}>

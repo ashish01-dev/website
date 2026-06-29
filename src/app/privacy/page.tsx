@@ -8,7 +8,7 @@ export default function PrivacyPage() {
       <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-[9px]">
-            <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 28, filter: 'brightness(0)' }} />
+            <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 28, filter: 'var(--c-logo-filter)' }} />
             <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
           </Link>
           <Link href="/" className="text-sm font-medium rounded-[40px] px-[16px] py-[5px] transition-all" style={{ color: 'var(--c-text-secondary)', border: '1px solid var(--c-border-input)' }}>&larr; Back</Link>

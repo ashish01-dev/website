@@ -16,7 +16,7 @@ export default function NotFound() {
             <img
               src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg"
               alt="logo"
-              style={{ height: 28, filter: 'brightness(0)' }}
+              style={{ height: 28, filter: 'var(--c-logo-filter)' }}
             />
             <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
           </Link>

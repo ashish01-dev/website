@@ -20,9 +20,10 @@ export default function AuthPage() {
   const [mode, setMode] = useState<'signup' | 'login'>(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
-      return params.get('mode') === 'login' ? 'login' : 'signup'
+      if (params.get('mode') === 'signup') return 'signup'
+      return 'login'
     }
-    return 'signup'
+    return 'login'
   })
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -71,7 +72,7 @@ export default function AuthPage() {
             <img
               src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg"
               alt="logo"
-              style={{ height: 28, filter: 'brightness(0)' }}
+              style={{ height: 28, filter: 'var(--c-logo-filter)' }}
             />
             <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
           </Link>
