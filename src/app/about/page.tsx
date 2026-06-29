@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import LandingNav from '@/components/layout/LandingNav'
 
 const MILESTONES = [
   { year: '2024', title: 'The Idea', desc: 'JEEIFY was born from late-night study sessions — a small tool to track syllabus progress that our founder built for himself.' },
@@ -16,35 +17,7 @@ const TEAM = [
 export default function AboutPage() {
   return (
     <div className="min-h-screen pb-[80px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
-      {/* Navbar */}
-      <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-[9px]">
-            <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 28, filter: 'var(--c-logo-filter)' }} />
-            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-9">
-            <Link href="/" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Home</Link>
-            <Link href="/pricing" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Pricing</Link>
-            <Link href="/about" className="text-sm font-normal" style={{ color: 'var(--c-blue)' }}>About</Link>
-          </div>
-          <div className="hidden md:flex items-center gap-4">
-            <Link href="/auth?mode=login" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Sign In</Link>
-            <Link href="/auth?mode=signup"
-              className="flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
-              style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
-              <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
-              </span>
-              Get Started
-            </Link>
-          </div>
-        </div>
-        <div className="absolute bottom-0 left-[40px] right-[40px] h-[1px] pointer-events-none max-md:left-5 max-md:right-5" style={{
-          backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.08) 2px, transparent 2px)',
-          backgroundSize: '6px 1px',
-        }} />
-      </nav>
+      <LandingNav active="about" />
 
       {/* Hero */}
       <div className="px-5 py-20 md:py-28 max-w-[1100px] mx-auto">

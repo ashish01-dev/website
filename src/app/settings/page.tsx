@@ -10,6 +10,7 @@ import { db } from '@/lib/db'
 import { downloadJSON } from '@/lib/utils'
 import { getSupabase } from '@/lib/supabase'
 import { setSyncUser, uploadAvatar } from '@/lib/supabase-sync'
+import { isProEmail } from '@/lib/useUser'
 import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 function resizeImage(file: File, maxSize: number): Promise<string> {
@@ -258,6 +259,39 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* Pro Subscription */}
+          <div className="rounded-[18px] px-[22px] py-[24px]" style={{
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
+          }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Pro Subscription</h2>
+            {user && isProEmail(user.email || '') ? (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(35,131,226,0.1)' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c-blue)" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>You&apos;re a Pro subscriber</div>
+                  <div className="text-[11px]" style={{ color: 'var(--c-muted)' }}>Enjoy all Pro features including unlimited storage, advanced analytics, and priority support.</div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(35,131,226,0.1)' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c-blue)" strokeWidth="2"><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Upgrade to Pro</div>
+                  <div className="text-[11px]" style={{ color: 'var(--c-muted)' }}>Unlimited storage, advanced analytics, priority support — just ₹50/month.</div>
+                </div>
+                <button onClick={() => router.push('/pricing')}
+                  className="text-xs font-medium px-4 py-1.5 rounded-[40px] text-white transition-all whitespace-nowrap"
+                  style={{ background: 'var(--c-btn-primary)' }}>
+                  Buy Pro
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Cloud Sync */}

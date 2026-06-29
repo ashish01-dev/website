@@ -3,9 +3,9 @@
 import { useRef, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getSupabase } from '@/lib/supabase'
-import type { Session } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
+import LandingNav from '@/components/layout/LandingNav'
+import { useUser } from '@/lib/useUser'
 
 const FEATURES = [
   { icon: 'menu_book', label: 'Syllabus Tracker', desc: 'Track every chapter and topic across Physics, Chemistry, and Maths with real-time progress.' },
@@ -118,52 +118,11 @@ function CountUp({ value, label }: { value: string; label: string }) {
 
 export default function LandingPage() {
   const router = useRouter()
-  const [menuOpen, setMenuOpen] = useState(false)
+  const user = useUser()
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
   const [topHovered, setTopHovered] = useState<number | null>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [showFloatingBar, setShowFloatingBar] = useState(false)
-  const [isDark, setIsDark] = useState(false)
-  const [user, setUser] = useState<{ name: string; avatar: string; email: string } | null>(null)
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
-  const profileRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'))
-  }, [])
-
-  const toggleTheme = () => {
-    const newDark = !document.documentElement.classList.contains('dark')
-    document.documentElement.classList.toggle('dark', newDark)
-    document.documentElement.classList.toggle('light', !newDark)
-    localStorage.setItem('jee-theme', newDark ? 'dark' : 'light')
-    setIsDark(newDark)
-  }
-
-  useEffect(() => {
-    const sb = getSupabase()
-    if (sb) {
-      sb.auth.getSession().then((res: { data: { session: Session | null } }) => {
-        const u = res.data.session?.user
-        if (u) {
-          const meta = u.user_metadata || {}
-          setUser({
-            name: meta.full_name || meta.name || u.email?.split('@')[0] || 'User',
-            avatar: meta.avatar_url || meta.picture || '',
-            email: u.email || '',
-          })
-        }
-      })
-    }
-  }, [])
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setShowProfileDropdown(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
 
   useEffect(() => {
     const onScroll = () => setShowFloatingBar(window.scrollY > window.innerHeight * 0.6)
@@ -183,147 +142,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen pb-[80px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
-      {/* Navbar */}
-      <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
-        <div className="flex items-center justify-between">
-          <button onClick={() => router.push('/')} className="flex items-center gap-[9px]" style={{ cursor: 'pointer' }}>
-            <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 28, filter: 'var(--c-logo-filter)' }} />
-            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
-          </button>
-
-          <div className="hidden md:flex items-center gap-9">
-            <a href="#features" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Features</a>
-            <a href="#results" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Results</a>
-            <Link href="/pricing" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Pricing</Link>
-            <Link href="/about" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>About</Link>
-          </div>
-
-          <div className="hidden md:flex items-center gap-4">
-            <button onClick={toggleTheme} className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/[0.04]" style={{ cursor: 'pointer', color: 'var(--c-text)' }}>
-              {isDark ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="5.64" />
-                </svg>
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>
-              )}
-            </button>
-            {user ? (
-              <div ref={profileRef} className="relative">
-                <button onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                  className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full transition-all hover:bg-black/[0.04]"
-                  style={{ cursor: 'pointer', border: '1px solid var(--c-border-card)' }}>
-                  <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center" style={{ background: user.avatar ? 'transparent' : 'var(--c-tag)' }}>
-                    {user.avatar ? (
-                      <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs font-bold" style={{ color: 'var(--c-muted)' }}>{user.name.charAt(0).toUpperCase()}</span>
-                    )}
-                  </div>
-                  <span className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>{user.name}</span>
-                </button>
-                {showProfileDropdown && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-[14px] overflow-hidden z-50" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}>
-                    <button onClick={() => { setShowProfileDropdown(false); router.push('/pricing') }}
-                      className="flex items-center gap-2 w-full text-left px-4 py-3 text-sm transition-colors hover:bg-black/[0.03]"
-                      style={{ color: 'var(--c-text)' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                      Buy Pro
-                    </button>
-                    <div className="h-[1px]" style={{ background: 'var(--c-border)' }} />
-                    <button onClick={() => { setShowProfileDropdown(false); router.push('/dashboard') }}
-                      className="flex items-center gap-2 w-full text-left px-4 py-3 text-sm transition-colors hover:bg-black/[0.03]"
-                      style={{ color: 'var(--c-text)' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                      Go to Dashboard
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <>
-                <Link href="/auth?mode=login" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Sign In</Link>
-                <Link
-                  href="/auth?mode=signup"
-                  className="flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
-                  style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
-                >
-                  <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 18l6-6-6-6" />
-                    </svg>
-                  </span>
-                  Get Started
-                </Link>
-              </>
-            )}
-          </div>
-
-          <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden flex flex-col items-center justify-center w-6 h-6 gap-[5px]" style={{ cursor: 'pointer' }}>
-            <span style={{ backgroundColor: 'var(--c-text)' }} className={`block h-[2px] w-6 rounded transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-[3.5px]' : ''}`} />
-            <span style={{ backgroundColor: 'var(--c-text)' }} className={`block h-[2px] w-6 rounded transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
-            <span style={{ backgroundColor: 'var(--c-text)' }} className={`block h-[2px] w-6 rounded transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-[3.5px]' : ''}`} />
-          </button>
-        </div>
-
-        <div className="absolute bottom-0 left-[40px] right-[40px] h-[1px] pointer-events-none max-md:left-5 max-md:right-5" style={{
-          backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.08) 2px, transparent 2px)',
-          backgroundSize: '6px 1px',
-        }} />
-      </nav>
-
-      {/* Mobile Menu */}
-      <div className={`fixed inset-0 z-50 bg-white flex flex-col px-10 py-8 transition-transform duration-500 md:hidden`}
-        style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(100%)', transitionTimingFunction: 'cubic-bezier(0.77, 0, 0.175, 1)' }}>
-        <div className="flex justify-end mb-16">
-          <button onClick={() => setMenuOpen(false)} className="w-8 h-8 flex items-center justify-center" style={{ cursor: 'pointer' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
-          </button>
-        </div>
-        <div className="flex flex-col">
-          {[
-            { label: 'Features', href: '#features' },
-            { label: 'Results', href: '#results' },
-            { label: 'Pricing', href: '/pricing', isLink: true },
-            { label: 'About', href: '/about', isLink: true },
-            ...(user ? [
-              { label: 'Dashboard', href: '/dashboard', isLink: true },
-              { label: 'Buy Pro', href: '/pricing', isLink: true },
-            ] : [
-              { label: 'Sign In', href: '/auth?mode=login', isLink: true },
-            ]),
-          ].map(item => {
-            if (item.isLink) {
-              return (
-                <Link key={item.label} href={item.href} onClick={() => setMenuOpen(false)}
-                  className="text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-[var(--c-border)]" style={{ color: 'var(--c-text)' }}>
-                  {item.label}
-                </Link>
-              )
-            }
-            return (
-              <a key={item.label} href={item.href} onClick={() => setMenuOpen(false)}
-                className="text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-[var(--c-border)]" style={{ color: 'var(--c-text)' }}>
-                {item.label}
-              </a>
-            )
-          })}
-        </div>
-        <div className="mt-auto">
-          <Link href="/auth?mode=signup" onClick={() => setMenuOpen(false)}
-            className="inline-flex items-center gap-3 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px]"
-            style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
-            <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </span>
-            Get Started
-          </Link>
-        </div>
-      </div>
+      <LandingNav />
 
       {/* Hero */}
       <motion.section {...fadeUp} className="flex flex-col items-center justify-center text-center px-5 py-24 md:py-32 relative">
@@ -601,11 +420,20 @@ export default function LandingPage() {
             </a>
           ))}
           <div className="w-px h-5 mx-1" style={{ background: 'rgba(0,0,0,0.08)' }} />
-          <Link href="/auth?mode=signup"
-            className="px-4 py-1.5 rounded-xl text-[12px] font-medium text-white transition-all duration-200"
-            style={{ background: 'var(--c-btn-primary)' }}>
-            Get Started
-          </Link>
+          {user ? (
+            <div className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl" style={{ border: '1px solid var(--c-border-card)' }}>
+              <div className="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center text-[8px] font-bold" style={{ background: user.avatar ? 'transparent' : 'var(--c-tag)', color: 'var(--c-muted)' }}>
+                {user.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : user.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-[11px] font-medium truncate max-w-[80px]" style={{ color: 'var(--c-text)' }}>{user.name}</span>
+            </div>
+          ) : (
+            <Link href="/auth?mode=signup"
+              className="px-4 py-1.5 rounded-xl text-[12px] font-medium text-white transition-all duration-200"
+              style={{ background: 'var(--c-btn-primary)' }}>
+              Get Started
+            </Link>
+          )}
         </div>
       </div>
 
