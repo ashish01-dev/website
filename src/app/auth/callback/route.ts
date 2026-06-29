@@ -13,15 +13,18 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     try {
-      const response = NextResponse.redirect(`${origin}/dashboard`)
       const sb = createServerClient(supabaseUrl, supabaseKey, {
         cookies: {
           getAll: () => request.cookies.getAll().map(c => ({ name: c.name, value: c.value })),
-          setAll: (cookies) => cookies.forEach(c => response.cookies.set(c.name, c.value, c.options)),
+          setAll: () => {},
         },
       })
       const { data: { session } } = await sb.auth.exchangeCodeForSession(code)
-      if (session?.user?.user_metadata) {
+      if (!session?.user) return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
+
+      const response = NextResponse.redirect(`${origin}${session.user.created_at && Date.now() - new Date(session.user.created_at).getTime() < 60000 ? '/auth?onboarding=true' : '/dashboard'}`)
+
+      if (session.user.user_metadata) {
         const meta = session.user.user_metadata
         const name = meta.full_name || meta.name || ''
         const avatar = meta.avatar_url || meta.picture || ''
@@ -33,8 +36,8 @@ export async function GET(request: NextRequest) {
       }
       return response
     } catch {
-      return NextResponse.redirect(`${origin}/?error=auth_failed`)
+      return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
     }
   }
-  return NextResponse.redirect(`${origin}/dashboard`)
+  return NextResponse.redirect(`${origin}/auth`)
 }

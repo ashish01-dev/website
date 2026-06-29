@@ -39,6 +39,10 @@ export default function RevisionPage() {
   const [errorQuestion, setErrorQuestion] = useState('')
   const [errorReason, setErrorReason] = useState('')
   const [errorEntries, setErrorEntries] = useState<ErrorEntry[]>([])
+  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false)
+  const [showChapterDropdown, setShowChapterDropdown] = useState(false)
+  const subjectRef = useRef<HTMLDivElement>(null)
+  const chapterRef = useRef<HTMLDivElement>(null)
 
   const chaptersBySubject = useMemo(() => ({
     physics: getFlatChapters('physics'),
@@ -55,6 +59,15 @@ export default function RevisionPage() {
       setFormulaEntries(map)
     })
     db.errors.toArray().then(setErrorEntries)
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (subjectRef.current && !subjectRef.current.contains(e.target as Node)) setShowSubjectDropdown(false)
+      if (chapterRef.current && !chapterRef.current.contains(e.target as Node)) setShowChapterDropdown(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [])
 
   const handleFileUpload = async (chapterId: string, files: FileList | null) => {
@@ -151,22 +164,48 @@ export default function RevisionPage() {
             <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
               <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Log an Error</h2>
               <div className="space-y-3">
-                <div>
+                <div ref={subjectRef} className="relative">
                   <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>SUBJECT</label>
-                  <select value={errorSubject} onChange={e => { setErrorSubject(e.target.value as Subject); setErrorChapter('') }}
-                    className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
+                  <button onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
+                    className="w-full px-3 py-2 text-sm outline-none rounded-[40px] text-left flex items-center justify-between"
                     style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}>
-                    {['physics', 'chemistry', 'maths'].map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-                  </select>
+                    <span>{errorSubject.charAt(0).toUpperCase() + errorSubject.slice(1)}</span>
+                    <span className="text-[10px]" style={{ color: 'var(--c-muted)' }}>▼</span>
+                  </button>
+                  {showSubjectDropdown && (
+                    <div className="absolute z-10 mt-1 w-[calc(100%-40px)] rounded-[12px] overflow-hidden" style={{ border: '1px solid var(--c-border)', background: 'var(--c-card)', boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
+                      {['physics', 'chemistry', 'maths'].map(s => (
+                        <button key={s}
+                          onMouseDown={() => { setErrorSubject(s as Subject); setErrorChapter(''); setShowSubjectDropdown(false) }}
+                          className="block w-full text-left px-3 py-2 text-sm transition-colors hover:bg-black/[0.02]"
+                          style={{ color: errorSubject === s ? 'var(--c-blue)' : 'var(--c-text)' }}
+                        >{s.charAt(0).toUpperCase() + s.slice(1)}</button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div>
+                <div ref={chapterRef} className="relative">
                   <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>CHAPTER</label>
-                  <select value={errorChapter} onChange={e => setErrorChapter(e.target.value)}
-                    className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
-                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}>
-                    <option value="">Select chapter</option>
-                    {chaptersBySubject[errorSubject].map(ch => <option key={ch.id} value={ch.id}>{ch.name}</option>)}
-                  </select>
+                  <button onClick={() => setShowChapterDropdown(!showChapterDropdown)}
+                    className="w-full px-3 py-2 text-sm outline-none rounded-[40px] text-left flex items-center justify-between"
+                    style={{ border: '1px solid var(--c-border-input)', color: errorChapter ? 'var(--c-text)' : 'var(--c-caption)', background: 'var(--c-input)' }}>
+                    <span>{errorChapter ? chaptersBySubject[errorSubject].find(ch => ch.id === errorChapter)?.name || 'Select chapter' : 'Select chapter'}</span>
+                    <span className="text-[10px]" style={{ color: 'var(--c-muted)' }}>▼</span>
+                  </button>
+                  {showChapterDropdown && (
+                    <div className="absolute z-10 mt-1 left-0 right-0 max-h-48 overflow-y-auto rounded-[12px]" style={{ border: '1px solid var(--c-border)', background: 'var(--c-card)', boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
+                      <button onMouseDown={() => { setErrorChapter(''); setShowChapterDropdown(false) }}
+                        className="block w-full text-left px-3 py-2 text-sm transition-colors hover:bg-black/[0.02]"
+                        style={{ color: 'var(--c-muted)' }}>Select chapter</button>
+                      {chaptersBySubject[errorSubject].map(ch => (
+                        <button key={ch.id}
+                          onMouseDown={() => { setErrorChapter(ch.id); setShowChapterDropdown(false) }}
+                          className="block w-full text-left px-3 py-2 text-sm transition-colors hover:bg-black/[0.02]"
+                          style={{ color: errorChapter === ch.id ? 'var(--c-blue)' : 'var(--c-text)' }}
+                        >{ch.name}</button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>QUESTION</label>

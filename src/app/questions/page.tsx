@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
@@ -29,11 +29,21 @@ export default function QuestionsPage() {
   const [count, setCount] = useState(0)
   const [expandedSubj, setExpandedSubj] = useState<Subject | null>(null)
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null)
+  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false)
+  const subjectRef = useRef<HTMLDivElement>(null)
 
   const chapters = useMemo(() => getChapters(subject), [subject])
   const filteredChapters = chapters.filter(ch => ch.name.toLowerCase().includes(chapterSearch.toLowerCase()))
 
   useEffect(() => { db.questions.toArray().then(setEntries) }, [])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (subjectRef.current && !subjectRef.current.contains(e.target as Node)) setShowSubjectDropdown(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const addEntry = async () => {
     if (!chapter || count <= 0) return
@@ -85,15 +95,25 @@ export default function QuestionsPage() {
           <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Log Questions</h2>
             <div className="space-y-3">
-              <div>
+              <div ref={subjectRef} className="relative">
                 <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>SUBJECT</label>
-                <select value={subject} onChange={e => { setSubject(e.target.value as Subject); setChapter(''); setChapterSearch('') }}
-                  className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
+                <button onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
+                  className="w-full px-3 py-2 text-sm outline-none rounded-[40px] text-left flex items-center justify-between overflow-hidden"
                   style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}>
-                  {(['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
-                    <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                  ))}
-                </select>
+                  <span>{subject.charAt(0).toUpperCase() + subject.slice(1)}</span>
+                  <span className="text-[10px]" style={{ color: 'var(--c-muted)' }}>▼</span>
+                </button>
+                {showSubjectDropdown && (
+                  <div className="absolute z-10 mt-1 left-0 right-0 rounded-[12px] overflow-hidden" style={{ border: '1px solid var(--c-border)', background: 'var(--c-card)', boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
+                    {(['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
+                      <button key={s}
+                        onMouseDown={() => { setSubject(s); setChapter(''); setChapterSearch(''); setShowSubjectDropdown(false) }}
+                        className="block w-full text-left px-3 py-2 text-sm transition-colors hover:bg-black/[0.02]"
+                        style={{ color: subject === s ? 'var(--c-blue)' : 'var(--c-text)' }}
+                      >{s.charAt(0).toUpperCase() + s.slice(1)}</button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>CHAPTER</label>

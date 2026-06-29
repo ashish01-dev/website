@@ -1,7 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname !== '/') {
+  const { pathname } = request.nextUrl
+  if (pathname !== '/' && pathname !== '/auth' && pathname !== '/auth/callback') {
+    return NextResponse.next()
+  }
+  if (pathname !== '/') {
     return NextResponse.next()
   }
 

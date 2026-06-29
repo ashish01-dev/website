@@ -147,7 +147,7 @@ export default function LandingPage() {
   useEffect(() => {
     const sb = getSupabase()
     if (sb) {
-      sb.auth.getUser().then((res: { data: { user: Session['user'] | null } }) => { if (res.data.user) router.replace('/dashboard') })
+      sb.auth.getSession().then((res: { data: { session: Session | null } }) => { if (res.data.session?.user) router.replace('/dashboard') })
       sb.auth.onAuthStateChange((_e: AuthChangeEvent, session: Session | null) => { if (session?.user) router.replace('/dashboard') })
     }
   }, [router])
