@@ -1,7 +1,6 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import LandingNav from '@/components/layout/LandingNav'
@@ -14,24 +13,6 @@ const FEATURES = [
   { icon: 'trending_up', label: 'Progress Analytics', desc: 'Visual breakdown of completion rates, pace status, and subject-wise performance.' },
   { icon: 'timer', label: 'Pomodoro Timer', desc: 'Built-in focus timer with session tracking to optimize your study streaks.' },
   { icon: 'assignment', label: 'Test Analyzer', desc: 'Log mock test scores, track improvement, and identify weak areas.' },
-]
-
-const PLANS = [
-  {
-    name: 'Free', price: '0', desc: 'For individual aspirants',
-    features: ['Full syllabus tracking', 'Timetable planner', 'Pomodoro timer', 'Test score logging', 'Activity journal', '500 MB storage'],
-    cta: 'Get Started', popular: false,
-  },
-  {
-    name: 'Pro', price: '50', desc: 'For serious preparation',
-    features: ['Everything in Free', '1-on-1 live support', 'Faster support resolution', '5 GB storage', 'Advanced analytics', 'Priority features access'],
-    cta: 'Go Pro', popular: true,
-  },
-  {
-    name: 'Teams', price: '—', desc: 'For study groups & coaching',
-    features: ['Everything in Pro', 'Collaborative dashboards', 'Shared progress tracking', 'Unlimited storage', 'Custom integrations', 'Dedicated account manager'],
-    cta: 'Contact Us', popular: false,
-  },
 ]
 
 const FAQS = [
@@ -110,12 +91,9 @@ function CountUp({ value, label }: { value: string; label: string }) {
 }
 
 export default function LandingPage() {
-  const router = useRouter()
   const user = useUser()
-  const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
   const [topHovered, setTopHovered] = useState<number | null>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const openContact = () => router.push('/contact')
 
   const fadeUp = {
     initial: { opacity: 0, y: 30 },
@@ -176,8 +154,8 @@ export default function LandingPage() {
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {FEATURES.map(f => (
-            <div key={f.label} className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]" style={{
-              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
+            <div key={f.label} className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[2px]" style={{
+              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)', willChange: 'transform',
             }}
               onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow-hover)' }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow)' }}>
@@ -192,7 +170,7 @@ export default function LandingPage() {
       </motion.section>
 
       {/* How It Works */}
-      <motion.section {...fadeUp} className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
+      <motion.section {...fadeUp} className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto" style={{ contentVisibility: 'auto', containIntrinsicSize: '400px' }}>
         <div className="text-center mb-16">
           <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>How It Works</p>
           <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
@@ -204,8 +182,8 @@ export default function LandingPage() {
         </div>
         <div className="grid md:grid-cols-4 gap-4">
           {STEPS.map(s => (
-            <div key={s.step} className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]" style={{
-              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
+            <div key={s.step} className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[2px]" style={{
+              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)', willChange: 'transform',
             }}>
               <div className="text-[32px] font-bold tracking-[-1px] mb-3" style={{ color: 'var(--c-blue)' }}>{s.step}</div>
               <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: 'var(--c-text)' }}>{s.title}</h3>
@@ -216,7 +194,7 @@ export default function LandingPage() {
       </motion.section>
 
       {/* Results / Toppers */}
-      <motion.section {...fadeUp} id="results" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
+      <motion.section {...fadeUp} id="results" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto" style={{ contentVisibility: 'auto', containIntrinsicSize: '500px' }}>
         <div className="text-center mb-16">
           <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Results</p>
           <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
@@ -232,7 +210,8 @@ export default function LandingPage() {
               className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200" style={{
                 background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
                 boxShadow: topHovered === i ? 'var(--c-shadow-hover)' : 'var(--c-shadow)',
-                transform: topHovered === i ? 'translateY(-3px)' : 'translateY(0)',
+                transform: topHovered === i ? 'translateY(-2px)' : 'translateY(0)',
+                willChange: 'transform',
               }}>
               <div className="flex items-center justify-between mb-3">
                 <div>
@@ -247,55 +226,6 @@ export default function LandingPage() {
               <div className="border-t border-[var(--c-border)] pt-3">
                 <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--c-muted)' }}>&ldquo;{t.quote}&rdquo;</p>
               </div>
-            </div>
-          ))}
-        </div>
-      </motion.section>
-
-      {/* Pricing */}
-      <motion.section {...fadeUp} id="pricing" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Pricing</p>
-          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>Choose your plan</h2>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          {PLANS.map((plan, i) => (
-            <div key={plan.name} onMouseEnter={() => setHoveredPlan(i)} onMouseLeave={() => setHoveredPlan(null)}
-              className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200" style={{
-                background: 'var(--c-card)',
-                border: plan.popular ? '1px solid #2383e2' : '1px solid var(--c-border-card)',
-                boxShadow: hoveredPlan === i ? 'var(--c-shadow-hover)' : 'var(--c-shadow)',
-                transform: hoveredPlan === i ? 'translateY(-3px)' : 'translateY(0)',
-              }}>
-              {plan.popular && <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--c-blue)] mb-3">Most Popular</div>}
-              <div className="text-[18px] font-bold mb-1" style={{ color: 'var(--c-text)' }}>{plan.name}</div>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-[36px] font-bold tracking-tight" style={{ color: 'var(--c-text)' }}>{plan.price === '—' ? '—' : `₹${plan.price}`}</span>
-                {plan.price !== '—' && <span className="text-[13px]" style={{ color: 'var(--c-muted)' }}>{plan.price === '0' ? '' : '/month'}</span>}
-              </div>
-              <p className="text-[13px] mb-6" style={{ color: 'var(--c-muted)' }}>{plan.desc}</p>
-              <ul className="space-y-2.5 mb-8">
-                {plan.features.map(f => (
-                  <li key={f} className="text-[13px] flex items-center gap-2" style={{ color: 'var(--c-text-secondary)' }}>
-                    <span className="text-[var(--c-blue)]">✓</span> {f}
-                  </li>
-                ))}
-              </ul>
-              {plan.name === 'Teams' ? (
-                <button onClick={openContact}
-                  className="w-full py-3 text-[13px] font-medium rounded-[40px] transition-all duration-200"
-                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)', cursor: 'pointer' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.2)'; e.currentTarget.style.color = 'var(--c-text)' }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)'; e.currentTarget.style.color = 'var(--c-text-secondary)' }}>
-                  Contact Us
-                </button>
-              ) : (
-                <Link href={plan.name === 'Pro' ? '/pricing' : '/auth?mode=signup'}
-                  className="block w-full py-3 text-[13px] font-medium rounded-[40px] text-white text-center transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
-                  style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
-                  {plan.cta}
-                </Link>
-              )}
             </div>
           ))}
         </div>
