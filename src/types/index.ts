@@ -178,6 +178,7 @@ export interface PaceResult {
 }
 
 export interface Settings {
+  name: string
   examDate: string
   dailyStudyHours: number
   theme: 'dark' | 'light'

@@ -20,10 +20,18 @@ const SUPABASE_TO_DEXIE: Record<string, keyof typeof db> = {
   pomodoro: 'pomodoro', dailyplans: 'dailyPlans', questions: 'questions',
 }
 
-async function afterSync() {
-  await useSettingsStore.getState().load()
-  await useProgressStore.getState().load()
-  await useTimetableStore.getState().load()
+async function fillLocalFromCloud() {
+  const pulled = await syncPullAll()
+  for (const [table, items] of Object.entries(pulled)) {
+    const dexieKey = SUPABASE_TO_DEXIE[table]
+    const tbl = dexieKey ? (db as any)[dexieKey] : null
+    if (!tbl || !tbl._raw) continue
+    if (items.length) {
+      await tbl._raw.bulkPut(items)
+    } else {
+      await tbl._raw.clear()
+    }
+  }
 }
 
 async function initSync() {
@@ -32,38 +40,19 @@ async function initSync() {
   const { data: { user } } = await sb.auth.getUser()
   if (user) {
     setSyncUser(user.id)
-    const pulled = await syncPullAll()
-    let hasNew = false
-    for (const [table, items] of Object.entries(pulled)) {
-      if (!items.length) continue
-      const dexieKey = SUPABASE_TO_DEXIE[table]
-      const tbl = dexieKey ? (db as any)[dexieKey] : null
-      if (!tbl || !tbl._raw) continue
-      const key = TABLE_KEYS[table] || 'id'
-      const existing = await tbl._raw.toArray()
-      const existingKeys = new Set(existing.map((e: any) => e[key]))
-      for (const item of items) {
-        if (!existingKeys.has((item as any)[key])) {
-          await tbl._raw.put(item)
-          hasNew = true
-        }
-      }
-    }
-    if (hasNew) afterSync()
+    await fillLocalFromCloud()
+    await useSettingsStore.getState().load()
+    await useProgressStore.getState().load()
+    await useTimetableStore.getState().load()
   }
   sb.auth.onAuthStateChange((event, session) => {
     const uid = session?.user?.id ?? null
     setSyncUser(uid)
     if (event === 'SIGNED_IN' && uid) {
-      syncPullAll().then(pulled => {
-        for (const [table, items] of Object.entries(pulled)) {
-          if (!items.length) continue
-          const dexieKey = SUPABASE_TO_DEXIE[table]
-          const tbl = dexieKey ? (db as any)[dexieKey] : null
-          if (!tbl || !tbl._raw) continue
-          tbl._raw.bulkPut(items)
-        }
-        afterSync()
+      fillLocalFromCloud().then(() => {
+        useSettingsStore.getState().load()
+        useProgressStore.getState().load()
+        useTimetableStore.getState().load()
       })
     }
   })

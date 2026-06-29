@@ -15,7 +15,13 @@ import type { SyllabusData, Subject, DailyPlan, PomodoroSession, Chapter } from 
 
 const syllabus = syllabusData as unknown as SyllabusData
 
-const SUBJECT_EMOJIS: Record<Subject, string> = { physics: '⚡', chemistry: '🧪', maths: '📐' }
+const SUBJECT_META: Record<Subject, { emoji: string; gradient: string; light: string }> = {
+  physics: { emoji: '⚡', gradient: 'from-[#2383e2]/20 to-[#2383e2]/5', light: '#2383e2' },
+  chemistry: { emoji: '🧪', gradient: 'from-[#0f8a5e]/20 to-[#0f8a5e]/5', light: '#0f8a5e' },
+  maths: { emoji: '📐', gradient: 'from-[#d9730d]/20 to-[#d9730d]/5', light: '#d9730d' },
+}
+
+const GREETINGS = ['Morning', 'Afternoon', 'Evening']
 
 export default function DashboardPage() {
   const { progress, getProgress, loaded } = useProgressStore()
@@ -26,6 +32,9 @@ export default function DashboardPage() {
   const [sessions, setSessions] = useState<PomodoroSession[]>([])
 
   const today = formatDate(new Date())
+  const hour = new Date().getHours()
+  const greeting = GREETINGS[hour < 12 ? 0 : hour < 17 ? 1 : 2]
+  const daysLeft = Math.ceil((new Date(settings.examDate).getTime() - Date.now()) / 86400000)
 
   useEffect(() => {
     db.dailyPlans.get(today).then(p => {
@@ -100,8 +109,6 @@ export default function DashboardPage() {
     return 4
   }
 
-  const heatColors = ['bg-white/[0.04]', 'bg-white/[0.08]', 'bg-white/[0.12]', 'bg-[#2383e2]/40', 'bg-[#2383e2]/80']
-
   const handleSavePlan = (p: DailyPlan) => {
     setPlan(p)
   }
@@ -113,156 +120,214 @@ export default function DashboardPage() {
       <MobileBottomNav />
       <DailyPlanModal open={showPlanModal} onClose={() => setShowPlanModal(false)} onSave={handleSavePlan} presetSubjects={dailyTargetSubjects} />
 
-      <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-page-title text-notion-text-dark mb-1">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long' })}, {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+      <div className="max-w-[1000px] mx-auto px-4 md:px-6 py-6 md:py-10">
+
+        <div className="relative mb-8">
+          <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#2383e2]/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[#2383e2]/5 rounded-full blur-2xl" />
+
+          <div className="relative">
+            <h1 className="text-2xl md:text-3xl font-bold text-notion-text-dark mb-1">
+              Good {greeting}, <span className="text-[#2383e2]">{settings.name || 'Champion'}</span>
             </h1>
             <p className="text-sm text-notion-muted-dark">
-              {plan ? `${plan.hoursGoal || 0}h planned today` : `${Math.ceil((new Date(settings.examDate).getTime() - Date.now()) / 86400000)} days until JEE Main 2027`}
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+              {plan ? ` · ${plan.hoursGoal || 0}h planned today` : ''}
             </p>
           </div>
-          {plan && (
-            <button onClick={() => setShowPlanModal(true)} className="notion-btn-glass text-xs">Edit Plan</button>
-          )}
         </div>
 
-        {/* Countdown row */}
-        <div className="notion-card p-4 mb-6">
-          <div className="flex items-baseline gap-2 mb-2">
-            <span className="text-3xl font-bold text-[#2383e2]">{Math.ceil((new Date(settings.examDate).getTime() - Date.now()) / 86400000)}</span>
-            <span className="text-sm text-notion-muted-dark">days remaining</span>
-          </div>
-          <div className="flex justify-between text-xs text-notion-muted-dark mt-1.5">
-            <span>Prep started</span>
-            <span>{new Date(settings.examDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-          </div>
-        </div>
-
-        {/* Stats row */}
-        {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            {(['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
-              <div key={s} className="notion-card p-3">
-                <div className="text-caption text-notion-muted-dark uppercase mb-1">{s}</div>
-                <div className="text-2xl font-bold text-notion-text-dark">{stats[s]}%</div>
-                <div className="notion-progress-bar mt-2">
-                  <div className="notion-progress-fill" style={{ width: `${stats[s]}%` }} />
-                </div>
-              </div>
-            ))}
-            <div className="notion-card p-3">
-              <div className="text-caption text-[#2383e2] uppercase mb-1">Overall</div>
-              <div className="text-2xl font-bold text-[#2383e2]">{stats.overall}%</div>
-              <div className="notion-progress-bar mt-2">
-                <div className="notion-progress-fill" style={{ width: `${stats.overall}%` }} />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="md:col-span-1">
+            <div className="notion-card p-5 h-full flex flex-col items-center justify-center text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2383e2]/10 to-transparent" />
+              <div className="relative">
+                <div className="text-5xl font-bold text-[#2383e2] mb-1">{daysLeft}</div>
+                <div className="text-xs text-notion-muted-dark uppercase tracking-wider">Days to JEE</div>
               </div>
             </div>
           </div>
-        )}
 
-        {/* Today's targets */}
-        <div className="mb-6">
-          <h2 className="section-title text-notion-text-dark mb-3">Today&apos;s Targets</h2>
-          <div className="space-y-2">
-            {plan && plan.subjects && plan.subjects.length > 0 ? (
-              plan.subjects.map(s => (
-                <div key={s.subject}>
-                  {s.chapters.map((ch, i) => (
-                    <div key={ch + i} className="notion-card p-3 flex items-center gap-3 mb-2">
-                      <input type="checkbox" className="w-4 h-4 rounded-sm border-white/[0.08] text-[#2383e2] focus:ring-[#2383e2]" />
-                      <span className="text-base">{SUBJECT_EMOJIS[s.subject]}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-notion-text-dark">{ch}</div>
-                        <div className="text-xs text-notion-muted-dark capitalize">{s.subject}</div>
+          {stats && (['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
+            <div key={s} className="notion-card p-4 relative overflow-hidden">
+              <div className={`absolute inset-0 bg-gradient-to-br ${SUBJECT_META[s].gradient}`} />
+              <div className="relative">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-notion-muted-dark uppercase tracking-wide">{s}</span>
+                  <span className="text-lg">{SUBJECT_META[s].emoji}</span>
+                </div>
+                <div className="text-3xl font-bold text-notion-text-dark mb-2">{stats[s]}<span className="text-sm text-notion-muted-dark font-normal">%</span></div>
+                <div className="notion-progress-bar">
+                  <div className="notion-progress-fill" style={{ width: `${stats[s]}%`, backgroundColor: SUBJECT_META[s].light }} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="notion-card p-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#2383e2]/5 rounded-full blur-2xl" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-notion-text-dark">Today&apos;s Plan</h2>
+                <button onClick={() => setShowPlanModal(true)} className="text-[10px] uppercase tracking-wider text-[#2383e2] hover:underline">
+                  {plan ? 'Edit' : 'Plan'}
+                </button>
+              </div>
+              {plan && plan.subjects && plan.subjects.length > 0 ? (
+                <div className="space-y-2">
+                  {plan.subjects.map(s => (
+                    <div key={s.subject}>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span>{SUBJECT_META[s.subject].emoji}</span>
+                        <span className="text-xs font-medium text-notion-muted-dark capitalize">{s.subject}</span>
+                        <span className="text-[10px] text-notion-muted-dark ml-auto">{s.questions}q</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {s.chapters.map((ch, i) => (
+                          <span key={ch + i} className="px-2 py-0.5 text-[11px] rounded-full bg-white/[0.06] text-notion-text-dark border border-white/[0.06]">
+                            {ch}
+                          </span>
+                        ))}
+                        {s.chapters.length === 0 && (
+                          <span className="text-[11px] text-notion-muted-dark italic">No chapters selected</span>
+                        )}
                       </div>
                     </div>
                   ))}
-                  {s.chapters.length === 0 && (
-                    <div className="notion-card p-3 flex items-center gap-3 mb-2 opacity-60">
-                      <span className="text-base">{SUBJECT_EMOJIS[s.subject]}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-notion-text-dark capitalize">{s.subject}</div>
-                        <div className="text-xs text-notion-muted-dark">No chapters selected</div>
-                      </div>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <div className="text-2xl mb-2">📋</div>
+                  <p className="text-sm text-notion-muted-dark mb-3">No plan set for today</p>
+                  <button onClick={() => setShowPlanModal(true)} className="notion-btn-primary text-xs">Plan Your Day</button>
+                </div>
+              )}
+              {stats && (
+                <div className="mt-4 pt-3 border-t border-white/[0.06]">
+                  <div className="flex items-center justify-between text-xs text-notion-muted-dark">
+                    <span>Overall Progress</span>
+                    <span className="text-[#2383e2] font-semibold">{stats.overall}%</span>
+                  </div>
+                  <div className="notion-progress-bar mt-1.5">
+                    <div className="notion-progress-fill" style={{ width: `${stats.overall}%` }} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="notion-card p-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#d9730d]/5 rounded-full blur-2xl" />
+            <div className="relative">
+              <h2 className="text-sm font-semibold text-notion-text-dark mb-4">Continue Studying</h2>
+              {continueChapter ? (
+                <div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-[#2383e2]/10 flex items-center justify-center text-lg">
+                      {SUBJECT_META[continueChapter.subject].emoji}
                     </div>
-                  )}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-notion-text-dark truncate">{continueChapter.chapter.name}</div>
+                      <div className="text-xs text-notion-muted-dark">{continueChapter.subject.charAt(0).toUpperCase() + continueChapter.subject.slice(1)} · Class {continueChapter.chapter.class}</div>
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between text-xs text-notion-muted-dark mb-1">
+                      <span>{continueChapter.doneTopics}/{continueChapter.totalTopics} topics</span>
+                      <span>{continueChapter.percent}%</span>
+                    </div>
+                    <div className="notion-progress-bar">
+                      <div className="notion-progress-fill" style={{ width: `${continueChapter.percent}%`, backgroundColor: SUBJECT_META[continueChapter.subject].light }} />
+                    </div>
+                  </div>
+                  <button className="notion-btn-glass text-xs w-full text-center">
+                    Resume → {continueChapter.chapter.name}
+                  </button>
                 </div>
-              ))
-            ) : (
-              <div className="notion-card p-3 flex items-center gap-3">
-                <span className="text-base">📋</span>
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-notion-text-dark">No plan for today</div>
-                  <div className="text-xs text-notion-muted-dark">Click &quot;Plan Your Day&quot; to set today&apos;s targets</div>
+              ) : (
+                <div className="text-center py-6">
+                  <div className="text-2xl mb-2">🎉</div>
+                  <p className="text-sm text-notion-muted-dark">All caught up! Ready for the next challenge?</p>
                 </div>
-                <button onClick={() => setShowPlanModal(true)} className="notion-btn-primary text-xs">Plan Today</button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="notion-card p-5 md:col-span-2">
+            <h2 className="text-sm font-semibold text-notion-text-dark mb-4">Study Heatmap — Last 30 Days</h2>
+            <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(30, 1fr)' }}>
+              {heatmapData.map((d, i) => {
+                const level = getHeatLevel(d.hours)
+                const colors = ['bg-white/[0.03]', 'bg-white/[0.07]', 'bg-white/[0.12]', 'bg-[#2383e2]/30', 'bg-[#2383e2]/70']
+                return (
+                  <div
+                    key={i}
+                    className={`aspect-square rounded-sm ${colors[level]} hover:ring-1 hover:ring-white/20 transition-all cursor-default`}
+                    title={`${d.date}: ${d.hours.toFixed(1)}h`}
+                  />
+                )
+              })}
+            </div>
+            <div className="flex items-center gap-2 mt-3 text-[10px] text-notion-muted-dark">
+              <span>Less</span>
+              <div className="w-3 h-3 rounded-sm bg-white/[0.03]" />
+              <div className="w-3 h-3 rounded-sm bg-white/[0.07]" />
+              <div className="w-3 h-3 rounded-sm bg-white/[0.12]" />
+              <div className="w-3 h-3 rounded-sm bg-[#2383e2]/30" />
+              <div className="w-3 h-3 rounded-sm bg-[#2383e2]/70" />
+              <span>More</span>
+            </div>
+          </div>
+
+          <div className="notion-card p-5">
+            <h2 className="text-sm font-semibold text-notion-text-dark mb-4">Study Pace</h2>
+            {pace ? (
+              <div className="space-y-3">
+                {(['physics', 'chemistry', 'maths'] as Subject[]).map(s => {
+                  const isOnTrack = pace.paceStatus[s] === 'on_track'
+                  const pct = stats ? stats[s] : 0
+                  return (
+                    <div key={s} className="flex items-center gap-2">
+                      <span className="text-sm">{SUBJECT_META[s].emoji}</span>
+                      <div className="flex-1">
+                        <div className="text-xs text-notion-muted-dark capitalize mb-0.5">{s} — {pct}%</div>
+                        <div className="notion-progress-bar">
+                          <div className="notion-progress-fill" style={{
+                            width: `${pct}%`,
+                            backgroundColor: isOnTrack ? '#0f8a5e' : '#e03e3e'
+                          }} />
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-medium ${isOnTrack ? 'text-[#0f8a5e]' : 'text-[#e03e3e]'}`}>
+                        {isOnTrack ? 'On Track' : 'Behind'}
+                      </span>
+                    </div>
+                  )
+                })}
+                <div className="pt-2 mt-2 border-t border-white/[0.06] text-xs text-notion-muted-dark text-center">
+                  Phase: <span className="text-notion-text-dark font-medium">
+                    {pace.currentPhase === 'foundation' ? 'Foundation' : pace.currentPhase === 'consolidation' ? 'Consolidation' : 'Final Sprint'}
+                  </span>
+                </div>
               </div>
+            ) : (
+              <div className="text-center py-6 text-sm text-notion-muted-dark">Loading pace data...</div>
             )}
           </div>
         </div>
 
-        {/* Last 30 days */}
-        <div className="mb-6">
-          <h2 className="section-title text-notion-text-dark mb-3">Last 30 Days</h2>
-          <div className="notion-card p-4">
-            <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(30, 1fr)' }}>
-              {heatmapData.map((d, i) => (
-                <div key={i} className={`aspect-square rounded-sm ${heatColors[getHeatLevel(d.hours)]}`} title={`${d.date}: ${d.hours.toFixed(1)}h`} />
-              ))}
-            </div>
-            <div className="flex items-center gap-2 mt-2 text-xs text-notion-muted-dark">
-              <span>Less</span>
-              <div className="w-3 h-3 rounded-sm bg-white/[0.04]" />
-              <div className="w-3 h-3 rounded-sm bg-white/[0.08]" />
-              <div className="w-3 h-3 rounded-sm bg-white/[0.12]" />
-              <div className="w-3 h-3 rounded-sm bg-[#2383e2]/40" />
-              <div className="w-3 h-3 rounded-sm bg-[#2383e2]/80" />
-              <span>More</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Continue */}
-        <div className="mb-6">
-          <h2 className="section-title text-notion-text-dark mb-3">Continue Where You Left Off</h2>
-          {continueChapter ? (
-            <div className="notion-card p-3 flex items-center gap-3">
-              <span className="text-base">📖</span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-notion-text-dark">{continueChapter.chapter.name}</div>
-                <div className="text-xs text-notion-muted-dark">{continueChapter.subject.charAt(0).toUpperCase() + continueChapter.subject.slice(1)} · Class {continueChapter.chapter.class} · {continueChapter.doneTopics}/{continueChapter.totalTopics} topics done</div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="notion-progress-bar w-16">
-                  <div className="notion-progress-fill" style={{ width: `${continueChapter.percent}%` }} />
-                </div>
-                <span className="text-xs text-notion-muted-dark">{continueChapter.percent}%</span>
-              </div>
-              <button className="notion-btn-glass text-xs text-[#2383e2]">Resume →</button>
-            </div>
-          ) : (
-            <div className="notion-card p-3">
-              <p className="text-sm text-notion-muted-dark text-center">All chapters complete! 🎉</p>
-            </div>
-          )}
-        </div>
-
-        {/* Pace indicator */}
-        {pace && (
-          <div className="notion-card p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-sm font-medium text-notion-text-dark">Pace Status</span>
-                <span className={`ml-2 text-xs ${Object.values(pace.paceStatus).every(s => s === 'on_track') ? 'text-[#0f8a5e]' : 'text-[#e03e3e]'}`}>
-                  {Object.values(pace.paceStatus).every(s => s === 'on_track') ? '● On Track' : '● Behind Schedule'}
-                </span>
-              </div>
-              <span className="text-xs text-notion-muted-dark">Phase: {pace.currentPhase === 'foundation' ? 'Foundation' : pace.currentPhase === 'consolidation' ? 'Consolidation' : 'Final Sprint'}</span>
-            </div>
+        {loaded && !stats && (
+          <div className="notion-card p-8 text-center">
+            <div className="text-4xl mb-3">🚀</div>
+            <h2 className="text-lg font-semibold text-notion-text-dark mb-2">Ready to start your journey?</h2>
+            <p className="text-sm text-notion-muted-dark mb-4">Head to the Syllabus page to begin tracking your progress.</p>
           </div>
         )}
+
       </div>
     </div>
   )

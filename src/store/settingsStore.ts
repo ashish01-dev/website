@@ -10,6 +10,7 @@ interface SettingsState {
 }
 
 const DEFAULT_SETTINGS: Settings = {
+  name: '',
   examDate: '2027-01-22',
   dailyStudyHours: 9,
   theme: 'dark',

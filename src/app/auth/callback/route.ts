@@ -11,5 +11,5 @@ export async function GET(request: Request) {
     )
     await sb.auth.exchangeCodeForSession(code)
   }
-  return NextResponse.redirect(`${origin}/settings`)
+  return NextResponse.redirect(`${origin}/`)
 }

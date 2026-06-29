@@ -7,6 +7,7 @@ import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import ConfettiOverlay from '@/components/ConfettiOverlay'
 import { db } from '@/lib/db'
 import { generateId, formatDate } from '@/lib/utils'
+import { useSettingsStore } from '@/store/settingsStore'
 import syllabusData from '@/data/syllabus.json'
 import type { TestEntry, Subject, Chapter } from '@/types'
 
@@ -25,6 +26,7 @@ function getFlatChapters(subject: Subject): Chapter[] {
 const ALL_SUBJECTS: Subject[] = ['physics', 'chemistry', 'maths']
 
 export default function TestsPage() {
+  const { settings } = useSettingsStore()
   const [tests, setTests] = useState<TestEntry[]>([])
   const [showConfetti, setShowConfetti] = useState(false)
   const [formDate, setFormDate] = useState(formatDate(new Date()))
@@ -235,7 +237,7 @@ export default function TestsPage() {
           </div>
         </div>
       </div>
-      <ConfettiOverlay fire={showConfetti} message="Well done Akash!" onDone={() => setShowConfetti(false)} />
+      <ConfettiOverlay fire={showConfetti} message={`Well done ${settings.name || 'champ'}!`} onDone={() => setShowConfetti(false)} />
     </div>
   )
 }

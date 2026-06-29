@@ -23,10 +23,14 @@ export default function SettingsPage() {
     sb.auth.getUser().then(({ data }) => {
       setUser(data.user)
       setSyncUser(data.user?.id ?? null)
+      const givenName = data.user?.user_metadata?.given_name || data.user?.user_metadata?.full_name || ''
+      if (givenName && !useSettingsStore.getState().settings.name) useSettingsStore.getState().update({ name: givenName })
     })
     const { data: { subscription } } = sb.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
       setSyncUser(session?.user?.id ?? null)
+      const givenName = session?.user?.user_metadata?.given_name || session?.user?.user_metadata?.full_name || ''
+      if (givenName && !useSettingsStore.getState().settings.name) useSettingsStore.getState().update({ name: givenName })
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -86,6 +90,16 @@ export default function SettingsPage() {
         <h1 className="text-page-title text-notion-text-dark mb-6">Settings</h1>
 
         <div className="space-y-4">
+          <div className="notion-card p-4">
+            <h2 className="section-title text-notion-text-dark mb-4">Profile</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-caption text-notion-muted-dark block mb-1">DISPLAY NAME</label>
+                <input type="text" value={settings.name} onChange={e => update({ name: e.target.value })} placeholder="Your name" className="notion-input max-w-[250px]" />
+              </div>
+            </div>
+          </div>
+
           <div className="notion-card p-4">
             <h2 className="section-title text-notion-text-dark mb-4">Exam Configuration</h2>
             <div className="space-y-4">

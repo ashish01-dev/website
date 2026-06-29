@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useProgressStore } from '@/store/progressStore'
+import { useSettingsStore } from '@/store/settingsStore'
 import syllabusData from '@/data/syllabus.json'
 import type { SyllabusData, Subject } from '@/types'
 
@@ -45,13 +46,14 @@ function getChapterStats(subject: Subject, progress: Record<string, { status: st
 export default function Sidebar() {
   const pathname = usePathname()
   const { progress, loaded } = useProgressStore()
+  const { settings } = useSettingsStore()
 
   const subs = ['physics', 'chemistry', 'maths'] as Subject[]
 
   return (
     <aside className="hidden md:flex flex-col h-screen w-60 fixed left-0 top-0 bg-white/[0.03] backdrop-blur-2xl border-r border-white/[0.06] py-2 select-none">
       <div className="px-3 py-2 mb-1">
-        <div className="text-sm font-semibold text-notion-text-dark">Akash</div>
+        <div className="text-sm font-semibold text-notion-text-dark">{settings.name || 'User'}</div>
         <div className="text-[11px] text-notion-muted-dark">JEE 2027</div>
       </div>
 
