@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getSupabase } from '@/lib/supabase'
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
+import type { Session } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
 
 const FEATURES = [
@@ -23,7 +23,7 @@ const PLANS = [
     cta: 'Get Started', popular: false,
   },
   {
-    name: 'Pro', price: '9', desc: 'For serious preparation',
+    name: 'Pro', price: '50', desc: 'For serious preparation',
     features: ['Everything in Free', '1-on-1 live support', 'Faster support resolution', '5 GB storage', 'Advanced analytics', 'Priority features access'],
     cta: 'Go Pro', popular: true,
   },
@@ -124,6 +124,9 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [showFloatingBar, setShowFloatingBar] = useState(false)
   const [isDark, setIsDark] = useState(false)
+  const [user, setUser] = useState<{ name: string; avatar: string; email: string } | null>(null)
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+  const profileRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'))
@@ -138,19 +141,36 @@ export default function LandingPage() {
   }
 
   useEffect(() => {
+    const sb = getSupabase()
+    if (sb) {
+      sb.auth.getSession().then((res: { data: { session: Session | null } }) => {
+        const u = res.data.session?.user
+        if (u) {
+          const meta = u.user_metadata || {}
+          setUser({
+            name: meta.full_name || meta.name || u.email?.split('@')[0] || 'User',
+            avatar: meta.avatar_url || meta.picture || '',
+            email: u.email || '',
+          })
+        }
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setShowProfileDropdown(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  useEffect(() => {
     const onScroll = () => setShowFloatingBar(window.scrollY > window.innerHeight * 0.6)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-
-  useEffect(() => {
-    const sb = getSupabase()
-    if (sb) {
-      sb.auth.getSession().then((res: { data: { session: Session | null } }) => { if (res.data.session?.user) router.replace('/dashboard') })
-      sb.auth.onAuthStateChange((_e: AuthChangeEvent, session: Session | null) => { if (session?.user) router.replace('/dashboard') })
-    }
-  }, [router])
 
   const openContact = () => router.push('/contact')
 
@@ -174,15 +194,15 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-9">
             <a href="#features" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Features</a>
             <a href="#results" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Results</a>
-            <a href="#pricing" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Pricing</a>
-            <a href="#about" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>About</a>
+            <Link href="/pricing" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Pricing</Link>
+            <Link href="/about" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>About</Link>
           </div>
 
           <div className="hidden md:flex items-center gap-4">
             <button onClick={toggleTheme} className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/[0.04]" style={{ cursor: 'pointer', color: 'var(--c-text)' }}>
               {isDark ? (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                  <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="5.64" />
                 </svg>
               ) : (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -190,19 +210,55 @@ export default function LandingPage() {
                 </svg>
               )}
             </button>
-            <Link href="/auth?mode=login" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Sign In</Link>
-            <Link
-              href="/auth?mode=signup"
-              className="flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
-              style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
-            >
-              <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </span>
-              Get Started
-            </Link>
+            {user ? (
+              <div ref={profileRef} className="relative">
+                <button onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                  className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full transition-all hover:bg-black/[0.04]"
+                  style={{ cursor: 'pointer', border: '1px solid var(--c-border-card)' }}>
+                  <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center" style={{ background: user.avatar ? 'transparent' : 'var(--c-tag)' }}>
+                    {user.avatar ? (
+                      <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xs font-bold" style={{ color: 'var(--c-muted)' }}>{user.name.charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>{user.name}</span>
+                </button>
+                {showProfileDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-[14px] overflow-hidden z-50" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}>
+                    <button onClick={() => { setShowProfileDropdown(false); router.push('/pricing') }}
+                      className="flex items-center gap-2 w-full text-left px-4 py-3 text-sm transition-colors hover:bg-black/[0.03]"
+                      style={{ color: 'var(--c-text)' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                      Buy Pro
+                    </button>
+                    <div className="h-[1px]" style={{ background: 'var(--c-border)' }} />
+                    <button onClick={() => { setShowProfileDropdown(false); router.push('/dashboard') }}
+                      className="flex items-center gap-2 w-full text-left px-4 py-3 text-sm transition-colors hover:bg-black/[0.03]"
+                      style={{ color: 'var(--c-text)' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                      Go to Dashboard
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link href="/auth?mode=login" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Sign In</Link>
+                <Link
+                  href="/auth?mode=signup"
+                  className="flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
+                  style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
+                >
+                  <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </span>
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
 
           <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden flex flex-col items-center justify-center w-6 h-6 gap-[5px]" style={{ cursor: 'pointer' }}>
@@ -230,9 +286,14 @@ export default function LandingPage() {
           {[
             { label: 'Features', href: '#features' },
             { label: 'Results', href: '#results' },
-            { label: 'Pricing', href: '#pricing' },
-            { label: 'About', href: '#about' },
-            { label: 'Sign In', href: '/auth?mode=login', isLink: true },
+            { label: 'Pricing', href: '/pricing', isLink: true },
+            { label: 'About', href: '/about', isLink: true },
+            ...(user ? [
+              { label: 'Dashboard', href: '/dashboard', isLink: true },
+              { label: 'Buy Pro', href: '/pricing', isLink: true },
+            ] : [
+              { label: 'Sign In', href: '/auth?mode=login', isLink: true },
+            ]),
           ].map(item => {
             if (item.isLink) {
               return (
@@ -406,8 +467,8 @@ export default function LandingPage() {
               {plan.popular && <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--c-blue)] mb-3">Most Popular</div>}
               <div className="text-[18px] font-bold mb-1" style={{ color: 'var(--c-text)' }}>{plan.name}</div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-[36px] font-bold tracking-tight" style={{ color: 'var(--c-text)' }}>{plan.price === '—' ? '—' : `$${plan.price}`}</span>
-                {plan.price !== '—' && <span className="text-[13px]" style={{ color: 'var(--c-muted)' }}>/month</span>}
+                <span className="text-[36px] font-bold tracking-tight" style={{ color: 'var(--c-text)' }}>{plan.price === '—' ? '—' : `₹${plan.price}`}</span>
+                {plan.price !== '—' && <span className="text-[13px]" style={{ color: 'var(--c-muted)' }}>{plan.price === '0' ? '' : '/month'}</span>}
               </div>
               <p className="text-[13px] mb-6" style={{ color: 'var(--c-muted)' }}>{plan.desc}</p>
               <ul className="space-y-2.5 mb-8">
@@ -426,7 +487,7 @@ export default function LandingPage() {
                   Contact Us
                 </button>
               ) : (
-                <Link href="/auth?mode=signup"
+                <Link href={plan.name === 'Pro' ? '/pricing' : '/auth?mode=signup'}
                   className="block w-full py-3 text-[13px] font-medium rounded-[40px] text-white text-center transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
                   style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
                   {plan.cta}

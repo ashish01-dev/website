@@ -8,17 +8,9 @@ export async function middleware(request: NextRequest) {
   if (pathname !== '/') {
     return NextResponse.next()
   }
-
-  const cookies = request.cookies.getAll()
-  const hasAuthCookie = cookies.some(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'))
-
-  if (hasAuthCookie) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
-
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/'],
+  matcher: ['/', '/pricing', '/about'],
 }
