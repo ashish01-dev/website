@@ -310,8 +310,8 @@ export default function RoadmapPage() {
                         onClick={() => setSelChapter1(isSelected ? null : ch.id)}
                         className="flex items-center gap-2 px-2 py-1 rounded cursor-pointer hover:bg-black/[0.02]"
                         style={{
-                          background: isSelected ? '#f5f5f5' : 'transparent',
-                          borderLeft: isSelected ? '2px solid #2383e2' : '2px solid transparent',
+                          background: isSelected ? 'var(--c-tag)' : 'transparent',
+                          borderLeft: isSelected ? '2px solid var(--c-blue)' : '2px solid transparent',
                         }}
                       >
                         <span className="text-xs" style={{ color: status === 'done' ? 'var(--c-green)' : 'var(--c-muted)' }}>
@@ -406,8 +406,8 @@ export default function RoadmapPage() {
                         onClick={() => setSelChapter2(isSelected ? null : ch.id)}
                         className="flex items-center gap-2 px-2 py-1 rounded cursor-pointer hover:bg-black/[0.02]"
                         style={{
-                          background: isSelected ? '#f5f5f5' : 'transparent',
-                          borderLeft: isSelected ? '2px solid #0f8a5e' : '2px solid transparent',
+                          background: isSelected ? 'var(--c-tag)' : 'transparent',
+                          borderLeft: isSelected ? '2px solid var(--c-green)' : '2px solid transparent',
                         }}
                       >
                         <span className="text-xs" style={{ color: status === 'done' ? 'var(--c-green)' : 'var(--c-muted)' }}>

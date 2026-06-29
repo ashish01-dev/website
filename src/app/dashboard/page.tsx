@@ -190,7 +190,7 @@ export default function DashboardPage() {
                       <div className="flex flex-wrap gap-1.5">
                         {s.chapters.map((ch, i) => (
                           <span key={ch + i} className="px-2.5 py-0.5 text-[11px] rounded-full" style={{
-                            background: '#f5f5f5', color: 'var(--c-text-secondary)', border: '1px solid var(--c-border)',
+                            background: 'var(--c-tag)', color: 'var(--c-text-secondary)', border: '1px solid var(--c-border)',
                           }}>
                             {ch}
                           </span>
@@ -235,7 +235,7 @@ export default function DashboardPage() {
               {continueChapter ? (
                 <div>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg" style={{ background: '#f5f5f5' }}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg" style={{ background: 'var(--c-tag)' }}>
                       {SUBJECT_META[continueChapter.subject].emoji}
                     </div>
                     <div className="flex-1 min-w-0">

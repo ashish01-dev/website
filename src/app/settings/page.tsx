@@ -77,9 +77,18 @@ export default function SettingsPage() {
       if (!uid) throw new Error('Not signed in')
       const path = `${uid}/avatar.jpg`
       const blob = await (await fetch(dataUrl)).blob()
+      let publicUrl: string
       const { error } = await sb.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
-      if (error) throw error
-      const { data: { publicUrl } } = sb.storage.from('avatars').getPublicUrl(path)
+      if (error?.message?.includes('Bucket not found')) {
+        const fallbackPath = `avatars/${uid}/avatar.jpg`
+        const { error: fbErr } = await sb.storage.from('formulas').upload(fallbackPath, blob, { upsert: true, contentType: 'image/jpeg' })
+        if (fbErr) throw fbErr
+        publicUrl = sb.storage.from('formulas').getPublicUrl(fallbackPath).data.publicUrl
+      } else if (error) {
+        throw error
+      } else {
+        publicUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl
+      }
       await update({ avatarUrl: publicUrl })
     } catch (err: any) {
       alert('Failed to upload avatar: ' + (err?.message || 'Unknown error'))
@@ -238,7 +247,7 @@ export default function SettingsPage() {
                 <button onClick={() => update({ theme: settings.theme === 'dark' ? 'light' : 'dark' })}
                   className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.theme === 'dark' ? 'text-white' : ''}`}
                   style={{
-                    background: settings.theme === 'dark' ? 'var(--c-blue)' : '#f5f5f5',
+                    background: settings.theme === 'dark' ? 'var(--c-blue)' : 'var(--c-input)',
                     border: settings.theme === 'dark' ? 'none' : '1px solid var(--c-border-input)',
                     color: settings.theme === 'dark' ? '#fff' : 'var(--c-text-secondary)',
                   }}
@@ -254,7 +263,7 @@ export default function SettingsPage() {
                 <button onClick={() => update({ confettiEnabled: !settings.confettiEnabled })}
                   className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.confettiEnabled ? 'text-white' : ''}`}
                   style={{
-                    background: settings.confettiEnabled ? 'var(--c-blue)' : '#f5f5f5',
+                    background: settings.confettiEnabled ? 'var(--c-blue)' : 'var(--c-input)',
                     border: settings.confettiEnabled ? 'none' : '1px solid var(--c-border-input)',
                     color: settings.confettiEnabled ? '#fff' : 'var(--c-text-secondary)',
                   }}

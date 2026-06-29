@@ -182,9 +182,9 @@ export default function LandingPage() {
           </div>
 
           <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden flex flex-col items-center justify-center w-6 h-6 gap-[5px]" style={{ cursor: 'pointer' }}>
-            <span className={`block h-[2px] w-6 bg-[#111] rounded transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-[3.5px]' : ''}`} />
-            <span className={`block h-[2px] w-6 bg-[#111] rounded transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
-            <span className={`block h-[2px] w-6 bg-[#111] rounded transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-[3.5px]' : ''}`} />
+            <span style={{ backgroundColor: 'var(--c-text)' }} className={`block h-[2px] w-6 rounded transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-[3.5px]' : ''}`} />
+            <span style={{ backgroundColor: 'var(--c-text)' }} className={`block h-[2px] w-6 rounded transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
+            <span style={{ backgroundColor: 'var(--c-text)' }} className={`block h-[2px] w-6 rounded transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-[3.5px]' : ''}`} />
           </button>
         </div>
 
@@ -241,7 +241,9 @@ export default function LandingPage() {
       </div>
 
       {/* Hero */}
-      <motion.section {...fadeUp} className="flex flex-col items-center justify-center text-center px-5 py-24 md:py-32">
+      <motion.section {...fadeUp} className="flex flex-col items-center justify-center text-center px-5 py-24 md:py-32 relative">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[120px] opacity-30 pointer-events-none" style={{ background: 'var(--c-blue)' }} />
+        <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] rounded-full blur-[100px] opacity-20 pointer-events-none" style={{ background: 'var(--c-blue)' }} />
         <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-6" style={{ color: 'var(--c-muted)' }}>JEE 2027 — Command Center</p>
         <h1 className="text-[clamp(42px,7vw,72px)] font-medium leading-[1.05] tracking-[-2px] max-w-4xl" style={{ color: 'var(--c-text)' }}>
           Master your JEE prep<br />
