@@ -131,7 +131,7 @@ export default function PomodoroPage() {
   const avgHours = useMemo(() => weekData.reduce((a, d) => a + d.hours, 0) / 7, [weekData])
 
   return (
-    <div className="min-h-screen pb-16 md:pb-0 md:pl-60">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]">
       <Sidebar />
       <TopBar />
       <MobileBottomNav />

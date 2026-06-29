@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS: Settings = {
   theme: 'dark',
   confettiEnabled: true,
   freezeDays: 21,
+  avatarUrl: '',
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({

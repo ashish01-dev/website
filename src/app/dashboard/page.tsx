@@ -11,14 +11,14 @@ import { calculatePace, selectDailyTargets } from '@/lib/pacing'
 import { db } from '@/lib/db'
 import { formatDate } from '@/lib/utils'
 import syllabusData from '@/data/syllabus.json'
-import type { SyllabusData, Subject, DailyPlan, PomodoroSession, Chapter } from '@/types'
+import type { SyllabusData, Subject, DailyPlan, PomodoroSession } from '@/types'
 
 const syllabus = syllabusData as unknown as SyllabusData
 
-const SUBJECT_META: Record<Subject, { emoji: string; gradient: string; light: string }> = {
-  physics: { emoji: '⚡', gradient: 'from-[#2383e2]/20 to-[#2383e2]/5', light: '#2383e2' },
-  chemistry: { emoji: '🧪', gradient: 'from-[#0f8a5e]/20 to-[#0f8a5e]/5', light: '#0f8a5e' },
-  maths: { emoji: '📐', gradient: 'from-[#d9730d]/20 to-[#d9730d]/5', light: '#d9730d' },
+const SUBJECT_META: Record<Subject, { emoji: string; light: string }> = {
+  physics: { emoji: '⚡', light: '#2383e2' },
+  chemistry: { emoji: '🧪', light: '#0f8a5e' },
+  maths: { emoji: '📐', light: '#d9730d' },
 }
 
 const GREETINGS = ['Morning', 'Afternoon', 'Evening']
@@ -114,7 +114,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen pb-16 md:pb-0 md:pl-60">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
@@ -122,56 +122,59 @@ export default function DashboardPage() {
 
       <div className="max-w-[1000px] mx-auto px-4 md:px-6 py-6 md:py-10">
 
-        <div className="relative mb-8">
-          <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#2383e2]/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[#2383e2]/5 rounded-full blur-2xl" />
-
-          <div className="relative">
-            <h1 className="text-2xl md:text-3xl font-bold text-notion-text-dark mb-1">
-              Good {greeting}, <span className="text-[#2383e2]">{settings.name || 'Champion'}</span>
-            </h1>
-            <p className="text-sm text-notion-muted-dark">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-              {plan ? ` · ${plan.hoursGoal || 0}h planned today` : ''}
-            </p>
-          </div>
+        {/* Greeting + date */}
+        <div className="mb-8">
+          <h1 className="text-[clamp(24px,3vw,32px)] font-medium tracking-[-0.5px] mb-1" style={{ color: '#0f0f0f' }}>
+            Good {greeting}, <span style={{ color: '#2383e2' }}>{settings.name || 'Champion'}</span>
+          </h1>
+          <p className="text-[14px]" style={{ color: '#888' }}>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            {plan ? ` · ${plan.hoursGoal || 0}h planned today` : ''}
+          </p>
         </div>
 
+        {/* Days left + Subject progress cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="md:col-span-1">
-            <div className="notion-card p-5 h-full flex flex-col items-center justify-center text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2383e2]/10 to-transparent" />
-              <div className="relative">
-                <div className="text-5xl font-bold text-[#2383e2] mb-1">{daysLeft}</div>
-                <div className="text-xs text-notion-muted-dark uppercase tracking-wider">Days to JEE</div>
-              </div>
+          <div className="rounded-[18px] px-[22px] py-[24px] text-center relative overflow-hidden" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#2383e2]/10 to-transparent" />
+            <div className="relative">
+              <div className="text-[clamp(36px,4vw,48px)] font-bold tracking-[-1px]" style={{ color: '#2383e2' }}>{daysLeft}</div>
+              <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#888' }}>Days to JEE</div>
             </div>
           </div>
 
           {stats && (['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
-            <div key={s} className="notion-card p-4 relative overflow-hidden">
-              <div className={`absolute inset-0 bg-gradient-to-br ${SUBJECT_META[s].gradient}`} />
+            <div key={s} className="rounded-[18px] px-[22px] py-[20px] relative overflow-hidden" style={{
+              background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            }}>
               <div className="relative">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-notion-muted-dark uppercase tracking-wide">{s}</span>
+                  <span className="text-[11px] font-medium uppercase tracking-wide" style={{ color: '#888' }}>{s}</span>
                   <span className="text-lg">{SUBJECT_META[s].emoji}</span>
                 </div>
-                <div className="text-3xl font-bold text-notion-text-dark mb-2">{stats[s]}<span className="text-sm text-notion-muted-dark font-normal">%</span></div>
-                <div className="notion-progress-bar">
-                  <div className="notion-progress-fill" style={{ width: `${stats[s]}%`, backgroundColor: SUBJECT_META[s].light }} />
+                <div className="text-[clamp(28px,2.5vw,34px)] font-bold tracking-[-0.5px] mb-2" style={{ color: '#0f0f0f' }}>
+                  {stats[s]}<span className="text-sm font-normal" style={{ color: '#aaa' }}>%</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
+                  <div className="h-full rounded-full transition-all" style={{ width: `${stats[s]}%`, backgroundColor: SUBJECT_META[s].light }} />
                 </div>
               </div>
             </div>
           ))}
         </div>
 
+        {/* Today's Plan + Continue Studying */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div className="notion-card p-5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#2383e2]/5 rounded-full blur-2xl" />
+          <div className="rounded-[18px] px-[22px] py-[24px] relative overflow-hidden" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl" style={{ background: '#2383e2' }} />
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-notion-text-dark">Today&apos;s Plan</h2>
-                <button onClick={() => setShowPlanModal(true)} className="text-[10px] uppercase tracking-wider text-[#2383e2] hover:underline">
+                <h2 className="text-[15px] font-semibold" style={{ color: '#0f0f0f' }}>Today&apos;s Plan</h2>
+                <button onClick={() => setShowPlanModal(true)} className="text-[10px] font-semibold uppercase tracking-wider transition-colors" style={{ color: '#2383e2' }}>
                   {plan ? 'Edit' : 'Plan'}
                 </button>
               </div>
@@ -181,17 +184,19 @@ export default function DashboardPage() {
                     <div key={s.subject}>
                       <div className="flex items-center gap-2 mb-1.5">
                         <span>{SUBJECT_META[s.subject].emoji}</span>
-                        <span className="text-xs font-medium text-notion-muted-dark capitalize">{s.subject}</span>
-                        <span className="text-[10px] text-notion-muted-dark ml-auto">{s.questions}q</span>
+                        <span className="text-xs font-medium capitalize" style={{ color: '#555' }}>{s.subject}</span>
+                        <span className="text-[10px] ml-auto" style={{ color: '#aaa' }}>{s.questions}q</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {s.chapters.map((ch, i) => (
-                          <span key={ch + i} className="px-2 py-0.5 text-[11px] rounded-full bg-white/[0.06] text-notion-text-dark border border-white/[0.06]">
+                          <span key={ch + i} className="px-2.5 py-0.5 text-[11px] rounded-full" style={{
+                            background: '#f5f5f5', color: '#555', border: '1px solid rgba(0,0,0,0.06)',
+                          }}>
                             {ch}
                           </span>
                         ))}
                         {s.chapters.length === 0 && (
-                          <span className="text-[11px] text-notion-muted-dark italic">No chapters selected</span>
+                          <span className="text-[11px] italic" style={{ color: '#aaa' }}>No chapters selected</span>
                         )}
                       </div>
                     </div>
@@ -200,91 +205,107 @@ export default function DashboardPage() {
               ) : (
                 <div className="text-center py-4">
                   <div className="text-2xl mb-2">📋</div>
-                  <p className="text-sm text-notion-muted-dark mb-3">No plan set for today</p>
-                  <button onClick={() => setShowPlanModal(true)} className="notion-btn-primary text-xs">Plan Your Day</button>
+                  <p className="text-sm mb-3" style={{ color: '#888' }}>No plan set for today</p>
+                  <button onClick={() => setShowPlanModal(true)}
+                    className="inline-flex items-center gap-1.5 text-white text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200 hover:-translate-y-[0.5px]"
+                    style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}
+                  >Plan Your Day</button>
                 </div>
               )}
               {stats && (
-                <div className="mt-4 pt-3 border-t border-white/[0.06]">
-                  <div className="flex items-center justify-between text-xs text-notion-muted-dark">
+                <div className="mt-4 pt-3 border-t" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
+                  <div className="flex items-center justify-between text-xs mb-1.5" style={{ color: '#888' }}>
                     <span>Overall Progress</span>
-                    <span className="text-[#2383e2] font-semibold">{stats.overall}%</span>
+                    <span className="font-semibold" style={{ color: '#2383e2' }}>{stats.overall}%</span>
                   </div>
-                  <div className="notion-progress-bar mt-1.5">
-                    <div className="notion-progress-fill" style={{ width: `${stats.overall}%` }} />
+                  <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${stats.overall}%`, backgroundColor: '#2383e2' }} />
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="notion-card p-5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#d9730d]/5 rounded-full blur-2xl" />
+          <div className="rounded-[18px] px-[22px] py-[24px] relative overflow-hidden" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl" style={{ background: '#d9730d' }} />
             <div className="relative">
-              <h2 className="text-sm font-semibold text-notion-text-dark mb-4">Continue Studying</h2>
+              <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Continue Studying</h2>
               {continueChapter ? (
                 <div>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-[#2383e2]/10 flex items-center justify-center text-lg">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg" style={{ background: '#f5f5f5' }}>
                       {SUBJECT_META[continueChapter.subject].emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-notion-text-dark truncate">{continueChapter.chapter.name}</div>
-                      <div className="text-xs text-notion-muted-dark">{continueChapter.subject.charAt(0).toUpperCase() + continueChapter.subject.slice(1)} · Class {continueChapter.chapter.class}</div>
+                      <div className="text-sm font-medium truncate" style={{ color: '#0f0f0f' }}>{continueChapter.chapter.name}</div>
+                      <div className="text-xs" style={{ color: '#888' }}>{continueChapter.subject.charAt(0).toUpperCase() + continueChapter.subject.slice(1)} · Class {continueChapter.chapter.class}</div>
                     </div>
                   </div>
                   <div className="mb-3">
-                    <div className="flex items-center justify-between text-xs text-notion-muted-dark mb-1">
+                    <div className="flex items-center justify-between text-xs mb-1" style={{ color: '#888' }}>
                       <span>{continueChapter.doneTopics}/{continueChapter.totalTopics} topics</span>
                       <span>{continueChapter.percent}%</span>
                     </div>
-                    <div className="notion-progress-bar">
-                      <div className="notion-progress-fill" style={{ width: `${continueChapter.percent}%`, backgroundColor: SUBJECT_META[continueChapter.subject].light }} />
+                    <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
+                      <div className="h-full rounded-full transition-all" style={{ width: `${continueChapter.percent}%`, backgroundColor: SUBJECT_META[continueChapter.subject].light }} />
                     </div>
                   </div>
-                  <button className="notion-btn-glass text-xs w-full text-center">
+                  <button
+                    className="w-full text-center text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200 hover:-translate-y-[0.5px]"
+                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}
+                  >
                     Resume → {continueChapter.chapter.name}
                   </button>
                 </div>
               ) : (
                 <div className="text-center py-6">
                   <div className="text-2xl mb-2">🎉</div>
-                  <p className="text-sm text-notion-muted-dark">All caught up! Ready for the next challenge?</p>
+                  <p className="text-sm" style={{ color: '#888' }}>All caught up! Ready for the next challenge?</p>
                 </div>
               )}
             </div>
           </div>
         </div>
 
+        {/* Heatmap + Study Pace */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="notion-card p-5 md:col-span-2">
-            <h2 className="text-sm font-semibold text-notion-text-dark mb-4">Study Heatmap — Last 30 Days</h2>
+          <div className="rounded-[18px] px-[22px] py-[24px] md:col-span-2" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Study Heatmap — Last 30 Days</h2>
             <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(30, 1fr)' }}>
               {heatmapData.map((d, i) => {
                 const level = getHeatLevel(d.hours)
-                const colors = ['bg-white/[0.03]', 'bg-white/[0.07]', 'bg-white/[0.12]', 'bg-[#2383e2]/30', 'bg-[#2383e2]/70']
+                const colors = ['#f5f5f5', '#e0e7ff', '#bed9ff', '#2383e2/40', '#2383e2/80']
                 return (
                   <div
                     key={i}
-                    className={`aspect-square rounded-sm ${colors[level]} hover:ring-1 hover:ring-white/20 transition-all cursor-default`}
+                    className="aspect-square rounded-[4px] hover:ring-1 hover:ring-black/20 transition-all cursor-default"
+                    style={{
+                      backgroundColor: level === 0 ? '#f5f5f5' : level === 1 ? '#dbeafe' : level === 2 ? '#93c5fd' : level === 3 ? '#60a5fa' : '#2383e2',
+                    }}
                     title={`${d.date}: ${d.hours.toFixed(1)}h`}
                   />
                 )
               })}
             </div>
-            <div className="flex items-center gap-2 mt-3 text-[10px] text-notion-muted-dark">
+            <div className="flex items-center gap-2 mt-3 text-[10px]" style={{ color: '#aaa' }}>
               <span>Less</span>
-              <div className="w-3 h-3 rounded-sm bg-white/[0.03]" />
-              <div className="w-3 h-3 rounded-sm bg-white/[0.07]" />
-              <div className="w-3 h-3 rounded-sm bg-white/[0.12]" />
-              <div className="w-3 h-3 rounded-sm bg-[#2383e2]/30" />
-              <div className="w-3 h-3 rounded-sm bg-[#2383e2]/70" />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: '#f5f5f5' }} />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: '#dbeafe' }} />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: '#93c5fd' }} />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: '#60a5fa' }} />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: '#2383e2' }} />
               <span>More</span>
             </div>
           </div>
 
-          <div className="notion-card p-5">
-            <h2 className="text-sm font-semibold text-notion-text-dark mb-4">Study Pace</h2>
+          <div className="rounded-[18px] px-[22px] py-[24px]" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Study Pace</h2>
             {pace ? (
               <div className="space-y-3">
                 {(['physics', 'chemistry', 'maths'] as Subject[]).map(s => {
@@ -294,11 +315,11 @@ export default function DashboardPage() {
                     <div key={s} className="flex items-center gap-2">
                       <span className="text-sm">{SUBJECT_META[s].emoji}</span>
                       <div className="flex-1">
-                        <div className="text-xs text-notion-muted-dark capitalize mb-0.5">{s} — {pct}%</div>
-                        <div className="notion-progress-bar">
-                          <div className="notion-progress-fill" style={{
+                        <div className="text-xs capitalize mb-0.5" style={{ color: '#888' }}>{s} — {pct}%</div>
+                        <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
+                          <div className="h-full rounded-full transition-all" style={{
                             width: `${pct}%`,
-                            backgroundColor: isOnTrack ? '#0f8a5e' : '#e03e3e'
+                            backgroundColor: isOnTrack ? '#0f8a5e' : '#e03e3e',
                           }} />
                         </div>
                       </div>
@@ -308,23 +329,26 @@ export default function DashboardPage() {
                     </div>
                   )
                 })}
-                <div className="pt-2 mt-2 border-t border-white/[0.06] text-xs text-notion-muted-dark text-center">
-                  Phase: <span className="text-notion-text-dark font-medium">
+                <div className="pt-2 mt-2 border-t text-xs text-center" style={{ borderColor: 'rgba(0,0,0,0.06)', color: '#888' }}>
+                  Phase: <span className="font-medium" style={{ color: '#0f0f0f' }}>
                     {pace.currentPhase === 'foundation' ? 'Foundation' : pace.currentPhase === 'consolidation' ? 'Consolidation' : 'Final Sprint'}
                   </span>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-6 text-sm text-notion-muted-dark">Loading pace data...</div>
+              <div className="text-center py-6 text-sm" style={{ color: '#888' }}>Loading pace data...</div>
             )}
           </div>
         </div>
 
+        {/* Empty state */}
         {loaded && !stats && (
-          <div className="notion-card p-8 text-center">
+          <div className="rounded-[18px] px-[22px] py-[32px] text-center" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
             <div className="text-4xl mb-3">🚀</div>
-            <h2 className="text-lg font-semibold text-notion-text-dark mb-2">Ready to start your journey?</h2>
-            <p className="text-sm text-notion-muted-dark mb-4">Head to the Syllabus page to begin tracking your progress.</p>
+            <h2 className="text-lg font-semibold mb-2" style={{ color: '#0f0f0f' }}>Ready to start your journey?</h2>
+            <p className="text-sm" style={{ color: '#888' }}>Head to the Syllabus page to begin tracking your progress.</p>
           </div>
         )}
 

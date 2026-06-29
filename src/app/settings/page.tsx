@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
@@ -12,12 +12,39 @@ import { getSupabase } from '@/lib/supabase'
 import { setSyncUser } from '@/lib/supabase-sync'
 import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js'
 
+function resizeImage(file: File, maxSize: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const size = Math.min(img.width, img.height, maxSize)
+        const x = (img.width - size) / 2
+        const y = (img.height - size) / 2
+        canvas.width = size
+        canvas.height = size
+        const ctx = canvas.getContext('2d')
+        if (!ctx) { reject(new Error('Canvas not available')); return }
+        ctx.drawImage(img, x, y, size, size, 0, 0, size, size)
+        resolve(canvas.toDataURL('image/jpeg', 0.85))
+      }
+      img.onerror = reject
+      img.src = reader.result as string
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
 export default function SettingsPage() {
   const router = useRouter()
   const { settings, update } = useSettingsStore()
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [user, setUser] = useState<User | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const sb = getSupabase()
@@ -36,6 +63,28 @@ export default function SettingsPage() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const dataUrl = await resizeImage(file, 400)
+      const sb = getSupabase()
+      if (!sb) { alert('Supabase not configured. Avatar uploaded locally only.'); update({ avatarUrl: dataUrl }); setUploading(false); return }
+      const { data: { user: u } } = await sb.auth.getUser()
+      if (!u) throw new Error('Not signed in')
+      const path = `${u.id}/avatar.jpg`
+      const blob = await (await fetch(dataUrl)).blob()
+      const { error } = await sb.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
+      if (error) throw error
+      const { data: { publicUrl } } = sb.storage.from('avatars').getPublicUrl(path)
+      await update({ avatarUrl: publicUrl })
+    } catch (err: any) {
+      alert('Failed to upload avatar: ' + (err?.message || 'Unknown error'))
+    }
+    setUploading(false)
+  }
 
   const handleGoogleSignIn = async () => {
     const sb = getSupabase()
@@ -87,108 +136,196 @@ export default function SettingsPage() {
     input.click()
   }
 
+  const avatarDisplay = settings.avatarUrl || user?.user_metadata?.avatar_url || ''
+
   return (
-    <div className="min-h-screen pb-16 md:pb-0 md:pl-60">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
 
       <div className="max-w-[700px] mx-auto px-4 md:px-6 py-8">
-        <h1 className="text-page-title text-notion-text-dark mb-6">Settings</h1>
+        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-6" style={{ color: '#0f0f0f' }}>Settings</h1>
 
         <div className="space-y-4">
-          <div className="notion-card p-4">
-            <h2 className="section-title text-notion-text-dark mb-4">Profile</h2>
+
+          {/* Profile */}
+          <div className="rounded-[18px] px-[22px] py-[24px]" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Profile</h2>
+            <div className="flex items-center gap-5 mb-4">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="relative w-16 h-16 rounded-full overflow-hidden transition-all duration-200 hover:opacity-80 group"
+                style={{ border: '2px solid rgba(0,0,0,0.06)', cursor: uploading ? 'not-allowed' : 'pointer' }}
+              >
+                {avatarDisplay ? (
+                  <img src={avatarDisplay} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-xl font-semibold" style={{ background: '#eaecf0', color: '#888' }}>
+                    {(settings.name || 'U').charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-white text-[10px] font-medium">{uploading ? '...' : 'Edit'}</span>
+                </div>
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+              <div>
+                <div className="text-sm font-medium" style={{ color: '#0f0f0f' }}>{settings.name || 'User'}</div>
+                <div className="text-xs" style={{ color: '#888' }}>JEE 2027</div>
+              </div>
+            </div>
             <div className="space-y-4">
               <div>
-                <label className="text-caption text-notion-muted-dark block mb-1">DISPLAY NAME</label>
-                <input type="text" value={settings.name} onChange={e => update({ name: e.target.value.slice(0, 50) })} placeholder="Your name" className="notion-input max-w-[250px]" />
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>DISPLAY NAME</label>
+                <input type="text" value={settings.name} onChange={e => update({ name: e.target.value.slice(0, 50) })} placeholder="Your name"
+                  className="w-full px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
               </div>
             </div>
           </div>
 
-          <div className="notion-card p-4">
-            <h2 className="section-title text-notion-text-dark mb-4">Exam Configuration</h2>
+          {/* Exam Configuration */}
+          <div className="rounded-[18px] px-[22px] py-[24px]" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Exam Configuration</h2>
             <div className="space-y-4">
               <div>
-                <label className="text-caption text-notion-muted-dark block mb-1">EXAM DATE</label>
-                <input type="date" value={settings.examDate} onChange={e => update({ examDate: e.target.value })} className="notion-input max-w-[200px]" />
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>EXAM DATE</label>
+                <input type="date" value={settings.examDate} onChange={e => update({ examDate: e.target.value })}
+                  className="w-full max-w-[200px] px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
               </div>
               <div>
-                <label className="text-caption text-notion-muted-dark block mb-1">DAILY STUDY HOURS TARGET</label>
-                <input type="number" min={1} max={16} value={settings.dailyStudyHours} onChange={e => update({ dailyStudyHours: parseInt(e.target.value, 10) || 9 })} className="notion-input max-w-[100px]" />
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>DAILY STUDY HOURS TARGET</label>
+                <input type="number" min={1} max={16} value={settings.dailyStudyHours} onChange={e => update({ dailyStudyHours: parseInt(e.target.value, 10) || 9 })}
+                  className="w-full max-w-[100px] px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
               </div>
               <div>
-                <label className="text-caption text-notion-muted-dark block mb-1">FREEZE DAYS (no new content before exam)</label>
-                <input type="number" min={0} max={60} value={settings.freezeDays} onChange={e => update({ freezeDays: parseInt(e.target.value, 10) || 21 })} className="notion-input max-w-[100px]" />
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>FREEZE DAYS (no new content before exam)</label>
+                <input type="number" min={0} max={60} value={settings.freezeDays} onChange={e => update({ freezeDays: parseInt(e.target.value, 10) || 21 })}
+                  className="w-full max-w-[100px] px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
               </div>
             </div>
           </div>
 
-          <div className="notion-card p-4">
-            <h2 className="section-title text-notion-text-dark mb-4">Preferences</h2>
+          {/* Preferences */}
+          <div className="rounded-[18px] px-[22px] py-[24px]" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Preferences</h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-notion-text-dark">Dark Mode</div>
-                  <div className="text-xs text-notion-muted-dark">Default dark theme</div>
+                  <div className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Dark Mode</div>
+                  <div className="text-xs" style={{ color: '#888' }}>Default dark theme</div>
                 </div>
-                <button onClick={() => update({ theme: settings.theme === 'dark' ? 'light' : 'dark' })} className={`notion-btn-ghost text-xs ${settings.theme === 'dark' ? 'text-[#2383e2]' : ''}`}>
+                <button onClick={() => update({ theme: settings.theme === 'dark' ? 'light' : 'dark' })}
+                  className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.theme === 'dark' ? 'text-white' : ''}`}
+                  style={{
+                    background: settings.theme === 'dark' ? '#2383e2' : '#f5f5f5',
+                    border: settings.theme === 'dark' ? 'none' : '1px solid rgba(0,0,0,0.1)',
+                    color: settings.theme === 'dark' ? '#fff' : '#555',
+                  }}
+                >
                   {settings.theme === 'dark' ? 'On' : 'Off'}
                 </button>
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-notion-text-dark">Confetti</div>
-                  <div className="text-xs text-notion-muted-dark">Celebrate chapter completions</div>
+                  <div className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Confetti</div>
+                  <div className="text-xs" style={{ color: '#888' }}>Celebrate chapter completions</div>
                 </div>
-                <button onClick={() => update({ confettiEnabled: !settings.confettiEnabled })} className={`notion-btn-ghost text-xs ${settings.confettiEnabled ? 'text-[#2383e2]' : ''}`}>
+                <button onClick={() => update({ confettiEnabled: !settings.confettiEnabled })}
+                  className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.confettiEnabled ? 'text-white' : ''}`}
+                  style={{
+                    background: settings.confettiEnabled ? '#2383e2' : '#f5f5f5',
+                    border: settings.confettiEnabled ? 'none' : '1px solid rgba(0,0,0,0.1)',
+                    color: settings.confettiEnabled ? '#fff' : '#555',
+                  }}
+                >
                   {settings.confettiEnabled ? 'On' : 'Off'}
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="notion-card p-4">
-            <h2 className="section-title text-notion-text-dark mb-4">Cloud Sync</h2>
+          {/* Cloud Sync */}
+          <div className="rounded-[18px] px-[22px] py-[24px]" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Cloud Sync</h2>
             <div className="flex items-center gap-3">
               {user ? (
                 <>
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    {user.user_metadata?.avatar_url && <img src={user.user_metadata.avatar_url} alt="" className="w-8 h-8 rounded-full" />}
+                    {avatarDisplay && <img src={avatarDisplay} alt="" className="w-8 h-8 rounded-full object-cover" />}
                     <div className="min-w-0">
-                      <div className="text-sm text-notion-text-dark truncate">{user.user_metadata?.full_name || user.email}</div>
-                      <div className="text-[10px] text-notion-muted-dark">Signed in</div>
+                      <div className="text-sm font-medium truncate" style={{ color: '#0f0f0f' }}>{user.user_metadata?.full_name || user.email}</div>
+                      <div className="text-[10px]" style={{ color: '#888' }}>Signed in</div>
                     </div>
                   </div>
-                  <button onClick={handleSignOut} className="notion-btn-ghost text-xs">Sign Out</button>
+                  <button onClick={handleSignOut}
+                    className="text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all"
+                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}
+                  >Sign Out</button>
                 </>
               ) : (
                 <>
-                  <p className="text-xs text-notion-muted-dark flex-1">Sign in to sync data across devices</p>
-                  <button onClick={handleGoogleSignIn} className="notion-btn-primary text-xs">Sign in with Google</button>
+                  <p className="text-xs flex-1" style={{ color: '#888' }}>Sign in to sync data across devices</p>
+                  <button onClick={handleGoogleSignIn}
+                    className="text-xs font-medium px-4 py-1.5 rounded-[40px] text-white transition-all"
+                    style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}
+                  >Sign in with Google</button>
                 </>
               )}
             </div>
             {!getSupabase() && (
-              <p className="text-xs text-[#d9730d] mt-2">Add Supabase config to .env.local to enable cloud sync.</p>
+              <p className="text-xs mt-2" style={{ color: '#d9730d' }}>Add Supabase config to .env.local to enable cloud sync.</p>
             )}
           </div>
 
-          <div className="notion-card p-4">
-            <h2 className="section-title text-notion-text-dark mb-4">Data</h2>
+          {/* Data */}
+          <div className="rounded-[18px] px-[22px] py-[24px]" style={{
+            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Data</h2>
             <div className="flex flex-wrap gap-3">
-              <button onClick={exportData} className="notion-btn-primary text-xs">Export Backup (JSON)</button>
-              <button onClick={importData} className="notion-btn-ghost text-xs">Import Backup</button>
+              <button onClick={exportData}
+                className="text-xs font-medium px-4 py-2 rounded-[40px] text-white transition-all"
+                style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}
+              >Export Backup (JSON)</button>
+              <button onClick={importData}
+                className="text-xs font-medium px-4 py-2 rounded-[40px] transition-all"
+                style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}
+              >Import Backup</button>
               {!showDeleteConfirm ? (
-                <button onClick={() => setShowDeleteConfirm(true)} className="notion-btn-ghost text-xs text-[#e03e3e]">Reset All Data</button>
+                <button onClick={() => setShowDeleteConfirm(true)}
+                  className="text-xs font-medium px-4 py-2 rounded-[40px] transition-all"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#e03e3e' }}
+                >Reset All Data</button>
               ) : (
                 <div className="w-full space-y-2">
-                  <p className="text-xs text-[#e03e3e]">Type <strong>DELETE</strong> to confirm:</p>
+                  <p className="text-xs" style={{ color: '#e03e3e' }}>Type <strong>DELETE</strong> to confirm:</p>
                   <input
                     value={deleteConfirm}
                     onChange={e => setDeleteConfirm(e.target.value)}
-                    className="w-full px-2 py-1 text-xs bg-transparent border border-[#e03e3e] rounded-notion text-notion-text-dark outline-none"
+                    className="w-full px-3 py-2 text-xs outline-none rounded-[40px]"
+                    style={{ border: '1px solid #e03e3e', color: '#0f0f0f', background: '#fafafa' }}
                     placeholder="DELETE"
                   />
                   <div className="flex gap-2">
@@ -209,11 +346,13 @@ export default function SettingsPage() {
                         window.location.reload()
                       }}
                       disabled={deleteConfirm !== 'DELETE'}
-                      className="notion-btn-ghost text-xs text-[#e03e3e] disabled:opacity-40"
-                    >
-                      Confirm Reset
-                    </button>
-                    <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirm('') }} className="notion-btn-glass text-xs">Cancel</button>
+                      className="text-xs font-medium px-4 py-1.5 rounded-[40px] disabled:opacity-40"
+                      style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#e03e3e' }}
+                    >Confirm Reset</button>
+                    <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirm('') }}
+                      className="text-xs font-medium px-4 py-1.5 rounded-[40px]"
+                      style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}
+                    >Cancel</button>
                   </div>
                 </div>
               )}

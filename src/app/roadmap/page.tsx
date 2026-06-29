@@ -130,7 +130,7 @@ export default function RoadmapPage() {
   const allSubjects: Subject[] = ['physics', 'chemistry', 'maths']
 
   return (
-    <div className="min-h-screen pb-16 md:pb-0 md:pl-60">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]">
       <Sidebar />
       <TopBar />
       <MobileBottomNav />

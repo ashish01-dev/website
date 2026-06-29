@@ -1,11 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useSettingsStore } from '@/store/settingsStore'
+import { getSupabase } from '@/lib/supabase'
 
 export default function TopBar() {
+  const router = useRouter()
   const { settings } = useSettingsStore()
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 })
+  const [avatarUrl, setAvatarUrl] = useState('')
 
   useEffect(() => {
     const update = () => {
@@ -23,20 +27,57 @@ export default function TopBar() {
     return () => clearInterval(interval)
   }, [settings.examDate])
 
+  useEffect(() => {
+    const sb = getSupabase()
+    if (!sb) return
+    sb.auth.getUser().then((res: any) => {
+      const u = res.data?.user
+      if (u?.user_metadata?.avatar_url) setAvatarUrl(u.user_metadata.avatar_url)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (settings.avatarUrl) setAvatarUrl(settings.avatarUrl)
+  }, [settings.avatarUrl])
+
   return (
-    <header className="sticky top-0 z-40 bg-notion-bg-dark/80 backdrop-blur-sm border-b border-notion-border-dark">
-      <div className="flex items-center justify-between h-11 px-4 md:px-6">
-        <div className="flex items-center gap-3">
-          <button className="md:hidden text-lg">☰</button>
-          <div className="flex items-center gap-2 text-sm text-notion-muted-dark">
-            <span className="font-medium text-notion-text-dark">JEE Command Center</span>
+    <header className="sticky top-0 z-30" style={{
+      background: 'rgba(245,245,245,0.8)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderBottom: '1px solid rgba(0,0,0,0.05)',
+    }}>
+      <div className="max-w-[1100px] mx-auto flex items-center justify-between h-12 px-4 md:px-6">
+        <button
+          onClick={() => router.push('/settings')}
+          className="flex items-center gap-2.5 group"
+          title="Settings"
+        >
+          <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{
+            background: avatarUrl ? 'transparent' : '#eaecf0',
+            border: '1px solid rgba(0,0,0,0.06)',
+          }}>
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-sm font-semibold" style={{ color: '#888' }}>
+                {(settings.name || 'U').charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
-        </div>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="hidden sm:inline text-notion-muted-dark">
+          <div className="hidden sm:block text-left">
+            <div className="text-[13px] font-medium leading-tight" style={{ color: '#0f0f0f' }}>{settings.name || 'User'}</div>
+            <div className="text-[10px] leading-tight" style={{ color: '#888' }}>JEE 2027</div>
+          </div>
+        </button>
+
+        <div className="flex items-center gap-3">
+          <span className="text-[13px] font-medium" style={{ color: '#2383e2' }}>
             {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
           </span>
-          <span className="text-[#2383e2] text-xs font-medium">22 Jan 2027</span>
+          <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium" style={{ background: '#eaecf0', color: '#555' }}>
+            {new Date(settings.examDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </span>
         </div>
       </div>
     </header>

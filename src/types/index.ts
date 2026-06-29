@@ -184,4 +184,5 @@ export interface Settings {
   theme: 'dark' | 'light'
   confettiEnabled: boolean
   freezeDays: number
+  avatarUrl?: string
 }

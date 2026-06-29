@@ -1,13 +1,10 @@
 'use client'
 
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useProgressStore } from '@/store/progressStore'
 import { useSettingsStore } from '@/store/settingsStore'
-import syllabusData from '@/data/syllabus.json'
-import type { SyllabusData, Subject } from '@/types'
-
-const syllabus = syllabusData as unknown as SyllabusData
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: '📊' },
@@ -24,82 +21,159 @@ const NAV_ITEMS = [
   { href: '/settings', label: 'Settings', icon: '⚙️' },
 ]
 
-const SUBJECT_STYLES: Record<Subject, { color: string; bg: string }> = {
-  physics: { color: '#2383e2', bg: 'bg-[#2383e2]/10' },
-  chemistry: { color: '#0f8a5e', bg: 'bg-[#0f8a5e]/10' },
-  maths: { color: '#d9730d', bg: 'bg-[#d9730d]/10' },
-}
-
-function getChapterStats(subject: Subject, progress: Record<string, { status: string }>) {
-  let total = 0, done = 0
-  const data = syllabus[subject]
-  for (const div of data.divisions) {
-    for (const ch of div.chapters) {
-      if (ch.deleted) continue
-      total++
-      if (progress[ch.id]?.status === 'done') done++
-    }
-  }
-  return { total, done, pct: total > 0 ? Math.round((done / total) * 100) : 0 }
-}
+const MOBILE_GROUPS = [
+  {
+    label: 'Study', icon: '📚',
+    items: [
+      { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+      { href: '/syllabus', label: 'Syllabus', icon: '📚' },
+      { href: '/roadmap', label: 'Roadmap', icon: '🗺️' },
+    ],
+  },
+  {
+    label: 'Track', icon: '📊',
+    items: [
+      { href: '/timetable', label: 'Timetable', icon: '📅' },
+      { href: '/progress', label: 'Progress', icon: '📈' },
+      { href: '/pomodoro', label: 'Pomodoro', icon: '🍅' },
+      { href: '/completion', label: 'Completion', icon: '✅' },
+      { href: '/activity', label: 'Journal', icon: '📓' },
+    ],
+  },
+  {
+    label: 'More', icon: '⚙️',
+    items: [
+      { href: '/questions', label: 'Questions', icon: '❓' },
+      { href: '/tests', label: 'Tests', icon: '📝' },
+      { href: '/revision', label: 'Revision', icon: '🧠' },
+      { href: '/settings', label: 'Settings', icon: '⚙️' },
+    ],
+  },
+]
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const { progress, loaded } = useProgressStore()
+  const router = useRouter()
   const { settings } = useSettingsStore()
+  const { progress, loaded } = useProgressStore()
+  const [openGroup, setOpenGroup] = useState<number | null>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
-  const subs = ['physics', 'chemistry', 'maths'] as Subject[]
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setOpenGroup(null)
+      }
+    }
+    if (openGroup !== null) {
+      document.addEventListener('mousedown', handleClick)
+      return () => document.removeEventListener('mousedown', handleClick)
+    }
+  }, [openGroup])
+
+  const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href)
 
   return (
-    <aside className="hidden md:flex flex-col h-screen w-60 fixed left-0 top-0 bg-white/[0.03] backdrop-blur-2xl border-r border-white/[0.06] py-2 select-none">
-      <div className="px-3 py-2 mb-1">
-        <div className="text-sm font-semibold text-notion-text-dark">{settings.name || 'User'}</div>
-        <div className="text-[11px] text-notion-muted-dark">JEE 2027</div>
+    <>
+      {/* Desktop floating bar */}
+      <div className="hidden md:flex fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="flex items-center gap-1 px-3 py-2 rounded-[18px]" style={{
+          background: 'rgba(255,255,255,0.85)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(0,0,0,0.06)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+        }}>
+          {NAV_ITEMS.map(item => {
+            const active = isActive(item.href)
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all duration-200 hover:bg-black/[0.04] relative group"
+                title={item.label}
+              >
+                <span className={`text-[18px] leading-none transition-transform duration-200 group-hover:scale-110 ${active ? 'scale-110' : ''}`}>
+                  {item.icon}
+                </span>
+                <span className={`text-[9px] font-medium leading-none whitespace-nowrap transition-colors ${active ? 'text-[#2383e2]' : 'text-black/40'}`}>
+                  {item.label}
+                </span>
+                {active && (
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#2383e2]" />
+                )}
+              </Link>
+            )
+          })}
+        </div>
       </div>
 
-      <div className="flex-1 px-1.5 space-y-0.5 overflow-y-auto">
-        {NAV_ITEMS.map(item => {
-          const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-2 px-2 py-1 rounded-notion text-sm transition-colors ${
-                isActive ? 'bg-notion-sidebar-hover-dark text-notion-text-dark' : 'text-notion-muted-dark hover:text-notion-text-dark hover:bg-notion-sidebar-hover-dark'
+      {/* Mobile 3-button bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pb-3 pt-1">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-[16px]" style={{
+          background: 'rgba(255,255,255,0.9)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(0,0,0,0.06)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+        }}>
+          {MOBILE_GROUPS.map((group, gi) => (
+            <button
+              key={group.label}
+              onClick={() => setOpenGroup(openGroup === gi ? null : gi)}
+              className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl transition-all duration-200 ${
+                openGroup === gi ? 'bg-black/[0.04]' : 'hover:bg-black/[0.02]'
               }`}
             >
-              <span className="text-base flex-shrink-0">{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          )
-        })}
+              <span className="text-[20px] leading-none">{group.icon}</span>
+              <span className={`text-[10px] font-medium leading-none ${openGroup === gi ? 'text-[#2383e2]' : 'text-black/40'}`}>
+                {group.label}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {loaded && (
-        <div className="px-3 pt-2 mt-2 border-t border-notion-border-dark">
-          <div className="text-[10px] text-notion-muted-dark uppercase tracking-wider mb-2 font-medium">Chapter Progress</div>
-          <div className="space-y-1.5">
-            {subs.map(sub => {
-              const stats = getChapterStats(sub, progress)
-              const style = SUBJECT_STYLES[sub]
-              return (
-                <div key={sub} className="flex items-center gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full`} style={{ backgroundColor: style.color }} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between text-[10px]">
-                      <span className="text-notion-muted-dark capitalize truncate">{sub}</span>
-                      <span className="text-notion-text-dark font-medium ml-1">{stats.done}/{stats.total}</span>
-                    </div>
-                    <div className="w-full h-1 rounded-full bg-white/[0.06] mt-0.5">
-                      <div className="h-full rounded-full transition-all" style={{ width: `${stats.pct}%`, backgroundColor: style.color }} />
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+      {/* Mobile collapsible panel */}
+      {openGroup !== null && (
+        <>
+          <div className="fixed inset-0 z-40 md:hidden" onClick={() => setOpenGroup(null)} />
+          <div
+            ref={panelRef}
+            className="fixed bottom-[80px] left-3 right-3 z-50 md:hidden rounded-[16px] overflow-hidden transition-all duration-200"
+            style={{
+              background: 'rgba(255,255,255,0.95)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(0,0,0,0.06)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+            }}
+          >
+            <div className="px-2 py-2">
+              <div className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5" style={{ color: '#888' }}>
+                {MOBILE_GROUPS[openGroup].label}
+              </div>
+              {MOBILE_GROUPS[openGroup].items.map(item => {
+                const active = isActive(item.href)
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpenGroup(null)}
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all ${
+                      active ? 'bg-[#2383e2]/10 text-[#2383e2] font-medium' : 'text-[#555] hover:bg-black/[0.03]'
+                    }`}
+                  >
+                    <span className="text-[16px]">{item.icon}</span>
+                    <span>{item.label}</span>
+                    {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#2383e2]" />}
+                  </Link>
+                )
+              })}
+            </div>
           </div>
-        </div>
+        </>
       )}
-    </aside>
+    </>
   )
 }
