@@ -99,9 +99,7 @@ export default function SettingsPage() {
   const handleGoogleSignIn = async () => {
     const sb = getSupabase()
     if (!sb) return
-    const origin = window.location.origin
-    const allowed = ['http://localhost:3000', 'https://jee-2027.vercel.app', 'https://jeecommandcenter.vercel.app']
-    const redirectTo = allowed.includes(origin) ? `${origin}/auth/callback` : 'https://jee-2027.vercel.app/auth/callback'
+    const redirectTo = `${window.location.origin}/auth/callback`
     await sb.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo },
