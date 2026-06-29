@@ -58,7 +58,7 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
   }
 
   return (
-    <nav className="w-full pt-4 md:pt-6 px-4">
+    <nav className="sticky top-0 z-50 w-full pt-3 md:pt-4 px-4">
       <div className="mx-auto max-w-[900px] flex items-center justify-between rounded-full px-3 md:px-5 py-2"
         style={{
           background: 'var(--c-navbar-bg)',

@@ -64,13 +64,6 @@ const STATS = [
   { value: '250+', label: 'AIR Rankers Mentored' },
 ]
 
-const NAV_ITEMS = [
-  { href: '#features', label: 'Features' },
-  { href: '#results', label: 'Results' },
-  { href: '#pricing', label: 'Pricing' },
-  { href: '#about', label: 'About' },
-]
-
 function useCountUp(ref: React.RefObject<HTMLDivElement | null>, target: number, duration = 2000) {
   const [count, setCount] = useState(0)
 
@@ -122,15 +115,6 @@ export default function LandingPage() {
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
   const [topHovered, setTopHovered] = useState<number | null>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [showFloatingBar, setShowFloatingBar] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setShowFloatingBar(window.scrollY > window.innerHeight * 0.6)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
   const openContact = () => router.push('/contact')
 
   const fadeUp = {
@@ -141,7 +125,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen pb-[80px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
+    <div className="min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       <LandingNav />
 
       {/* Hero */}
@@ -398,44 +382,6 @@ export default function LandingPage() {
             Get Started Free
           </Link>
       </motion.section>
-
-      {/* Floating Nav Bar */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500" style={{
-        transform: showFloatingBar ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)',
-        opacity: showFloatingBar ? 1 : 0,
-        pointerEvents: showFloatingBar ? 'auto' : 'none',
-      }}>
-        <div className="flex items-center gap-1 px-3 py-2 rounded-[18px]" style={{
-          background: 'var(--c-navbar-bg)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid var(--c-border)',
-          boxShadow: 'var(--c-shadow-nav)',
-        }}>
-          {NAV_ITEMS.map(item => (
-            <a key={item.label} href={item.href}
-              className="px-3 py-1.5 rounded-xl text-[12px] font-medium transition-all duration-200 hover:bg-black/[0.04]"
-              style={{ color: 'var(--c-text-secondary)' }}>
-              {item.label}
-            </a>
-          ))}
-          <div className="w-px h-5 mx-1" style={{ background: 'rgba(0,0,0,0.08)' }} />
-          {user ? (
-            <div className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl" style={{ border: '1px solid var(--c-border-card)' }}>
-              <div className="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center text-[8px] font-bold" style={{ background: user.avatar ? 'transparent' : 'var(--c-tag)', color: 'var(--c-muted)' }}>
-                {user.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : user.name.charAt(0).toUpperCase()}
-              </div>
-              <span className="text-[11px] font-medium truncate max-w-[80px]" style={{ color: 'var(--c-text)' }}>{user.name}</span>
-            </div>
-          ) : (
-            <Link href="/auth?mode=signup"
-              className="px-4 py-1.5 rounded-xl text-[12px] font-medium text-white transition-all duration-200"
-              style={{ background: 'var(--c-btn-primary)' }}>
-              Get Started
-            </Link>
-          )}
-        </div>
-      </div>
 
       {/* Footer is rendered by layout.tsx */}
     </div>
