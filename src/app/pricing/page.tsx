@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
 import { createOrder, openCheckout } from '@/lib/razorpay'
 import LandingNav from '@/components/layout/LandingNav'
+import { useUser } from '@/lib/useUser'
 
 const MONTHLY_PLANS = [
   {
@@ -43,6 +44,7 @@ const TESTIMONIALS = [
 
 export default function PricingPage() {
   const router = useRouter()
+  const user = useUser()
   const [isYearly, setIsYearly] = useState(false)
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
@@ -133,18 +135,26 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <button onClick={() => handleSubscribe(plan.price)} disabled={loading}
-                className="w-full py-3 text-[13px] font-medium rounded-[40px] text-white text-center transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110 disabled:opacity-50"
-                style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: loading ? 'not-allowed' : 'pointer' }}>
-                {loading ? 'Processing...' : plan.cta}
-              </button>
+              {user?.isPro && plan.price !== '0' ? (
+                <div className="w-full py-3 text-[13px] font-medium rounded-[40px] text-center"
+                  style={{ background: 'var(--c-card)', border: '1px solid var(--c-green)', color: 'var(--c-green)' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="inline mr-1.5 -mt-0.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Already Pro
+                </div>
+              ) : (
+                <button onClick={() => handleSubscribe(plan.price)} disabled={loading}
+                  className="w-full py-3 text-[13px] font-medium rounded-[40px] text-white text-center transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110 disabled:opacity-50"
+                  style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: loading ? 'not-allowed' : 'pointer' }}>
+                  {user?.isPro && plan.price === '0' ? 'Your Current Plan' : loading ? 'Processing...' : plan.cta}
+                </button>
+              )}
             </div>
           ))}
         </div>
       </div>
 
       {/* Testimonials */}
-      <div className="max-w-[1100px] mx-auto px-5 pb-24">
+      <div className="max-w-[1100px] mx-auto px-5 pb-24" style={{ contentVisibility: 'auto' }}>
         <div className="text-center mb-16">
           <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Testimonials</p>
           <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
@@ -180,7 +190,7 @@ export default function PricingPage() {
       </div>
 
       {/* FAQ */}
-      <div className="max-w-[700px] mx-auto px-5 pb-24">
+      <div className="max-w-[700px] mx-auto px-5 pb-24" style={{ contentVisibility: 'auto' }}>
         <div className="text-center mb-12">
           <h2 className="text-[clamp(24px,3vw,36px)] font-medium tracking-[-1px]" style={{ color: 'var(--c-text)' }}>Billing FAQs</h2>
         </div>
@@ -202,12 +212,6 @@ export default function PricingPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="text-center px-5">
-        <p className="text-[12px]" style={{ color: 'var(--c-caption)' }}>
-          © 2026 JEEIFY. All rights reserved.
-        </p>
-      </div>
     </div>
   )
 }

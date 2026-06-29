@@ -7,6 +7,7 @@ import { useProgressStore } from '@/store/progressStore'
 import { useSettingsStore } from '@/store/settingsStore'
 
 const NAV_ITEMS = [
+  { href: '/', label: 'Home', icon: '🏠' },
   { href: '/dashboard', label: 'Dashboard', icon: '📊' },
   { href: '/syllabus', label: 'Syllabus', icon: '📚' },
   { href: '/roadmap', label: 'Roadmap', icon: '🗺️' },
@@ -25,6 +26,7 @@ const MOBILE_GROUPS = [
   {
     label: 'Study', icon: '📚',
     items: [
+      { href: '/', label: 'Home', icon: '🏠' },
       { href: '/dashboard', label: 'Dashboard', icon: '📊' },
       { href: '/syllabus', label: 'Syllabus', icon: '📚' },
       { href: '/roadmap', label: 'Roadmap', icon: '🗺️' },
@@ -111,7 +113,7 @@ export default function Sidebar() {
       {/* Mobile 3-button bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pb-3 pt-1">
         <div className="flex items-center gap-2 px-3 py-2 rounded-[16px]" style={{
-          background: 'rgba(255,255,255,0.9)',
+          background: 'var(--c-navbar-bg)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
           border: '1px solid var(--c-border)',
@@ -142,7 +144,7 @@ export default function Sidebar() {
             ref={panelRef}
             className="fixed bottom-[80px] left-3 right-3 z-50 md:hidden rounded-[16px] overflow-hidden transition-all duration-200"
             style={{
-              background: 'rgba(255,255,255,0.95)',
+              background: 'var(--c-card)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
               border: '1px solid var(--c-border)',
@@ -161,8 +163,9 @@ export default function Sidebar() {
                     href={item.href}
                     onClick={() => setOpenGroup(null)}
                     className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                      active ? 'bg-[var(--c-blue)]/10 text-[var(--c-blue)] font-medium' : 'text-[#555] hover:bg-black/[0.03]'
+                      active ? 'bg-[var(--c-blue)]/10 text-[var(--c-blue)] font-medium' : 'hover:bg-black/[0.03]'
                     }`}
+                    style={!active ? { color: 'var(--c-text-secondary)' } : undefined}
                   >
                     <span className="text-[16px]">{item.icon}</span>
                     <span>{item.label}</span>

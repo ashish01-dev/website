@@ -152,8 +152,8 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
       </div>
 
       {/* Mobile Menu */}
-      <div className={`fixed inset-0 z-50 bg-white flex flex-col px-10 py-8 transition-transform duration-500 md:hidden`}
-        style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(100%)', transitionTimingFunction: 'cubic-bezier(0.77, 0, 0.175, 1)' }}>
+      <div className={`fixed inset-0 z-50 flex flex-col px-10 py-8 transition-transform duration-500 md:hidden ${menuOpen ? '' : 'pointer-events-none'}`}
+        style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(100%)', background: 'var(--c-card)', transitionTimingFunction: 'cubic-bezier(0.77, 0, 0.175, 1)' }}>
         <div className="flex justify-end mb-16">
           <button onClick={() => setMenuOpen(false)} className="w-8 h-8 flex items-center justify-center" style={{ cursor: 'pointer' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>

@@ -134,7 +134,7 @@ export default function AboutPage() {
       </div>
 
       {/* Stats section */}
-      <div className="max-w-[900px] mx-auto px-5 pb-20">
+      <div className="max-w-[900px] mx-auto px-5 pb-20" style={{ contentVisibility: 'auto' }}>
         <div className="rounded-[18px] px-[28px] py-[32px] grid grid-cols-2 md:grid-cols-4 gap-8" style={{
           background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
         }}>
@@ -153,7 +153,7 @@ export default function AboutPage() {
       </div>
 
       {/* Mission */}
-      <div className="max-w-[1100px] mx-auto px-5 pb-20">
+      <div className="max-w-[1100px] mx-auto px-5 pb-20" style={{ contentVisibility: 'auto' }}>
         <div className="flex flex-col md:flex-row items-center gap-16">
           <div className="flex-1">
             <div className="rounded-[18px] px-[28px] py-[32px]" style={{
@@ -195,7 +195,7 @@ export default function AboutPage() {
       </div>
 
       {/* Journey timeline */}
-      <div className="max-w-[800px] mx-auto px-5 pb-20">
+      <div className="max-w-[800px] mx-auto px-5 pb-20" style={{ contentVisibility: 'auto' }}>
         <div className="text-center mb-14">
           <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Our Journey</p>
           <h2 className="text-[clamp(24px,3vw,36px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
@@ -222,7 +222,7 @@ export default function AboutPage() {
       </div>
 
       {/* Team */}
-      <div className="max-w-[1100px] mx-auto px-5 pb-20">
+      <div className="max-w-[1100px] mx-auto px-5 pb-20" style={{ contentVisibility: 'auto' }}>
         <div className="text-center mb-14">
           <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Team</p>
           <h2 className="text-[clamp(24px,3vw,36px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
@@ -263,12 +263,6 @@ export default function AboutPage() {
         </Link>
       </div>
 
-      {/* Footer */}
-      <div className="text-center px-5">
-        <p className="text-[12px]" style={{ color: 'var(--c-caption)' }}>
-          © 2026 JEEIFY. All rights reserved.
-        </p>
-      </div>
     </div>
   )
 }
