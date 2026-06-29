@@ -24,16 +24,16 @@ export default function TopBar() {
   }, [settings.examDate])
 
   return (
-    <header className="sticky top-0 z-40 bg-black/80 backdrop-blur-sm border-b border-white/[0.06]">
+    <header className="sticky top-0 z-40 bg-notion-bg-dark/80 backdrop-blur-sm border-b border-notion-border-dark">
       <div className="flex items-center justify-between h-11 px-4 md:px-6">
         <div className="flex items-center gap-3">
-          <button className="md:hidden text-lg text-white">☰</button>
-          <div className="flex items-center gap-2 text-sm text-white/50">
-            <span className="font-medium text-white">JEEIFY</span>
+          <button className="md:hidden text-lg">☰</button>
+          <div className="flex items-center gap-2 text-sm text-notion-muted-dark">
+            <span className="font-medium text-notion-text-dark">JEE Command Center</span>
           </div>
         </div>
         <div className="flex items-center gap-3 text-sm">
-          <span className="hidden sm:inline text-white/50">
+          <span className="hidden sm:inline text-notion-muted-dark">
             {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
           </span>
           <span className="text-[#2383e2] text-xs font-medium">22 Jan 2027</span>

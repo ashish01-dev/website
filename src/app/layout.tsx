@@ -78,7 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/manifest.json" />
         <title>JEE 2027 — Command Center</title>
       </head>
-      <body className="min-h-screen bg-black text-white">
+      <body className="min-h-screen bg-notion-bg-dark text-notion-text-dark">
         <Script id="theme-init" strategy="beforeInteractive">{`try{var t=localStorage.getItem('jee-theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light')}}catch(e){}`}</Script>
         {children}
       </body>

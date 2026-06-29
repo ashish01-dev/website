@@ -18,7 +18,7 @@ export default function MobileBottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="md:hidden fixed bottom-0 w-full bg-black/90 backdrop-blur-sm border-t border-white/[0.06] flex justify-around items-center h-12 z-50 px-2">
+    <nav className="md:hidden fixed bottom-0 w-full bg-notion-bg-dark border-t border-notion-border-dark flex justify-around items-center h-12 z-50 px-2">
       {ITEMS.map(item => {
         const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
         return (
