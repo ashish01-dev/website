@@ -23,6 +23,7 @@ const CAMEL_TO_SNAKE: Record<string, string> = {
   chaptersCompleted: 'chapters_completed',
   questionsAttempted: 'questions_attempted',
   pomodoroSessions: 'pomodoro_sessions',
+  hoursGoal: 'hours_goal',
 }
 
 const SNAKE_TO_CAMEL: Record<string, string> = {}

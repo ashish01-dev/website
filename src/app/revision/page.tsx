@@ -259,7 +259,7 @@ export default function RevisionPage() {
                               )}
                               {!isImage && <span className="text-base flex-shrink-0">📄</span>}
                               <div className="flex-1 min-w-0">
-                                <div className="text-xs truncate" style={{ color: 'var(--c-text)' }}>{file.name}</div>
+                                <button onClick={() => file.url && downloadFile(file)} className="text-xs truncate block w-full text-left" style={{ color: 'var(--c-text)', cursor: file.url ? 'pointer' : 'default' }}>{file.name}</button>
                                 <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>{formatFileSize(file.size)}</div>
                               </div>
                               {file.url && (
