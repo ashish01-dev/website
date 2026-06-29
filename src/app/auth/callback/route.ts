@@ -13,16 +13,15 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     try {
+      const response = NextResponse.redirect(`${origin}/`)
       const sb = createServerClient(supabaseUrl, supabaseKey, {
         cookies: {
           getAll: () => request.cookies.getAll().map(c => ({ name: c.name, value: c.value })),
-          setAll: () => {},
+          setAll: (cookies) => cookies.forEach(c => response.cookies.set(c.name, c.value, c.options)),
         },
       })
       const { data: { session } } = await sb.auth.exchangeCodeForSession(code)
       if (!session?.user) return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
-
-      const response = NextResponse.redirect(`${origin}/`)
 
       if (session.user.user_metadata) {
         const meta = session.user.user_metadata
