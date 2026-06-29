@@ -18,7 +18,7 @@ export default function NotFound() {
               alt="logo"
               style={{ height: 28, filter: 'brightness(0)' }}
             />
-            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: '#111' }}>nexto.</span>
+            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: '#111' }}>JEEIFY</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-9">
@@ -57,7 +57,7 @@ export default function NotFound() {
           </button>
         </div>
 
-        <div className="absolute bottom-0 left-[40px] right-[40px] h-[1px] max-md:left-5 max-md:right-5 pointer-events-none" style={{
+        <div className="absolute bottom-0 left-[40px] right-[40px] h-[1px] pointer-events-none max-md:left-5 max-md:right-5" style={{
           backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.08) 2px, transparent 2px)',
           backgroundSize: '6px 1px',
         }} />
@@ -109,7 +109,7 @@ export default function NotFound() {
       {/* ─── Main Content ─── */}
       <main
         className="flex-1 flex flex-col items-center justify-center px-5 pb-[30px] pt-5 text-center mx-auto w-full"
-        style={{ maxWidth: 700 }}
+        style={{ maxWidth: 700, background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)', backgroundAttachment: 'fixed' }}
       >
         <p className="text-[15px] mb-3" style={{ color: 'var(--text-secondary)' }}>Seems you&apos;ve wandered off...</p>
 

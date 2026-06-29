@@ -2,14 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import HeroSection from '@/components/landing/HeroSection'
-import AboutSection from '@/components/landing/AboutSection'
-import FeaturedVideoSection from '@/components/landing/FeaturedVideoSection'
-import PhilosophySection from '@/components/landing/PhilosophySection'
-import ServicesSection from '@/components/landing/ServicesSection'
 import { getSupabase } from '@/lib/supabase'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
+
+const FEATURES = [
+  { icon: 'menu_book', label: 'Syllabus Tracker', desc: 'Track every chapter and topic across Physics, Chemistry, and Maths with real-time progress.' },
+  { icon: 'map', label: 'Smart Roadmap', desc: 'Personalized study roadmap that adapts to your pace and exam timeline.' },
+  { icon: 'calendar_month', label: 'Hourly Timetable', desc: 'Drag-and-drop weekly planner with subject slots, breaks, and revision blocks.' },
+  { icon: 'trending_up', label: 'Progress Analytics', desc: 'Visual breakdown of completion rates, pace status, and subject-wise performance.' },
+  { icon: 'timer', label: 'Pomodoro Timer', desc: 'Built-in focus timer with session tracking to optimize your study streaks.' },
+  { icon: 'assignment', label: 'Test Analyzer', desc: 'Log mock test scores, track improvement, and identify weak areas.' },
+]
 
 const PLANS = [
   {
@@ -55,6 +58,9 @@ export default function LandingPage() {
   const [submittedEmail, setSubmittedEmail] = useState(false)
   const [showTc, setShowTc] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 
   const emailValid = isValidEmail(authEmail)
   const emailWarning = emailTouched && authEmail.length > 0 && !emailValid
@@ -96,183 +102,376 @@ export default function LandingPage() {
   const openContact = () => router.push('/contact')
 
   return (
-    <div className="bg-black text-white font-sans overflow-x-hidden">
-      <HeroSection onOpenAuth={openAuth} />
-      <AboutSection />
-      <FeaturedVideoSection />
-      <PhilosophySection />
-      <ServicesSection />
+    <div className="min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+      {/* ─── Navbar ─── */}
+      <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
+        <div className="flex items-center justify-between">
+          <button onClick={() => router.push('/')} className="flex items-center gap-[9px]" style={{ cursor: 'pointer' }}>
+            <img
+              src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg"
+              alt="logo"
+              style={{ height: 28, filter: 'brightness(0)' }}
+            />
+            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: '#111' }}>JEEIFY</span>
+          </button>
+
+          <div className="hidden md:flex items-center gap-9">
+            <a href="#features" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Features</a>
+            <a href="#pricing" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Pricing</a>
+            <a href="#about" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>About</a>
+          </div>
+
+          <div className="hidden md:flex items-center gap-4">
+            <button onClick={() => openAuth('login')} className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Sign In</button>
+            <button
+              onClick={() => openAuth('signup')}
+              className="flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
+              style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: 'pointer' }}
+              onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 25px rgba(0,0,0,0.25)')}
+              onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)')}
+            >
+              <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </span>
+              Get Started
+            </button>
+          </div>
+
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden flex flex-col items-center justify-center w-6 h-6 gap-[5px]"
+            style={{ cursor: 'pointer' }}
+          >
+            <span className={`block h-[2px] w-6 bg-[#111] rounded transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-[3.5px]' : ''}`} />
+            <span className={`block h-[2px] w-6 bg-[#111] rounded transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
+            <span className={`block h-[2px] w-6 bg-[#111] rounded transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-[3.5px]' : ''}`} />
+          </button>
+        </div>
+
+        <div className="absolute bottom-0 left-[40px] right-[40px] h-[1px] pointer-events-none max-md:left-5 max-md:right-5" style={{
+          backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.08) 2px, transparent 2px)',
+          backgroundSize: '6px 1px',
+        }} />
+      </nav>
+
+      {/* ─── Mobile Menu ─── */}
+      <div
+        className={`fixed inset-0 z-50 bg-white flex flex-col px-10 py-8 transition-transform duration-500 md:hidden`}
+        style={{
+          transform: menuOpen ? 'translateX(0)' : 'translateX(100%)',
+          transitionTimingFunction: 'cubic-bezier(0.77, 0, 0.175, 1)',
+        }}
+      >
+        <div className="flex justify-end mb-16">
+          <button onClick={() => setMenuOpen(false)} className="w-8 h-8 flex items-center justify-center" style={{ cursor: 'pointer' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="flex flex-col">
+          {[
+            { label: 'Features', href: '#features' },
+            { label: 'Pricing', href: '#pricing' },
+            { label: 'About', href: '#about' },
+            { label: 'Sign In', href: '#', action: () => { setMenuOpen(false); openAuth('login') } },
+          ].map(item => (
+            item.href === '#'
+              ? (
+                <button key={item.label} onClick={item.action}
+                  className="text-left text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-black/[0.06]"
+                  style={{ color: '#111' }}
+                >{item.label}</button>
+              )
+              : (
+                <a key={item.label} href={item.href} onClick={() => setMenuOpen(false)}
+                  className="text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-black/[0.06]"
+                  style={{ color: '#111' }}
+                >{item.label}</a>
+              )
+          ))}
+        </div>
+        <div className="mt-auto">
+          <button
+            onClick={() => { setMenuOpen(false); openAuth('signup') }}
+            className="flex items-center gap-3 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px]"
+            style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: 'pointer' }}
+          >
+            <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </span>
+            Get Started
+          </button>
+        </div>
+      </div>
+
+      {/* ─── Hero ─── */}
+      <section className="flex flex-col items-center justify-center text-center px-5 py-24 md:py-32" style={{ background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+        <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-6" style={{ color: '#888' }}>JEE 2027 — Command Center</p>
+        <h1 className="text-[clamp(42px,7vw,72px)] font-medium leading-[1.05] tracking-[-2px] max-w-4xl" style={{ color: '#0f0f0f' }}>
+          Master your JEE prep<br />
+          <span className="text-[#2383e2] font-semibold">with purpose.</span>
+        </h1>
+        <p className="text-[15px] mt-5 max-w-lg" style={{ color: '#888', lineHeight: 1.7 }}>
+          Track syllabus progress, optimize your timetable, analyze tests — a command center built for the systematic mind.
+        </p>
+        <div className="flex items-center gap-4 mt-8 flex-wrap justify-center">
+          <button
+            onClick={() => openAuth('signup')}
+            className="flex items-center gap-2 text-white text-[14px] font-medium rounded-[40px] px-[22px] py-[8px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
+            style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: 'pointer' }}
+            onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 25px rgba(0,0,0,0.25)')}
+            onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)')}
+          >
+            <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </span>
+            Start Free
+          </button>
+          <a href="#features"
+            className="text-[14px] font-medium rounded-[40px] px-[22px] py-[8px] transition-all duration-200 hover:-translate-y-[1px]"
+            style={{ color: '#555', border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer' }}
+          >Explore</a>
+        </div>
+      </section>
+
+      {/* ─── Features ─── */}
+      <section id="features" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
+        <div className="text-center mb-16">
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Capabilities</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
+            Everything you need.<span className="text-[#888]"> Nothing you don&apos;t.</span>
+          </h2>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          {FEATURES.map((f, i) => (
+            <div
+              key={f.label}
+              className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]"
+              style={{
+                background: 'var(--card-bg)',
+                border: '1px solid rgba(0,0,0,0.05)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                cursor: 'default',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.08)'; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.04)'; }}
+            >
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: '#eaecf0' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 24, color: '#111' }}>{f.icon}</span>
+              </div>
+              <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: 'var(--text-main)' }}>{f.label}</h3>
+              <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* ─── Pricing ─── */}
-      <section id="pricing" className="bg-black py-28 md:py-40 px-6 overflow-hidden">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-white/40 text-xs tracking-widest uppercase mb-4">Pricing</p>
-            <h2 className="text-4xl md:text-6xl text-white tracking-tight" style={{ fontFamily: "'Instrument Serif', serif" }}>
-              Choose your plan
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-            {PLANS.map((plan, i) => (
-              <motion.div
-                key={plan.name}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: i * 0.1 }}
-                className={`liquid-glass rounded-3xl p-8 ${plan.popular ? 'scale-[1.02]' : ''}`}
-              >
-                {plan.popular && (
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-[#2383e2] mb-3">Most Popular</div>
-                )}
-                <div className="text-lg font-bold tracking-tight mb-1">{plan.name}</div>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-bold tracking-tight">{plan.price === '—' ? '—' : `$${plan.price}`}</span>
-                  {plan.price !== '—' && <span className="text-xs text-white/30">/month</span>}
-                </div>
-                <p className="text-xs text-white/40 mb-6 tracking-tight">{plan.desc}</p>
-                <ul className="space-y-2.5 mb-8">
-                  {plan.features.map(f => (
-                    <li key={f} className="text-xs text-white/50 flex items-center gap-2 tracking-tight">
-                      <span className="text-[#2383e2]">✓</span> {f}
-                    </li>
-                  ))}
-                </ul>
-                {plan.name === 'Teams' ? (
-                  <button onClick={openContact} className="liquid-glass rounded-full w-full py-3 text-sm font-medium text-white/70 hover:text-white transition-colors">Contact Us</button>
-                ) : (
-                  <button onClick={() => openAuth('signup')} className="w-full py-3 text-sm font-medium rounded-full bg-white text-black hover:bg-white/90 transition-colors">
-                    {plan.cta}
-                  </button>
-                )}
-              </motion.div>
-            ))}
-          </div>
+      <section id="pricing" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
+        <div className="text-center mb-16">
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Pricing</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
+            Choose your plan
+          </h2>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          {PLANS.map((plan, i) => (
+            <div
+              key={plan.name}
+              onMouseEnter={() => setHoveredPlan(i)}
+              onMouseLeave={() => setHoveredPlan(null)}
+              className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200"
+              style={{
+                background: 'var(--card-bg)',
+                border: plan.popular ? '1px solid #2383e2' : '1px solid rgba(0,0,0,0.05)',
+                boxShadow: hoveredPlan === i ? '0 8px 28px rgba(0,0,0,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
+                transform: hoveredPlan === i ? 'translateY(-3px)' : 'translateY(0)',
+              }}
+            >
+              {plan.popular && (
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-[#2383e2] mb-3">Most Popular</div>
+              )}
+              <div className="text-[18px] font-bold mb-1" style={{ color: 'var(--text-main)' }}>{plan.name}</div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-[36px] font-bold tracking-tight" style={{ color: '#0f0f0f' }}>{plan.price === '—' ? '—' : `$${plan.price}`}</span>
+                {plan.price !== '—' && <span className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>/month</span>}
+              </div>
+              <p className="text-[13px] mb-6" style={{ color: 'var(--text-secondary)' }}>{plan.desc}</p>
+              <ul className="space-y-2.5 mb-8">
+                {plan.features.map(f => (
+                  <li key={f} className="text-[13px] flex items-center gap-2" style={{ color: '#555' }}>
+                    <span className="text-[#2383e2]">✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              {plan.name === 'Teams' ? (
+                <button onClick={openContact}
+                  className="w-full py-3 text-[13px] font-medium rounded-[40px] transition-all duration-200"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555', cursor: 'pointer' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.2)'; e.currentTarget.style.color = '#111' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; e.currentTarget.style.color = '#555' }}
+                >Contact Us</button>
+              ) : (
+                <button onClick={() => openAuth('signup')}
+                  className="w-full py-3 text-[13px] font-medium rounded-[40px] text-white transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
+                  style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: 'pointer' }}
+                  onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 25px rgba(0,0,0,0.25)')}
+                  onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)')}
+                >{plan.cta}</button>
+              )}
+            </div>
+          ))}
         </div>
       </section>
 
       {/* ─── Testimonials ─── */}
-      <section className="bg-black py-28 md:py-40 px-6 overflow-hidden border-t border-white/[0.04]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-white/40 text-xs tracking-widest uppercase mb-4">Stories</p>
-            <h2 className="text-4xl md:text-6xl text-white tracking-tight" style={{ fontFamily: "'Instrument Serif', serif" }}>
-              What our users say
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-4">
-            {TESTIMONIALS.map((t, i) => (
-              <motion.div
-                key={t.author}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="liquid-glass rounded-2xl p-8"
-              >
-                <div className="text-[#2383e2] text-2xl font-serif mb-4 leading-none">&ldquo;</div>
-                <p className="text-sm text-white/70 mb-6 leading-relaxed tracking-tight">{t.quote}</p>
-                <div className="border-t border-white/[0.06] pt-4">
-                  <div className="text-xs font-bold tracking-tight text-white">{t.author}</div>
-                  <div className="text-[10px] text-white/30 tracking-tight">{t.role}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+      <section id="about" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
+        <div className="text-center mb-16">
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Stories</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
+            What our users say
+          </h2>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          {TESTIMONIALS.map((t, i) => (
+            <div
+              key={t.author}
+              className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]"
+              style={{
+                background: 'var(--card-bg)',
+                border: '1px solid rgba(0,0,0,0.05)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.08)'; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.04)'; }}
+            >
+              <div className="text-[#2383e2] text-2xl font-serif mb-3 leading-none">&ldquo;</div>
+              <p className="text-[14px] mb-6 leading-relaxed" style={{ color: '#555' }}>{t.quote}</p>
+              <div className="border-t border-black/[0.06] pt-4">
+                <div className="text-[14px] font-semibold" style={{ color: 'var(--text-main)' }}>{t.author}</div>
+                <div className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t.role}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="bg-black py-28 md:py-40 px-6 overflow-hidden relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.02)_0%,_transparent_60%)] pointer-events-none" />
-        <div className="relative max-w-3xl mx-auto text-center">
-          <p className="text-white/40 text-xs tracking-widest uppercase mb-4">Ready</p>
-          <h2 className="text-4xl md:text-6xl text-white tracking-tight mb-6" style={{ fontFamily: "'Instrument Serif', serif" }}>
-            Ace JEE 2027.<br /><span className="text-white/40">Start today.</span>
-          </h2>
-          <p className="text-sm text-white/50 mb-8 max-w-md mx-auto tracking-tight">
-            Free. No credit card. Just your Google account and the determination to succeed.
-          </p>
-          <button onClick={() => openAuth('signup')} className="bg-white text-black rounded-full px-8 py-4 text-sm font-medium hover:bg-white/90 transition-colors">
-            Get Started Free
-          </button>
-        </div>
+      <section className="px-5 py-24 md:py-32 text-center">
+        <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-4" style={{ color: '#888' }}>Ready</p>
+        <h2 className="text-[clamp(32px,5vw,52px)] font-medium tracking-[-1.5px] mb-4" style={{ color: '#0f0f0f' }}>
+          Ace JEE 2027.<br /><span style={{ color: '#888' }}>Start today.</span>
+        </h2>
+        <p className="text-[14px] mb-8 max-w-md mx-auto" style={{ color: '#888', lineHeight: 1.7 }}>
+          Free. No credit card. Just your Google account and the determination to succeed.
+        </p>
+        <button onClick={() => openAuth('signup')}
+          className="inline-flex items-center gap-2 text-white text-[14px] font-medium rounded-[40px] px-[24px] py-[10px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
+          style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: 'pointer' }}
+          onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 25px rgba(0,0,0,0.25)')}
+          onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)')}
+        >
+          <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </span>
+          Get Started Free
+        </button>
       </section>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-white/[0.04] py-12 md:py-16 px-6 bg-black">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-            <div className="flex items-center gap-2 text-sm text-white/40 tracking-tight">
-              <div className="liquid-glass rounded-md p-1.5 flex items-center justify-center">
-                <span className="text-white text-xs font-bold">J</span>
-              </div>
-              JEEIFY
-            </div>
-            <div className="flex items-center gap-6 text-[11px] font-medium tracking-tight flex-wrap justify-center">
-              <a href="#features" className="text-white/40 hover:text-white transition-colors uppercase">Features</a>
-              <button onClick={() => setShowTc(true)} className="text-white/40 hover:text-white transition-colors uppercase">Terms</button>
-              <button onClick={() => setShowPrivacy(true)} className="text-white/40 hover:text-white transition-colors uppercase">Privacy</button>
-              <button onClick={openContact} className="text-white/40 hover:text-white transition-colors uppercase">Contact</button>
-              <a href="#pricing" className="text-white/40 hover:text-white transition-colors uppercase">Pricing</a>
-            </div>
+      <footer className="border-t border-black/[0.06] py-12 md:py-16 px-5 max-w-[1100px] mx-auto">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+          <div className="flex items-center gap-2 text-sm" style={{ color: '#888' }}>
+            <div className="w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold text-white" style={{ background: '#111' }}>J</div>
+            JEEIFY
           </div>
-          <div className="text-center text-xs text-white/25 tracking-tight">
-            Made with <span className="text-[#E03E3E]">&#9829;</span> by Ashish
+          <div className="flex items-center gap-6 text-[12px] font-medium flex-wrap justify-center">
+            <a href="#features" className="hover:opacity-100 transition-opacity" style={{ opacity: 0.6, color: '#111' }}>Features</a>
+            <button onClick={() => setShowTc(true)} className="hover:opacity-100 transition-opacity" style={{ opacity: 0.6, color: '#111', cursor: 'pointer' }}>Terms</button>
+            <button onClick={() => setShowPrivacy(true)} className="hover:opacity-100 transition-opacity" style={{ opacity: 0.6, color: '#111', cursor: 'pointer' }}>Privacy</button>
+            <button onClick={openContact} className="hover:opacity-100 transition-opacity" style={{ opacity: 0.6, color: '#111', cursor: 'pointer' }}>Contact</button>
+            <a href="#pricing" className="hover:opacity-100 transition-opacity" style={{ opacity: 0.6, color: '#111' }}>Pricing</a>
           </div>
+        </div>
+        <div className="text-center text-[12px]" style={{ color: '#aaa' }}>
+          Made with <span style={{ color: '#E03E3E' }}>&#9829;</span> by Ashish
         </div>
       </footer>
 
       {/* ─── Auth Modal ─── */}
       {showAuth && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm p-8 bg-[#0A0A0F] border border-white/[0.08] relative rounded-2xl">
-            <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#E03E3E] via-[#2383e2] to-[#F5A623]" />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="w-full max-w-sm p-8 bg-white rounded-[18px] relative" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-base font-bold tracking-tight text-white">{authMode === 'signup' ? 'Create Account' : 'Welcome Back'}</h2>
-              <button onClick={resetAuth} className="text-white/40 hover:text-white transition-colors">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              <h2 className="text-[16px] font-bold" style={{ color: '#111' }}>{authMode === 'signup' ? 'Create Account' : 'Welcome Back'}</h2>
+              <button onClick={resetAuth} className="hover:opacity-60 transition-opacity" style={{ cursor: 'pointer' }}>
+                <svg className="w-5 h-5" fill="none" stroke="#888" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-            <button onClick={handleGoogleSignIn} className="w-full flex items-center justify-center gap-2.5 px-4 py-3 border border-white/[0.12] hover:bg-white/[0.05] transition-colors rounded-full">
-              <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" /><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>
-              <span className="text-sm font-medium text-white">Continue with Google</span>
+            <button onClick={handleGoogleSignIn}
+              className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-[40px] transition-all duration-200"
+              style={{ border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.2)'; e.currentTarget.style.background = 'rgba(0,0,0,0.02)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; e.currentTarget.style.background = 'transparent' }}
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>
+              <span className="text-sm font-medium" style={{ color: '#111' }}>Continue with Google</span>
             </button>
             <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/[0.06]" /></div>
-              <div className="relative flex justify-center"><span className="bg-[#0A0A0F] px-3 text-[11px] text-white/30 uppercase tracking-wider font-semibold">Or</span></div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/[0.06]" /></div>
+              <div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: '#aaa' }}>Or</span></div>
             </div>
             <form onSubmit={handleEmailSignIn} className="space-y-4">
               <div>
                 <input type="email" placeholder="Email address" value={authEmail}
                   onChange={e => { setAuthEmail(e.target.value); setAuthError(''); setSubmittedEmail(false); if (!emailTouched) setEmailTouched(true) }}
-                  className={`w-full px-4 py-3 bg-white/[0.04] border text-sm text-white placeholder:text-white/25 outline-none transition-colors tracking-tight rounded-full ${emailWarning ? 'border-[#E03E3E]' : 'border-white/[0.08]'} focus:border-[#2383e2]`} />
-                {emailWarning && <p className="text-[#E03E3E] text-[11px] mt-1.5 font-medium tracking-tight">Please enter a valid email address</p>}
+                  className={`w-full px-4 py-3 text-sm outline-none transition-colors rounded-[40px] ${emailWarning ? 'border-[#E03E3E]' : ''}`}
+                  style={{ border: `1px solid ${emailWarning ? '#E03E3E' : 'rgba(0,0,0,0.1)'}`, color: '#111' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
+                  onBlur={e => { if (!emailWarning) e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                {emailWarning && <p className="text-[#E03E3E] text-[11px] mt-1.5 font-medium">Please enter a valid email address</p>}
               </div>
               <div>
                 <input type="password" placeholder="Password" value={authPassword}
                   onChange={e => { setAuthPassword(e.target.value); setAuthError(''); setSubmittedEmail(false) }}
-                  className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder:text-white/25 outline-none transition-colors focus:border-[#2383e2] tracking-tight rounded-full" />
+                  className="w-full px-4 py-3 text-sm outline-none rounded-[40px] transition-colors"
+                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#111' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
                 {authMode === 'signup' && authPassword.length > 0 && (
                   <div className="mt-2 space-y-1">
                     {PASSWORD_RULES.map(r => {
                       const pass = r.test(authPassword)
-                      return <div key={r.label} className={`text-[10px] flex items-center gap-1.5 tracking-tight ${pass ? 'text-[#0f8a5e]' : 'text-white/30'}`}>
+                      return <div key={r.label} className={`text-[11px] flex items-center gap-1.5 ${pass ? 'text-[#0f8a5e]' : 'text-[#aaa]'}`}>
                         <span>{pass ? '✓' : '○'}</span> {r.label}
                       </div>
                     })}
                   </div>
                 )}
               </div>
-              {authError && submittedEmail && <p className="text-[#F5A623] text-[11px] text-center font-medium tracking-tight">{authError}</p>}
+              {authError && submittedEmail && <p className="text-[#d9730d] text-[11px] text-center font-medium">{authError}</p>}
               <button type="submit" disabled={!canSubmit}
-                className={`w-full px-4 py-3 text-sm font-semibold tracking-tight rounded-full transition-all ${canSubmit ? 'bg-[#2383e2] text-white' : 'bg-white/[0.06] text-white/30'}`}>
+                className="w-full px-4 py-3 text-sm font-semibold rounded-[40px] transition-all disabled:opacity-40"
+                style={{
+                  background: canSubmit ? '#2383e2' : 'rgba(0,0,0,0.06)',
+                  color: canSubmit ? '#fff' : '#aaa',
+                  cursor: canSubmit ? 'pointer' : 'not-allowed',
+                }}>
                 {authMode === 'signup' ? 'Create Account' : 'Sign In'}
               </button>
             </form>
-            <p className="text-[11px] text-white/30 text-center mt-4 tracking-tight">
+            <p className="text-[12px] text-center mt-4" style={{ color: '#888' }}>
               {authMode === 'signup' ? 'Already have an account?' : "Don't have an account?"}{' '}
-              <button onClick={() => { setAuthMode(authMode === 'signup' ? 'login' : 'signup'); setAuthEmail(''); setAuthPassword(''); setAuthError(''); setEmailTouched(false); setSubmittedEmail(false) }} className="text-[#2383e2] hover:underline font-medium">Switch</button>
+              <button onClick={() => { setAuthMode(authMode === 'signup' ? 'login' : 'signup'); setAuthEmail(''); setAuthPassword(''); setAuthError(''); setEmailTouched(false); setSubmittedEmail(false) }} className="font-medium hover:underline" style={{ color: '#2383e2', cursor: 'pointer' }}>Switch</button>
             </p>
           </div>
         </div>
@@ -280,21 +479,23 @@ export default function LandingPage() {
 
       {/* ─── T&C Modal ─── */}
       {showTc && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg p-8 bg-[#0A0A0F] border border-white/[0.08] relative max-h-[80vh] overflow-y-auto rounded-2xl">
-            <div className="flex items-center justify-between mb-6 sticky top-0 bg-[#0A0A0F] pb-2">
-              <h2 className="text-base font-bold tracking-tight text-white">Terms &amp; Conditions</h2>
-              <button onClick={() => setShowTc(false)} className="text-white/40 hover:text-white transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="w-full max-w-lg p-8 bg-white rounded-[18px] relative max-h-[80vh] overflow-y-auto" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+            <div className="flex items-center justify-between mb-6 sticky top-0 bg-white pb-2">
+              <h2 className="text-[16px] font-bold" style={{ color: '#111' }}>Terms &amp; Conditions</h2>
+              <button onClick={() => setShowTc(false)} className="hover:opacity-60 transition-opacity" style={{ cursor: 'pointer' }}>
+                <svg className="w-5 h-5" fill="none" stroke="#888" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
             </div>
-            <div className="text-xs text-white/50 leading-relaxed space-y-3 tracking-tight">
-              <p><strong className="text-white/70">1. Acceptance of Terms</strong><br />By accessing JEEIFY, you agree to these terms. If you do not agree, do not use the service.</p>
-              <p><strong className="text-white/70">2. Description of Service</strong><br />JEEIFY provides a personal study tracking dashboard for JEE aspirants. The service is provided &ldquo;as is&rdquo; without warranty.</p>
-              <p><strong className="text-white/70">3. User Accounts</strong><br />You are responsible for maintaining the confidentiality of your Google account credentials used to sign in.</p>
-              <p><strong className="text-white/70">4. Data Storage</strong><br />Your study data is stored locally in your browser via IndexedDB and optionally synced to Supabase cloud servers when signed in.</p>
-              <p><strong className="text-white/70">5. Acceptable Use</strong><br />You agree not to misuse the service for any unlawful purpose or to disrupt the service for other users.</p>
-              <p><strong className="text-white/70">6. Limitation of Liability</strong><br />JEEIFY is not liable for any direct or indirect damages arising from the use or inability to use the service.</p>
-              <p><strong className="text-white/70">7. Changes to Terms</strong><br />We reserve the right to update these terms at any time. Continued use of the service after changes constitutes acceptance.</p>
-              <p className="text-white/30 pt-3">Last updated: June 2026</p>
+            <div className="text-[13px] leading-relaxed space-y-3" style={{ color: '#666' }}>
+              <p><strong style={{ color: '#333' }}>1. Acceptance of Terms</strong><br />By accessing JEEIFY, you agree to these terms. If you do not agree, do not use the service.</p>
+              <p><strong style={{ color: '#333' }}>2. Description of Service</strong><br />JEEIFY provides a personal study tracking dashboard for JEE aspirants. The service is provided &ldquo;as is&rdquo; without warranty.</p>
+              <p><strong style={{ color: '#333' }}>3. User Accounts</strong><br />You are responsible for maintaining the confidentiality of your Google account credentials used to sign in.</p>
+              <p><strong style={{ color: '#333' }}>4. Data Storage</strong><br />Your study data is stored locally in your browser via IndexedDB and optionally synced to Supabase cloud servers when signed in.</p>
+              <p><strong style={{ color: '#333' }}>5. Acceptable Use</strong><br />You agree not to misuse the service for any unlawful purpose or to disrupt the service for other users.</p>
+              <p><strong style={{ color: '#333' }}>6. Limitation of Liability</strong><br />JEEIFY is not liable for any direct or indirect damages arising from the use or inability to use the service.</p>
+              <p><strong style={{ color: '#333' }}>7. Changes to Terms</strong><br />We reserve the right to update these terms at any time. Continued use of the service after changes constitutes acceptance.</p>
+              <p className="pt-3" style={{ color: '#aaa' }}>Last updated: June 2026</p>
             </div>
           </div>
         </div>
@@ -302,20 +503,22 @@ export default function LandingPage() {
 
       {/* ─── Privacy Modal ─── */}
       {showPrivacy && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg p-8 bg-[#0A0A0F] border border-white/[0.08] relative max-h-[80vh] overflow-y-auto rounded-2xl">
-            <div className="flex items-center justify-between mb-6 sticky top-0 bg-[#0A0A0F] pb-2">
-              <h2 className="text-base font-bold tracking-tight text-white">Privacy Policy</h2>
-              <button onClick={() => setShowPrivacy(false)} className="text-white/40 hover:text-white transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="w-full max-w-lg p-8 bg-white rounded-[18px] relative max-h-[80vh] overflow-y-auto" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+            <div className="flex items-center justify-between mb-6 sticky top-0 bg-white pb-2">
+              <h2 className="text-[16px] font-bold" style={{ color: '#111' }}>Privacy Policy</h2>
+              <button onClick={() => setShowPrivacy(false)} className="hover:opacity-60 transition-opacity" style={{ cursor: 'pointer' }}>
+                <svg className="w-5 h-5" fill="none" stroke="#888" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
             </div>
-            <div className="text-xs text-white/50 leading-relaxed space-y-3 tracking-tight">
-              <p><strong className="text-white/70">1. Information We Collect</strong><br />We collect your Google account email and name when you sign in. Study progress data is stored locally and optionally synced to our servers.</p>
-              <p><strong className="text-white/70">2. How We Use Information</strong><br />Your data is used solely to provide the study tracking service. We do not sell, share, or distribute your personal information.</p>
-              <p><strong className="text-white/70">3. Data Storage</strong><br />Primary storage is in your browser via IndexedDB. Cloud sync via Supabase is optional and only occurs when you sign in.</p>
-              <p><strong className="text-white/70">4. Third-Party Services</strong><br />We use Google OAuth for authentication and Supabase for optional cloud sync. Both services have their own privacy policies.</p>
-              <p><strong className="text-white/70">5. Your Rights</strong><br />You can export, clear, or delete all your data at any time from the Settings page. You can also sign out to stop cloud sync.</p>
-              <p><strong className="text-white/70">6. Contact</strong><br />For privacy concerns, reach out via the Contact page.</p>
-              <p className="text-white/30 pt-3">Last updated: June 2026</p>
+            <div className="text-[13px] leading-relaxed space-y-3" style={{ color: '#666' }}>
+              <p><strong style={{ color: '#333' }}>1. Information We Collect</strong><br />We collect your Google account email and name when you sign in. Study progress data is stored locally and optionally synced to our servers.</p>
+              <p><strong style={{ color: '#333' }}>2. How We Use Information</strong><br />Your data is used solely to provide the study tracking service. We do not sell, share, or distribute your personal information.</p>
+              <p><strong style={{ color: '#333' }}>3. Data Storage</strong><br />Primary storage is in your browser via IndexedDB. Cloud sync via Supabase is optional and only occurs when you sign in.</p>
+              <p><strong style={{ color: '#333' }}>4. Third-Party Services</strong><br />We use Google OAuth for authentication and Supabase for optional cloud sync. Both services have their own privacy policies.</p>
+              <p><strong style={{ color: '#333' }}>5. Your Rights</strong><br />You can export, clear, or delete all your data at any time from the Settings page. You can also sign out to stop cloud sync.</p>
+              <p><strong style={{ color: '#333' }}>6. Contact</strong><br />For privacy concerns, reach out via the Contact page.</p>
+              <p className="pt-3" style={{ color: '#aaa' }}>Last updated: June 2026</p>
             </div>
           </div>
         </div>
