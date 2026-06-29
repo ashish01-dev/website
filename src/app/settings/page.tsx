@@ -9,7 +9,7 @@ import { db } from '@/lib/db'
 import { downloadJSON } from '@/lib/utils'
 import { getSupabase } from '@/lib/supabase'
 import { setSyncUser } from '@/lib/supabase-sync'
-import type { User } from '@supabase/supabase-js'
+import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 export default function SettingsPage() {
   const { settings, update } = useSettingsStore()
@@ -20,13 +20,13 @@ export default function SettingsPage() {
   useEffect(() => {
     const sb = getSupabase()
     if (!sb) return
-    sb.auth.getUser().then(({ data }) => {
-      setUser(data.user)
-      setSyncUser(data.user?.id ?? null)
-      const givenName = data.user?.user_metadata?.given_name || data.user?.user_metadata?.full_name || ''
+    sb.auth.getUser().then((res: { data: { user: User | null } }) => {
+      setUser(res.data.user)
+      setSyncUser(res.data.user?.id ?? null)
+      const givenName = res.data.user?.user_metadata?.given_name || res.data.user?.user_metadata?.full_name || ''
       if (givenName && !useSettingsStore.getState().settings.name) useSettingsStore.getState().update({ name: givenName })
     })
-    const { data: { subscription } } = sb.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = sb.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       setUser(session?.user ?? null)
       setSyncUser(session?.user?.id ?? null)
       const givenName = session?.user?.user_metadata?.given_name || session?.user?.user_metadata?.full_name || ''

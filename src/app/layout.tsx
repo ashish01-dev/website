@@ -8,6 +8,7 @@ import { useTimetableStore } from '@/store/timetableStore'
 import { getSupabase } from '@/lib/supabase'
 import { setSyncUser, syncPullAll } from '@/lib/supabase-sync'
 import { db } from '@/lib/db'
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 const TABLE_KEYS: Record<string, string> = {
   progress: 'chapterId', timetable: 'id', tests: 'id', errors: 'id',
@@ -45,7 +46,7 @@ async function initSync() {
     await useProgressStore.getState().load()
     await useTimetableStore.getState().load()
   }
-  sb.auth.onAuthStateChange((event, session) => {
+  sb.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
     const uid = session?.user?.id ?? null
     setSyncUser(uid)
     if (event === 'SIGNED_IN' && uid) {
