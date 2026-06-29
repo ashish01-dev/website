@@ -66,6 +66,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const { load: loadTimetable } = useTimetableStore()
   const pathname = usePathname()
   const [userName, setUserName] = useState<string | null>(null)
+  const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/settings']
+  const isAppPage = APP_PATHS.some(p => pathname.startsWith(p))
 
   useEffect(() => {
     initSync()
@@ -107,7 +109,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="flex-1">
             {children}
           </div>
-          <Footer />
+          {!isAppPage && <Footer />}
         </div>
       </body>
     </html>

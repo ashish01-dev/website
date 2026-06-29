@@ -12,7 +12,9 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
   const [menuOpen, setMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
   const profileRef = useRef<HTMLDivElement>(null)
+  const profileBtnRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'))
@@ -20,11 +22,24 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setShowProfileDropdown(false)
+      if (profileRef.current && !profileRef.current.contains(e.target as Node) && !(e.target as HTMLElement)?.closest?.('.profile-dropdown')) {
+        setShowProfileDropdown(false)
+      }
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  useEffect(() => {
+    if (showProfileDropdown && profileBtnRef.current) {
+      const rect = profileBtnRef.current.getBoundingClientRect()
+      setDropdownStyle({
+        position: 'fixed',
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      })
+    }
+  }, [showProfileDropdown])
 
   const toggleTheme = () => {
     const newDark = !document.documentElement.classList.contains('dark')
@@ -77,8 +92,8 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
             )}
           </button>
           {user ? (
-            <div ref={profileRef} className="relative">
-              <button onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+            <div ref={profileRef}>
+              <button ref={profileBtnRef} onClick={(e) => { e.stopPropagation(); setShowProfileDropdown(!showProfileDropdown) }}
                 className="flex items-center gap-1.5 pl-1 pr-2.5 py-0.5 rounded-full transition-all hover:bg-black/[0.04]"
                 style={{ cursor: 'pointer', border: '1px solid var(--c-border-card)' }}>
                 <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center" style={{ background: user.avatar ? 'transparent' : 'var(--c-tag)' }}>
@@ -91,7 +106,7 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
                 <span className="text-[12px] font-medium max-w-[90px] truncate hidden sm:block" style={{ color: 'var(--c-text)' }}>{user.name}</span>
               </button>
               {showProfileDropdown && (
-                <div className="absolute right-0 mt-2 w-56 rounded-[14px] overflow-hidden z-50" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}>
+                <div className="profile-dropdown w-56 rounded-[14px]" style={{ ...dropdownStyle, zIndex: 9999, background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}>
                   <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--c-border)' }}>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>{user.name}</span>
@@ -105,21 +120,21 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
                       Pro Subscriber
                     </div>
                   ) : (
-                    <button onClick={() => { setShowProfileDropdown(false); router.push('/pricing') }}
+                    <button onClick={(e) => { e.stopPropagation(); setShowProfileDropdown(false); router.push('/pricing') }}
                       className="flex items-center gap-2 w-full text-left px-4 py-3 text-sm transition-colors hover:bg-black/[0.03]"
                       style={{ color: 'var(--c-text)' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                       Upgrade to Pro
                     </button>
                   )}
-                  <button onClick={() => { setShowProfileDropdown(false); router.push('/dashboard') }}
+                  <button onClick={(e) => { e.stopPropagation(); setShowProfileDropdown(false); router.push('/dashboard') }}
                     className="flex items-center gap-2 w-full text-left px-4 py-3 text-sm transition-colors hover:bg-black/[0.03]"
                     style={{ color: 'var(--c-text)' }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                     Go to Dashboard
                   </button>
                   <div className="h-[1px]" style={{ background: 'var(--c-border)' }} />
-                  <button onClick={handleSignOut}
+                  <button onClick={(e) => { e.stopPropagation(); handleSignOut() }}
                     className="flex items-center gap-2 w-full text-left px-4 py-3 text-sm transition-colors hover:bg-black/[0.03]"
                     style={{ color: 'var(--c-red)' }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
@@ -152,7 +167,7 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
       </div>
 
       {/* Mobile Menu */}
-      <div className={`fixed inset-0 z-50 flex flex-col px-10 py-8 transition-transform duration-500 md:hidden ${menuOpen ? '' : 'pointer-events-none'}`}
+      <div className={`fixed inset-0 z-50 flex flex-col px-10 py-8 transition-transform duration-500 md:hidden ${menuOpen ? '' : 'pointer-events-none invisible'}`}
         style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(100%)', background: 'var(--c-card)', transitionTimingFunction: 'cubic-bezier(0.77, 0, 0.175, 1)' }}>
         <div className="flex justify-end mb-16">
           <button onClick={() => setMenuOpen(false)} className="w-8 h-8 flex items-center justify-center" style={{ cursor: 'pointer' }}>

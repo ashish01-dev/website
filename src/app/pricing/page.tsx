@@ -52,14 +52,18 @@ export default function PricingPage() {
   const plans = isYearly ? YEARLY_PLANS : MONTHLY_PLANS
 
   const handleSubscribe = async (price: string) => {
+    const sb = getSupabase()
+    if (!sb) return
+    const { data: { session } } = await sb.auth.getSession()
     if (price === '0') {
-      router.push('/auth?mode=signup')
+      if (session?.user) {
+        router.push('/dashboard')
+      } else {
+        router.push('/auth?mode=signup')
+      }
       return
     }
     setLoading(true)
-    const sb = getSupabase()
-    if (!sb) { setLoading(false); return }
-    const { data: { session } } = await sb.auth.getSession()
     if (!session?.user) {
       router.push('/auth?mode=signup')
       setLoading(false)
@@ -135,7 +139,7 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              {user?.isPro && plan.price !== '0' ? (
+              {plan.price !== '0' && user?.isPro ? (
                 <div className="w-full py-3 text-[13px] font-medium rounded-[40px] text-center"
                   style={{ background: 'var(--c-card)', border: '1px solid var(--c-green)', color: 'var(--c-green)' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="inline mr-1.5 -mt-0.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -145,7 +149,7 @@ export default function PricingPage() {
                 <button onClick={() => handleSubscribe(plan.price)} disabled={loading}
                   className="w-full py-3 text-[13px] font-medium rounded-[40px] text-white text-center transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110 disabled:opacity-50"
                   style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: loading ? 'not-allowed' : 'pointer' }}>
-                  {user?.isPro && plan.price === '0' ? 'Your Current Plan' : loading ? 'Processing...' : plan.cta}
+                  {plan.price === '0' && user && !user.isPro ? 'Your Current Plan' : loading ? 'Processing...' : plan.cta}
                 </button>
               )}
             </div>
