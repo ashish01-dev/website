@@ -31,11 +31,11 @@ export default function ChapterCard({ chapter }: ChapterCardProps) {
 
   if (chapter.deleted) {
     return (
-      <div className="notion-card p-3 opacity-40">
+      <div className="rounded-[18px] p-3 opacity-40" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
         <div className="flex items-center gap-2">
           <span className="text-base">🚫</span>
-          <span className="text-sm line-through text-notion-muted-dark">{chapter.name}</span>
-          <span className="text-xs bg-[#2f2f2f] px-1.5 py-0.5 rounded text-notion-muted-dark">Removed</span>
+          <span className="text-sm line-through" style={{ color: '#888' }}>{chapter.name}</span>
+          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#f0f0f0', color: '#888' }}>Removed</span>
         </div>
       </div>
     )
@@ -49,7 +49,12 @@ export default function ChapterCard({ chapter }: ChapterCardProps) {
   }
 
   return (
-    <div className={`notion-card ${expanded ? 'shadow-notion-hover' : ''}`}>
+    <div className="rounded-[18px]" style={{
+      background: '#fff',
+      border: '1px solid rgba(0,0,0,0.05)',
+      boxShadow: expanded ? '0 4px 20px rgba(0,0,0,0.06)' : '0 2px 12px rgba(0,0,0,0.04)',
+      transition: 'box-shadow 0.2s',
+    }}>
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full p-3 flex items-center gap-3 text-left"
@@ -58,57 +63,59 @@ export default function ChapterCard({ chapter }: ChapterCardProps) {
           {status === 'done' ? '✅' : status === 'in_progress' ? '🔄' : '📄'}
         </span>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium text-notion-text-dark">{chapter.name}</div>
-          <div className="text-xs text-notion-muted-dark">
+          <div className="text-sm font-medium" style={{ color: '#0f0f0f' }}>{chapter.name}</div>
+          <div className="text-xs" style={{ color: '#888' }}>
             Class {chapter.class} · {chapter.weightage} weightage
-            {!chapter.verified && <span className="ml-1.5 text-[#d9730d]">(needs check)</span>}
+            {!chapter.verified && <span className="ml-1.5" style={{ color: '#d9730d' }}>(needs check)</span>}
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {allActiveIds.length > 0 && (
             <>
-              <div className="notion-progress-bar w-12">
-                <div className="notion-progress-fill" style={{ width: `${percent}%` }} />
+              <div className="w-12 h-1.5 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
+                <div className="h-full rounded-full bg-[#2383e2] transition-all" style={{ width: `${percent}%` }} />
               </div>
-              <span className="text-xs text-notion-muted-dark w-6 text-right">{percent}%</span>
+              <span className="text-xs w-6 text-right" style={{ color: '#888' }}>{percent}%</span>
             </>
           )}
-          <span className="text-xs text-notion-muted-dark">{expanded ? '▲' : '▼'}</span>
+          <span className="text-xs" style={{ color: '#888' }}>{expanded ? '▲' : '▼'}</span>
         </div>
       </button>
 
       {expanded && (
-        <div className="px-3 pb-3 border-t border-notion-border-dark pt-2">
+        <div className="px-3 pb-3 pt-2" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
           {(activeTopics.length > 0 || customTopicIds.length > 0) ? (
             <div className="space-y-1 mb-3">
               {activeTopics.map(topic => (
-                <label key={topic.id} className={`flex items-center gap-2 px-1 py-0.5 rounded hover:bg-notion-sidebar-hover-dark cursor-pointer ${topic.deleted ? 'opacity-40 line-through' : ''}`}>
+                <label key={topic.id} className={`flex items-center gap-2 px-1 py-0.5 rounded cursor-pointer hover:bg-black/[0.02] ${topic.deleted ? 'opacity-40 line-through' : ''}`}>
                   <input
                     type="checkbox"
                     checked={topicStatus[topic.id] || false}
                     onChange={e => setTopicDone(chapter.id, topic.id, e.target.checked)}
-                    className="w-3.5 h-3.5 rounded-sm border-[#373737] text-[#2383e2] focus:ring-[#2383e2]"
+                    className="w-3.5 h-3.5 rounded-sm text-[#2383e2] focus:ring-[#2383e2]"
+                    style={{ borderColor: 'rgba(0,0,0,0.2)' }}
                     disabled={topic.deleted}
                   />
-                  <span className="text-sm text-notion-text-dark">{topic.name}</span>
-                  {topic.deleted && <span className="text-xs text-notion-muted-dark">(deleted)</span>}
+                  <span className="text-sm" style={{ color: '#0f0f0f' }}>{topic.name}</span>
+                  {topic.deleted && <span className="text-xs" style={{ color: '#888' }}>(deleted)</span>}
                 </label>
               ))}
               {customTopicIds.map(id => (
-                <label key={id} className="flex items-center gap-2 px-1 py-0.5 rounded hover:bg-notion-sidebar-hover-dark cursor-pointer">
+                <label key={id} className="flex items-center gap-2 px-1 py-0.5 rounded cursor-pointer hover:bg-black/[0.02]">
                   <input
                     type="checkbox"
                     checked={topicStatus[id] || false}
                     onChange={e => setTopicDone(chapter.id, id, e.target.checked)}
-                    className="w-3.5 h-3.5 rounded-sm border-[#373737] text-[#2383e2] focus:ring-[#2383e2]"
+                    className="w-3.5 h-3.5 rounded-sm text-[#2383e2] focus:ring-[#2383e2]"
+                    style={{ borderColor: 'rgba(0,0,0,0.2)' }}
                   />
-                  <span className="text-sm text-notion-text-dark">{customTopics[id]}</span>
-                  <span className="text-[10px] text-[#d9730d]">(custom)</span>
+                  <span className="text-sm" style={{ color: '#0f0f0f' }}>{customTopics[id]}</span>
+                  <span className="text-[10px]" style={{ color: '#d9730d' }}>(custom)</span>
                 </label>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-notion-muted-dark mb-3 italic">Topics not yet added — cross-check with NCERT.</p>
+            <p className="text-xs mb-3 italic" style={{ color: '#888' }}>Topics not yet added — cross-check with NCERT.</p>
           )}
 
           <div className="flex gap-2 mb-3">
@@ -118,20 +125,23 @@ export default function ChapterCard({ chapter }: ChapterCardProps) {
               onChange={e => setNewTopic(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAddTopic()}
               placeholder="Add a custom topic..."
-              className="flex-1 px-2 py-1 text-xs bg-transparent border border-notion-border-dark rounded-notion text-notion-text-dark placeholder:text-notion-muted-dark outline-none focus:border-[#2383e2]"
+              className="flex-1 px-2 py-1 text-xs outline-none rounded-[40px]"
+              style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }}
             />
-            <button onClick={handleAddTopic} className="notion-btn-ghost text-xs text-[#2383e2] whitespace-nowrap">+ Add</button>
+            <button onClick={handleAddTopic} className="text-xs font-medium px-3 py-1.5 rounded-[40px] whitespace-nowrap" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#2383e2' }}>+ Add</button>
           </div>
 
           <div className="flex gap-2">
             {allActiveIds.length > 0 && (
-              <button onClick={() => { markAllTopics(chapter.id); triggerConfetti(true) }} className="notion-btn-ghost text-xs text-[#2383e2]">Mark all done</button>
+              <button onClick={() => { markAllTopics(chapter.id); triggerConfetti(true) }} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#2383e2' }}>Mark all done</button>
             )}
             <button onClick={() => {
               const newStatus = status === 'done' ? 'not_started' : 'done'
               setChapterStatus(chapter.id, newStatus)
               if (newStatus === 'done') triggerConfetti(true)
-            }} className="notion-btn-ghost text-xs">
+            }} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}>
               {status === 'done' ? 'Undo' : 'Complete'}
             </button>
           </div>
