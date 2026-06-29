@@ -4,23 +4,23 @@ import Link from 'next/link'
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-[9px]">
             <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 28, filter: 'brightness(0)' }} />
             <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: '#111' }}>JEEIFY</span>
           </Link>
-          <Link href="/" className="text-sm font-medium rounded-[40px] px-[16px] py-[5px] transition-all" style={{ color: '#555', border: '1px solid rgba(0,0,0,0.1)' }}>&larr; Back</Link>
+          <Link href="/" className="text-sm font-medium rounded-[40px] px-[16px] py-[5px] transition-all" style={{ color: 'var(--c-text-secondary)', border: '1px solid var(--c-border-input)' }}>&larr; Back</Link>
         </div>
         <div className="absolute bottom-0 left-[40px] right-[40px] h-[1px]" style={{ backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.08) 2px, transparent 2px)', backgroundSize: '6px 1px' }} />
       </nav>
 
       <main className="max-w-[700px] mx-auto px-5 py-16 md:py-24">
         <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-1px] mb-2" style={{ color: '#0f0f0f' }}>Terms &amp; Conditions</h1>
-        <p className="text-[13px] mb-10" style={{ color: '#aaa' }}>Last updated: June 2026</p>
+        <p className="text-[13px] mb-10" style={{ color: 'var(--c-caption)' }}>Last updated: June 2026</p>
 
-        <div className="space-y-8 text-[14px] leading-relaxed" style={{ color: '#555' }}>
+        <div className="space-y-8 text-[14px] leading-relaxed" style={{ color: 'var(--c-text-secondary)' }}>
           <section>
             <h2 className="text-[18px] font-semibold mb-3" style={{ color: '#0f0f0f' }}>1. Acceptance of Terms</h2>
             <p>By accessing or using JEEIFY (&quot;the Service&quot;), you agree to be bound by these terms. If you do not agree to these terms, do not use the Service.</p>
@@ -63,12 +63,12 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-[18px] font-semibold mb-3" style={{ color: '#0f0f0f' }}>9. Contact</h2>
-            <p>For questions about these terms, reach out via our <Link href="/contact" className="text-[#2383e2] hover:underline">Contact page</Link>.</p>
+            <p>For questions about these terms, reach out via our <Link href="/contact" className="text-[var(--c-blue)] hover:underline">Contact page</Link>.</p>
           </section>
         </div>
       </main>
 
-      <footer className="border-t border-black/[0.06] py-8 px-5 max-w-[1100px] mx-auto text-center text-[12px]" style={{ color: '#aaa' }}>
+      <footer className="border-t border-black/[0.06] py-8 px-5 max-w-[1100px] mx-auto text-center text-[12px]" style={{ color: 'var(--c-caption)' }}>
         Made with <span style={{ color: '#E03E3E' }}>&#9829;</span> by Ashish
       </footer>
     </div>

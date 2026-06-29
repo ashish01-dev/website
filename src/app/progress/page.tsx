@@ -32,7 +32,7 @@ export default function ProgressPage() {
     label: s.charAt(0).toUpperCase() + s.slice(1),
     chapters: getSubjectChapters(s),
     percent: getProgress(s),
-    color: s === 'physics' ? '#2383e2' : s === 'chemistry' ? '#0f8a5e' : '#d9730d',
+    color: s === 'physics' ? 'var(--c-blue)' : s === 'chemistry' ? 'var(--c-green)' : 'var(--c-orange)',
   }))
 
   const overall = Math.round(subjects.reduce((a, s) => a + s.chapters.done, 0) / Math.max(1, subjects.reduce((a, s) => a + s.chapters.total, 0)) * 100)
@@ -74,7 +74,7 @@ export default function ProgressPage() {
   }, [sortedTests])
 
   return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
@@ -82,11 +82,11 @@ export default function ProgressPage() {
       <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8">
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: '#0f0f0f' }}>Progress</h1>
-            <p className="text-sm" style={{ color: '#888' }}>Analytics and metrics</p>
+            <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>Progress</h1>
+            <p className="text-sm" style={{ color: 'var(--c-muted)' }}>Analytics and metrics</p>
           </div>
           <div className="text-xs px-2 py-1 rounded-[10px] font-medium" style={{
-            color: Object.values(pace.paceStatus).every(s => s === 'on_track') ? '#0f8a5e' : '#e03e3e',
+            color: Object.values(pace.paceStatus).every(s => s === 'on_track') ? 'var(--c-green)' : 'var(--c-red)',
             background: Object.values(pace.paceStatus).every(s => s === 'on_track') ? 'rgba(15,138,94,0.1)' : 'rgba(224,62,62,0.1)',
           }}>
             {Object.values(pace.paceStatus).every(s => s === 'on_track') ? '● On Track' : `● ${Math.round(Object.values(pace.behindByDays).reduce((a, b) => a + b, 0) / 3)}d behind`}
@@ -95,42 +95,42 @@ export default function ProgressPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
           {subjects.map(s => (
-            <div key={s.id} className="rounded-[18px] p-4" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+            <div key={s.id} className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
-                <span className="text-sm font-medium" style={{ color: '#0f0f0f' }}>{s.label}</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>{s.label}</span>
               </div>
-              <div className="text-3xl font-bold mb-1" style={{ color: '#0f0f0f' }}>{s.percent}%</div>
-              <div className="w-full h-1.5 rounded-full overflow-hidden mb-2" style={{ background: '#f0f0f0' }}>
+              <div className="text-3xl font-bold mb-1" style={{ color: 'var(--c-text)' }}>{s.percent}%</div>
+              <div className="w-full h-1.5 rounded-full overflow-hidden mb-2" style={{ background: 'var(--c-progress-bg)' }}>
                 <div className="h-full rounded-full transition-all" style={{ width: `${s.percent}%`, backgroundColor: s.color }} />
               </div>
-              <span className="text-xs" style={{ color: '#888' }}>{s.chapters.done}/{s.chapters.total} chapters</span>
+              <span className="text-xs" style={{ color: 'var(--c-muted)' }}>{s.chapters.done}/{s.chapters.total} chapters</span>
             </div>
           ))}
         </div>
 
-        <div className="rounded-[18px] p-4 mb-6" style={{ background: '#fff', border: '1px solid rgba(35,131,226,0.3)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+        <div className="rounded-[18px] p-4 mb-6" style={{ background: 'var(--c-card)', border: '1px solid rgba(35,131,226,0.3)', boxShadow: 'var(--c-shadow)' }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Total JEE Syllabus</span>
-            <span className="text-2xl font-bold" style={{ color: '#2383e2' }}>{overall}%</span>
+            <span className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Total JEE Syllabus</span>
+            <span className="text-2xl font-bold" style={{ color: 'var(--c-blue)' }}>{overall}%</span>
           </div>
-          <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
-            <div className="h-full rounded-full bg-[#2383e2] transition-all" style={{ width: `${overall}%` }} />
+          <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
+            <div className="h-full rounded-full bg-[var(--c-blue)] transition-all" style={{ width: `${overall}%` }} />
           </div>
         </div>
 
-        <div className="rounded-[18px] p-4 mb-6" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-          <h2 className="text-[15px] font-semibold mb-3" style={{ color: '#0f0f0f' }}>Test Score Trend</h2>
+        <div className="rounded-[18px] p-4 mb-6" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+          <h2 className="text-[15px] font-semibold mb-3" style={{ color: 'var(--c-text)' }}>Test Score Trend</h2>
           {chartPoints && chartPoints.length > 0 ? (
-            <div className="w-full h-48 relative border-l border-b pb-5 pl-8" style={{ borderColor: 'rgba(0,0,0,0.1)' }}>
-              <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] font-mono pb-5" style={{ color: '#888' }}>
+            <div className="w-full h-48 relative border-l border-b pb-5 pl-8" style={{ borderColor: 'var(--c-border-input)' }}>
+              <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] font-mono pb-5" style={{ color: 'var(--c-muted)' }}>
                 <span>{MAX_SCORE}</span><span>{Math.round(MAX_SCORE * 0.75)}</span><span>{Math.round(MAX_SCORE * 0.5)}</span><span>{Math.round(MAX_SCORE * 0.25)}</span><span>0</span>
               </div>
               <div className="absolute inset-0 pl-8 pb-5 flex flex-col justify-between pointer-events-none">
-                <div className="w-full border-t" style={{ borderColor: 'rgba(0,0,0,0.06)' }} />
-                <div className="w-full border-t" style={{ borderColor: 'rgba(0,0,0,0.06)' }} />
-                <div className="w-full border-t" style={{ borderColor: 'rgba(0,0,0,0.06)' }} />
-                <div className="w-full border-t" style={{ borderColor: 'rgba(0,0,0,0.06)' }} />
+                <div className="w-full border-t" style={{ borderColor: 'var(--c-border)' }} />
+                <div className="w-full border-t" style={{ borderColor: 'var(--c-border)' }} />
+                <div className="w-full border-t" style={{ borderColor: 'var(--c-border)' }} />
+                <div className="w-full border-t" style={{ borderColor: 'var(--c-border)' }} />
                 <div className="w-full" />
               </div>
               <svg className="w-full h-full absolute inset-0 pl-8 pb-5 overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
@@ -147,14 +147,14 @@ export default function ProgressPage() {
                 ))}
                 <circle cx="100" cy={chartPoints[chartPoints.length - 1].y} fill="#2383e2" r="3" stroke="#fff" strokeWidth="1.5" />
               </svg>
-              <div className="absolute bottom-0 left-0 w-full pl-8 flex justify-between text-[10px] font-mono pt-1 overflow-hidden" style={{ color: '#888' }}>
+              <div className="absolute bottom-0 left-0 w-full pl-8 flex justify-between text-[10px] font-mono pt-1 overflow-hidden" style={{ color: 'var(--c-muted)' }}>
                 {chartPoints.filter((_, i) => i % Math.max(1, Math.floor(chartPoints.length / 5)) === 0 || i === chartPoints.length - 1).map((p, i) => (
-                  <span key={i} className={i > 0 && p === chartPoints[chartPoints.length - 1] ? 'font-medium' : ''} style={i > 0 && p === chartPoints[chartPoints.length - 1] ? { color: '#2383e2' } : undefined}>{p.label}</span>
+                  <span key={i} className={i > 0 && p === chartPoints[chartPoints.length - 1] ? 'font-medium' : ''} style={i > 0 && p === chartPoints[chartPoints.length - 1] ? { color: 'var(--c-blue)' } : undefined}>{p.label}</span>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="w-full h-48 flex items-center justify-center text-sm" style={{ color: '#888' }}>
+            <div className="w-full h-48 flex items-center justify-center text-sm" style={{ color: 'var(--c-muted)' }}>
               No tests logged yet. Start taking tests to see your trend.
             </div>
           )}
@@ -162,35 +162,35 @@ export default function ProgressPage() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {subjects.map(s => (
-            <div key={s.id} className="rounded-[18px] p-3 text-center" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-              <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#888' }}>{s.label}</div>
-              <div className="text-xl font-bold mt-0.5" style={{ color: '#0f0f0f' }}>{s.percent}%</div>
-              <div className="text-xs" style={{ color: '#888' }}>complete</div>
+            <div key={s.id} className="rounded-[18px] p-3 text-center" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+              <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--c-muted)' }}>{s.label}</div>
+              <div className="text-xl font-bold mt-0.5" style={{ color: 'var(--c-text)' }}>{s.percent}%</div>
+              <div className="text-xs" style={{ color: 'var(--c-muted)' }}>complete</div>
             </div>
           ))}
-          <div className="rounded-[18px] p-3 text-center" style={{ background: '#fff', border: '1px solid rgba(35,131,226,0.3)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-            <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#2383e2' }}>Total</div>
-            <div className="text-xl font-bold mt-0.5" style={{ color: '#2383e2' }}>{overall}%</div>
-            <div className="text-xs" style={{ color: '#888' }}>complete</div>
+          <div className="rounded-[18px] p-3 text-center" style={{ background: 'var(--c-card)', border: '1px solid rgba(35,131,226,0.3)', boxShadow: 'var(--c-shadow)' }}>
+            <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--c-blue)' }}>Total</div>
+            <div className="text-xl font-bold mt-0.5" style={{ color: 'var(--c-blue)' }}>{overall}%</div>
+            <div className="text-xs" style={{ color: 'var(--c-muted)' }}>complete</div>
           </div>
         </div>
 
-        <div className="rounded-[18px] p-4 mt-6" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-          <h2 className="text-[15px] font-semibold mb-3" style={{ color: '#0f0f0f' }}>Consistency</h2>
+        <div className="rounded-[18px] p-4 mt-6" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+          <h2 className="text-[15px] font-semibold mb-3" style={{ color: 'var(--c-text)' }}>Consistency</h2>
           <div className="grid gap-0.5" style={{ gridTemplateColumns: 'repeat(26, 1fr)' }}>
             {heatmapData.map((d, i) => (
               <div key={i} className="aspect-square rounded-sm" style={{
-                backgroundColor: d.hours === 0 ? '#e8e8e8' : d.hours < 2 ? '#cce5ff' : d.hours < 4 ? '#99ccff' : d.hours < 7 ? '#4da6ff' : '#2383e2',
+                backgroundColor: d.hours === 0 ? 'var(--heat-0)' : d.hours < 2 ? 'var(--heat-1)' : d.hours < 4 ? 'var(--heat-2)' : d.hours < 7 ? 'var(--heat-3)' : 'var(--c-blue)',
               }} />
             ))}
           </div>
-          <div className="flex items-center gap-2 mt-2 text-xs" style={{ color: '#888' }}>
+          <div className="flex items-center gap-2 mt-2 text-xs" style={{ color: 'var(--c-muted)' }}>
             <span>Less</span>
-            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#e8e8e8' }} />
-            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#cce5ff' }} />
-            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#99ccff' }} />
-            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#4da6ff' }} />
-            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#2383e2' }} />
+            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: 'var(--heat-0)' }} />
+            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: 'var(--heat-1)' }} />
+            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: 'var(--heat-2)' }} />
+            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: 'var(--heat-3)' }} />
+            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: 'var(--c-blue)' }} />
             <span>More</span>
           </div>
         </div>

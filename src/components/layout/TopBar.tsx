@@ -7,7 +7,7 @@ import { getSupabase } from '@/lib/supabase'
 
 export default function TopBar() {
   const router = useRouter()
-  const { settings } = useSettingsStore()
+  const { settings, update } = useSettingsStore()
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 })
   const [avatarUrl, setAvatarUrl] = useState('')
 
@@ -42,10 +42,10 @@ export default function TopBar() {
 
   return (
     <header className="sticky top-0 z-30" style={{
-      background: 'rgba(245,245,245,0.8)',
+      background: 'var(--c-topbar-bg)',
       backdropFilter: 'blur(12px)',
       WebkitBackdropFilter: 'blur(12px)',
-      borderBottom: '1px solid rgba(0,0,0,0.05)',
+      borderBottom: '1px solid var(--c-border-card)',
     }}>
       <div className="max-w-[1100px] mx-auto flex items-center justify-between h-12 px-4 md:px-6">
         <button
@@ -54,8 +54,8 @@ export default function TopBar() {
           title="Settings"
         >
           <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{
-            background: avatarUrl ? 'transparent' : '#eaecf0',
-            border: '1px solid rgba(0,0,0,0.06)',
+            background: avatarUrl ? 'transparent' : 'var(--c-tag)',
+            border: '1px solid var(--c-border)',
           }}>
             {avatarUrl ? (
               <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
@@ -72,10 +72,21 @@ export default function TopBar() {
         </button>
 
         <div className="flex items-center gap-3">
-          <span className="text-[13px] font-medium" style={{ color: '#2383e2' }}>
+          <button
+            onClick={() => update({ theme: settings.theme === 'dark' ? 'light' : 'dark' })}
+            className="w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
+            title={settings.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {settings.theme === 'dark' ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            )}
+          </button>
+          <span className="text-[13px] font-medium" style={{ color: 'var(--c-blue)' }}>
             {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
           </span>
-          <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium" style={{ background: '#eaecf0', color: '#555' }}>
+          <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium" style={{ background: 'var(--c-tag)', color: 'var(--c-text-secondary)' }}>
             {new Date(settings.examDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </span>
         </div>

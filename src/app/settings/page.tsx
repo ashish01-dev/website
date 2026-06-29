@@ -139,7 +139,7 @@ export default function SettingsPage() {
   const avatarDisplay = settings.avatarUrl || user?.user_metadata?.avatar_url || ''
 
   return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
@@ -151,7 +151,7 @@ export default function SettingsPage() {
 
           {/* Profile */}
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Profile</h2>
             <div className="flex items-center gap-5 mb-4">
@@ -164,7 +164,7 @@ export default function SettingsPage() {
                 {avatarDisplay ? (
                   <img src={avatarDisplay} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-xl font-semibold" style={{ background: '#eaecf0', color: '#888' }}>
+                  <div className="w-full h-full flex items-center justify-center text-xl font-semibold" style={{ background: 'var(--c-tag)', color: '#888' }}>
                     {(settings.name || 'U').charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -183,16 +183,16 @@ export default function SettingsPage() {
                 <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>DISPLAY NAME</label>
                 <input type="text" value={settings.name} onChange={e => update({ name: e.target.value.slice(0, 50) })} placeholder="Your name"
                   className="w-full px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                  style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
             </div>
           </div>
 
           {/* Exam Configuration */}
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Exam Configuration</h2>
             <div className="space-y-4">
@@ -200,32 +200,32 @@ export default function SettingsPage() {
                 <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>EXAM DATE</label>
                 <input type="date" value={settings.examDate} onChange={e => update({ examDate: e.target.value })}
                   className="w-full max-w-[200px] px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                  style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
               <div>
                 <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>DAILY STUDY HOURS TARGET</label>
                 <input type="number" min={1} max={16} value={settings.dailyStudyHours} onChange={e => update({ dailyStudyHours: parseInt(e.target.value, 10) || 9 })}
                   className="w-full max-w-[100px] px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                  style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
               <div>
                 <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>FREEZE DAYS (no new content before exam)</label>
                 <input type="number" min={0} max={60} value={settings.freezeDays} onChange={e => update({ freezeDays: parseInt(e.target.value, 10) || 21 })}
                   className="w-full max-w-[100px] px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                  style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
             </div>
           </div>
 
           {/* Preferences */}
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Preferences</h2>
             <div className="space-y-3">
@@ -237,9 +237,9 @@ export default function SettingsPage() {
                 <button onClick={() => update({ theme: settings.theme === 'dark' ? 'light' : 'dark' })}
                   className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.theme === 'dark' ? 'text-white' : ''}`}
                   style={{
-                    background: settings.theme === 'dark' ? '#2383e2' : '#f5f5f5',
-                    border: settings.theme === 'dark' ? 'none' : '1px solid rgba(0,0,0,0.1)',
-                    color: settings.theme === 'dark' ? '#fff' : '#555',
+                    background: settings.theme === 'dark' ? 'var(--c-blue)' : '#f5f5f5',
+                    border: settings.theme === 'dark' ? 'none' : '1px solid var(--c-border-input)',
+                    color: settings.theme === 'dark' ? '#fff' : 'var(--c-text-secondary)',
                   }}
                 >
                   {settings.theme === 'dark' ? 'On' : 'Off'}
@@ -253,9 +253,9 @@ export default function SettingsPage() {
                 <button onClick={() => update({ confettiEnabled: !settings.confettiEnabled })}
                   className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.confettiEnabled ? 'text-white' : ''}`}
                   style={{
-                    background: settings.confettiEnabled ? '#2383e2' : '#f5f5f5',
-                    border: settings.confettiEnabled ? 'none' : '1px solid rgba(0,0,0,0.1)',
-                    color: settings.confettiEnabled ? '#fff' : '#555',
+                    background: settings.confettiEnabled ? 'var(--c-blue)' : '#f5f5f5',
+                    border: settings.confettiEnabled ? 'none' : '1px solid var(--c-border-input)',
+                    color: settings.confettiEnabled ? '#fff' : 'var(--c-text-secondary)',
                   }}
                 >
                   {settings.confettiEnabled ? 'On' : 'Off'}
@@ -266,7 +266,7 @@ export default function SettingsPage() {
 
           {/* Cloud Sync */}
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Cloud Sync</h2>
             <div className="flex items-center gap-3">
@@ -281,7 +281,7 @@ export default function SettingsPage() {
                   </div>
                   <button onClick={handleSignOut}
                     className="text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all"
-                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}
                   >Sign Out</button>
                 </>
               ) : (
@@ -289,43 +289,43 @@ export default function SettingsPage() {
                   <p className="text-xs flex-1" style={{ color: '#888' }}>Sign in to sync data across devices</p>
                   <button onClick={handleGoogleSignIn}
                     className="text-xs font-medium px-4 py-1.5 rounded-[40px] text-white transition-all"
-                    style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}
+                    style={{ background: 'var(--c-btn-primary)' }}
                   >Sign in with Google</button>
                 </>
               )}
             </div>
             {!getSupabase() && (
-              <p className="text-xs mt-2" style={{ color: '#d9730d' }}>Add Supabase config to .env.local to enable cloud sync.</p>
+              <p className="text-xs mt-2" style={{ color: 'var(--c-orange)' }}>Add Supabase config to .env.local to enable cloud sync.</p>
             )}
           </div>
 
           {/* Data */}
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Data</h2>
             <div className="flex flex-wrap gap-3">
               <button onClick={exportData}
                 className="text-xs font-medium px-4 py-2 rounded-[40px] text-white transition-all"
-                style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}
+                style={{ background: 'var(--c-btn-primary)' }}
               >Export Backup (JSON)</button>
               <button onClick={importData}
                 className="text-xs font-medium px-4 py-2 rounded-[40px] transition-all"
-                style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}
+                style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}
               >Import Backup</button>
               {!showDeleteConfirm ? (
                 <button onClick={() => setShowDeleteConfirm(true)}
                   className="text-xs font-medium px-4 py-2 rounded-[40px] transition-all"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#e03e3e' }}
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-red)' }}
                 >Reset All Data</button>
               ) : (
                 <div className="w-full space-y-2">
-                  <p className="text-xs" style={{ color: '#e03e3e' }}>Type <strong>DELETE</strong> to confirm:</p>
+                  <p className="text-xs" style={{ color: 'var(--c-red)' }}>Type <strong>DELETE</strong> to confirm:</p>
                   <input
                     value={deleteConfirm}
                     onChange={e => setDeleteConfirm(e.target.value)}
                     className="w-full px-3 py-2 text-xs outline-none rounded-[40px]"
-                    style={{ border: '1px solid #e03e3e', color: '#0f0f0f', background: '#fafafa' }}
+                    style={{ border: '1px solid #e03e3e', color: '#0f0f0f', background: 'var(--c-input)' }}
                     placeholder="DELETE"
                   />
                   <div className="flex gap-2">
@@ -347,11 +347,11 @@ export default function SettingsPage() {
                       }}
                       disabled={deleteConfirm !== 'DELETE'}
                       className="text-xs font-medium px-4 py-1.5 rounded-[40px] disabled:opacity-40"
-                      style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#e03e3e' }}
+                      style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-red)' }}
                     >Confirm Reset</button>
                     <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirm('') }}
                       className="text-xs font-medium px-4 py-1.5 rounded-[40px]"
-                      style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}
+                      style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}
                     >Cancel</button>
                   </div>
                 </div>

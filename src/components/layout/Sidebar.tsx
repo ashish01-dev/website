@@ -78,11 +78,11 @@ export default function Sidebar() {
       {/* Desktop floating bar */}
       <div className="hidden md:flex fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <div className="flex items-center gap-1 px-3 py-2 rounded-[18px]" style={{
-          background: 'rgba(255,255,255,0.85)',
+          background: 'var(--c-navbar-bg)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(0,0,0,0.06)',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+          border: '1px solid var(--c-border)',
+          boxShadow: 'var(--c-shadow-nav)',
         }}>
           {NAV_ITEMS.map(item => {
             const active = isActive(item.href)
@@ -96,11 +96,11 @@ export default function Sidebar() {
                 <span className={`text-[18px] leading-none transition-transform duration-200 group-hover:scale-110 ${active ? 'scale-110' : ''}`}>
                   {item.icon}
                 </span>
-                <span className={`text-[9px] font-medium leading-none whitespace-nowrap transition-colors ${active ? 'text-[#2383e2]' : 'text-black/40'}`}>
+                <span className={`text-[9px] font-medium leading-none whitespace-nowrap transition-colors ${active ? 'text-[var(--c-blue)]' : 'text-black/40'}`}>
                   {item.label}
                 </span>
                 {active && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#2383e2]" />
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--c-blue)]" />
                 )}
               </Link>
             )
@@ -114,8 +114,8 @@ export default function Sidebar() {
           background: 'rgba(255,255,255,0.9)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(0,0,0,0.06)',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+          border: '1px solid var(--c-border)',
+          boxShadow: 'var(--c-shadow-nav)',
         }}>
           {MOBILE_GROUPS.map((group, gi) => (
             <button
@@ -126,7 +126,7 @@ export default function Sidebar() {
               }`}
             >
               <span className="text-[20px] leading-none">{group.icon}</span>
-              <span className={`text-[10px] font-medium leading-none ${openGroup === gi ? 'text-[#2383e2]' : 'text-black/40'}`}>
+              <span className={`text-[10px] font-medium leading-none ${openGroup === gi ? 'text-[var(--c-blue)]' : 'text-black/40'}`}>
                 {group.label}
               </span>
             </button>
@@ -145,7 +145,7 @@ export default function Sidebar() {
               background: 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(0,0,0,0.06)',
+              border: '1px solid var(--c-border)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
             }}
           >
@@ -161,12 +161,12 @@ export default function Sidebar() {
                     href={item.href}
                     onClick={() => setOpenGroup(null)}
                     className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                      active ? 'bg-[#2383e2]/10 text-[#2383e2] font-medium' : 'text-[#555] hover:bg-black/[0.03]'
+                      active ? 'bg-[var(--c-blue)]/10 text-[var(--c-blue)] font-medium' : 'text-[#555] hover:bg-black/[0.03]'
                     }`}
                   >
                     <span className="text-[16px]">{item.icon}</span>
                     <span>{item.label}</span>
-                    {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#2383e2]" />}
+                    {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--c-blue)]" />}
                   </Link>
                 )
               })}

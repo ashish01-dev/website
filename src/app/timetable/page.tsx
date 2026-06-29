@@ -41,7 +41,7 @@ export default function TimetablePage() {
   }
 
   return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
@@ -49,16 +49,16 @@ export default function TimetablePage() {
       <div className="max-w-[1000px] mx-auto px-4 md:px-6 py-8">
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: '#0f0f0f' }}>Timetable</h1>
-            <p className="text-sm" style={{ color: '#888' }}>Plan your week hour by hour</p>
+            <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>Timetable</h1>
+            <p className="text-sm" style={{ color: 'var(--c-muted)' }}>Plan your week hour by hour</p>
           </div>
           <div className="flex gap-2">
             {(['gym', 'full_study', 'test_day'] as const).map(t => (
-              <button key={t} onClick={() => applyTemplate(t)} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}>
+              <button key={t} onClick={() => applyTemplate(t)} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}>
                 {t === 'gym' ? '💪 Gym' : t === 'full_study' ? '📚 Full Study' : '📝 Test Day'}
               </button>
             ))}
-            <button onClick={() => { if (confirm('Clear all timetable entries?')) clearAll() }} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#e03e3e' }}>
+            <button onClick={() => { if (confirm('Clear all timetable entries?')) clearAll() }} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-red)' }}>
               🗑 Clear All
             </button>
           </div>
@@ -71,8 +71,8 @@ export default function TimetablePage() {
               onClick={() => setSelectedDay(i)}
               className={`px-3 py-1.5 rounded-[10px] text-xs whitespace-nowrap`}
               style={{
-                color: selectedDay === i ? '#fff' : '#888',
-                background: selectedDay === i ? '#2383e2' : '#f0f0f0',
+                color: selectedDay === i ? '#fff' : 'var(--c-muted)',
+                background: selectedDay === i ? 'var(--c-blue)' : 'var(--c-progress-bg)',
               }}
             >
               {DAY_LABELS[i]}
@@ -80,14 +80,14 @@ export default function TimetablePage() {
           ))}
         </div>
 
-        <div className="rounded-[18px] overflow-hidden" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+        <div className="rounded-[18px] overflow-hidden" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[600px]">
               <thead>
                 <tr>
-                  <th className="text-[10px] font-semibold uppercase tracking-wider p-2 text-left w-12 font-medium" style={{ color: '#888' }}>Hr</th>
+                  <th className="text-[10px] font-semibold uppercase tracking-wider p-2 text-left w-12 font-medium" style={{ color: 'var(--c-muted)' }}>Hr</th>
                   {DAY_LABELS.map((l, i) => (
-                    <th key={i} className={`text-[10px] font-semibold uppercase tracking-wider p-2 text-center font-medium ${i !== selectedDay ? 'hidden md:table-cell' : ''}`} style={{ color: '#888' }}>
+                    <th key={i} className={`text-[10px] font-semibold uppercase tracking-wider p-2 text-center font-medium ${i !== selectedDay ? 'hidden md:table-cell' : ''}`} style={{ color: 'var(--c-muted)' }}>
                       {l}
                     </th>
                   ))}
@@ -96,14 +96,14 @@ export default function TimetablePage() {
               <tbody>
                 {HOURS.map(hour => (
                   <tr key={hour}>
-                    <td className="text-xs p-2 border-t whitespace-nowrap" style={{ color: '#888', borderColor: 'rgba(0,0,0,0.06)' }}>{fmtHour(hour)}</td>
+                    <td className="text-xs p-2 border-t whitespace-nowrap" style={{ color: 'var(--c-muted)', borderColor: 'var(--c-border)' }}>{fmtHour(hour)}</td>
                     {DAYS.map((day, di) => {
                       const color = getColor(day, String(hour))
                       const label = getLabel(day, String(hour))
                       const isActive = activeCell?.day === day && activeCell?.hour === String(hour)
 
                       return (
-                        <td key={day} className={`border-t p-1 ${di === selectedDay ? '' : 'hidden md:table-cell'}`} style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
+                        <td key={day} className={`border-t p-1 ${di === selectedDay ? '' : 'hidden md:table-cell'}`} style={{ borderColor: 'var(--c-border)' }}>
                           <div
                             onClick={() => setActiveCell(isActive ? null : { day, hour: String(hour) })}
                             className="relative h-8 rounded-[10px] cursor-pointer hover:ring-1 hover:ring-[#2383e2] transition-all flex items-center justify-center"
@@ -112,7 +112,7 @@ export default function TimetablePage() {
                             {label && <span className="text-[10px] text-white font-medium truncate px-1">{label}</span>}
 
                             {isActive && (
-                              <div className="absolute top-full left-0 mt-1 z-50 rounded-[10px] p-1.5 shadow-lg min-w-[130px]" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)' }}>
+                              <div className="absolute top-full left-0 mt-1 z-50 rounded-[10px] p-1.5 shadow-lg min-w-[130px]" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
                                 <div className="grid grid-cols-4 gap-1">
                                   {ACTIVITIES.map(act => (
                                     <button
@@ -126,7 +126,7 @@ export default function TimetablePage() {
                                     </button>
                                   ))}
                                 </div>
-                                <button onClick={(e) => { e.stopPropagation(); setCell(day, String(hour), ''); setActiveCell(null) }} className="mt-1 w-full text-center text-[10px] py-0.5 hover:bg-black/[0.02] rounded" style={{ color: '#e03e3e' }}>
+                                <button onClick={(e) => { e.stopPropagation(); setCell(day, String(hour), ''); setActiveCell(null) }} className="mt-1 w-full text-center text-[10px] py-0.5 hover:bg-black/[0.02] rounded" style={{ color: 'var(--c-red)' }}>
                                   Clear
                                 </button>
                               </div>
@@ -146,7 +146,7 @@ export default function TimetablePage() {
           {(['physics', 'chemistry', 'maths', 'break', 'gym', 'revision', 'mock_test'] as Activity[]).map(act => (
             <div key={act} className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: ACTIVITY_COLORS[act] }} />
-              <span className="text-xs" style={{ color: '#888' }}>{ACTIVITY_LABELS[act]}</span>
+              <span className="text-xs" style={{ color: 'var(--c-muted)' }}>{ACTIVITY_LABELS[act]}</span>
             </div>
           ))}
         </div>

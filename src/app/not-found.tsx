@@ -8,7 +8,7 @@ export default function NotFound() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 
   return (
-    <div className="min-h-screen flex flex-col overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen flex flex-col overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       {/* Navbar */}
       <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
         <div className="flex items-center justify-between">
@@ -31,7 +31,7 @@ export default function NotFound() {
             <Link
               href="/contact"
               className="inline-flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
-              style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
+              style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
             >
               <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -96,7 +96,7 @@ export default function NotFound() {
             href="/contact"
             onClick={() => setMenuOpen(false)}
             className="inline-flex items-center gap-3 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px]"
-            style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
+            style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
           >
             <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -153,11 +153,11 @@ export default function NotFound() {
 
         <p className="text-[14px] leading-[1.7] mb-7" style={{ color: '#888', maxWidth: 470 }}>
           Grab a 30-minute{' '}
-          <span className="inline-flex items-center text-[12.5px] font-semibold px-[12px] py-[2px] rounded-md" style={{ background: '#E0E2E7', color: '#555' }}>
+          <span className="inline-flex items-center text-[12.5px] font-semibold px-[12px] py-[2px] rounded-md" style={{ background: '#E0E2E7', color: 'var(--c-text-secondary)' }}>
             chat
           </span>{' '}
           to explore your ideas, scope, and vision. We&apos;ll find common ground, sync and{' '}
-          <span className="inline-flex items-center text-[12.5px] font-semibold px-[12px] py-[2px] rounded-md" style={{ background: '#E0E2E7', color: '#555' }}>
+          <span className="inline-flex items-center text-[12.5px] font-semibold px-[12px] py-[2px] rounded-md" style={{ background: '#E0E2E7', color: 'var(--c-text-secondary)' }}>
             define
           </span>{' '}
           a clear roadmap.
@@ -196,16 +196,16 @@ export default function NotFound() {
               onMouseLeave={() => setHoveredCard(null)}
               className="flex items-center justify-between rounded-[18px] px-[22px] py-[18px] transition-all duration-200"
               style={{
-                background: '#fff',
-                border: '1px solid rgba(0,0,0,0.05)',
-                boxShadow: hoveredCard === i ? '0 8px 28px rgba(0,0,0,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
+                background: 'var(--c-card)',
+                border: '1px solid var(--c-border-card)',
+                boxShadow: hoveredCard === i ? 'var(--c-shadow-hover)' : 'var(--c-shadow)',
                 transform: hoveredCard === i ? 'translateY(-3px)' : 'translateY(0)',
               }}
             >
               <div className="flex items-center gap-4">
                 <div
                   className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-transform duration-200"
-                  style={{ background: '#eaecf0', transform: hoveredCard === i ? 'scale(1.05)' : 'scale(1)' }}
+                  style={{ background: 'var(--c-tag)', transform: hoveredCard === i ? 'scale(1.05)' : 'scale(1)' }}
                 >
                   {card.icon}
                 </div>

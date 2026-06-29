@@ -85,33 +85,33 @@ export default function TestsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
 
       <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8">
-        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: '#0f0f0f' }}>Tests</h1>
-        <p className="text-sm mb-6" style={{ color: '#888' }}>Log and track your mock tests</p>
+        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>Tests</h1>
+        <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>Log and track your mock tests</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-[18px] p-4" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Log a Test</h2>
+          <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Log a Test</h2>
             <div className="space-y-3">
               <div>
-                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>DATE</label>
+                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>DATE</label>
                 <input type="date" value={formDate} onChange={e => setFormDate(e.target.value)}
                   className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
               <div>
-                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>SUBJECTS</label>
+                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>SUBJECTS</label>
                 {selectedSubjects.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-1.5">
                     {selectedSubjects.map(s => (
-                      <span key={s} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] rounded text-white" style={{ backgroundColor: s === 'physics' ? '#2383e2' : s === 'chemistry' ? '#0f8a5e' : '#d9730d' }}>
+                      <span key={s} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] rounded text-white" style={{ backgroundColor: s === 'physics' ? 'var(--c-blue)' : s === 'chemistry' ? 'var(--c-green)' : 'var(--c-orange)' }}>
                         {s.charAt(0).toUpperCase() + s.slice(1)}
                         <button onClick={() => toggleSubject(s)} className="hover:opacity-70">&times;</button>
                       </span>
@@ -124,34 +124,34 @@ export default function TestsPage() {
                     onChange={e => { setSubjectSearch(e.target.value); setShowSubjectDropdown(true) }}
                     placeholder="Search subjects..."
                     className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
-                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#2383e2'; setShowSubjectDropdown(true) }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; setTimeout(() => setShowSubjectDropdown(false), 200) }} />
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)'; setShowSubjectDropdown(true) }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)'; setTimeout(() => setShowSubjectDropdown(false), 200) }} />
                   {showSubjectDropdown && (
-                    <div className="absolute top-full left-0 mt-1 z-10 w-full rounded-[10px] shadow-lg" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)' }}>
+                    <div className="absolute top-full left-0 mt-1 z-10 w-full rounded-[10px] shadow-lg" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
                       {ALL_SUBJECTS.filter(s => !selectedSubjects.includes(s) && s.includes(subjectSearch)).map(s => (
                         <button
                           key={s}
                           onMouseDown={() => { toggleSubject(s); setSubjectSearch('') }}
                           className="block w-full text-left px-2 py-1 text-xs capitalize hover:bg-black/[0.02]"
-                          style={{ color: '#0f0f0f' }}
+                          style={{ color: 'var(--c-text)' }}
                         >
                           {s}
                         </button>
                       ))}
                       {ALL_SUBJECTS.filter(s => !selectedSubjects.includes(s) && s.includes(subjectSearch)).length === 0 && (
-                        <div className="px-2 py-1 text-xs" style={{ color: '#888' }}>All subjects selected</div>
+                        <div className="px-2 py-1 text-xs" style={{ color: 'var(--c-muted)' }}>All subjects selected</div>
                       )}
                     </div>
                   )}
                 </div>
               </div>
               <div>
-                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>CHAPTERS</label>
+                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>CHAPTERS</label>
                 {selectedChapters.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-1.5">
                     {selectedChapters.map(ch => (
-                      <span key={ch} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] rounded" style={{ background: 'rgba(35,131,226,0.1)', color: '#2383e2' }}>
+                      <span key={ch} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] rounded" style={{ background: 'rgba(35,131,226,0.1)', color: 'var(--c-blue)' }}>
                         {ch}
                         <button onClick={() => toggleChapter(ch)} className="hover:text-[#e03e3e]">&times;</button>
                       </span>
@@ -163,90 +163,90 @@ export default function TestsPage() {
                   onChange={e => setChapterSearch(e.target.value)}
                   placeholder="Search and select chapters..."
                   className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
                 {chapterSearch && (
-                  <div className="mt-1 max-h-32 overflow-y-auto rounded-[10px]" style={{ border: '1px solid rgba(0,0,0,0.06)', background: '#fff' }}>
+                  <div className="mt-1 max-h-32 overflow-y-auto rounded-[10px]" style={{ border: '1px solid var(--c-border)', background: 'var(--c-card)' }}>
                     {filteredChapters.map(ch => (
                       <button
                         key={ch.id}
                         onClick={() => { toggleChapter(ch.name); setChapterSearch('') }}
                         className="block w-full text-left px-2 py-1 text-xs hover:bg-black/[0.02]"
-                        style={{ color: '#0f0f0f' }}
+                        style={{ color: 'var(--c-text)' }}
                       >
                         {ch.name}
-                        {selectedChapters.includes(ch.name) && <span className="float-right text-[#2383e2]">✓</span>}
+                        {selectedChapters.includes(ch.name) && <span className="float-right text-[var(--c-blue)]">✓</span>}
                       </button>
                     ))}
                     {filteredChapters.length === 0 && (
-                      <div className="px-2 py-1 text-xs" style={{ color: '#888' }}>No matching chapters</div>
+                      <div className="px-2 py-1 text-xs" style={{ color: 'var(--c-muted)' }}>No matching chapters</div>
                     )}
                   </div>
                 )}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>SCORE</label>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>SCORE</label>
                   <input type="number" value={formScore} onChange={e => setFormScore(e.target.value)}
                     className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
-                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
                 </div>
                 <div>
-                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>TOTAL</label>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>TOTAL</label>
                   <input type="number" value={formTotal} onChange={e => setFormTotal(e.target.value)}
                     className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
-                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
                 </div>
               </div>
               <div>
-                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>TIME (min)</label>
+                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>TIME (min)</label>
                 <input type="number" value={formTime} onChange={e => setFormTime(e.target.value)}
                   className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
-              <button onClick={addTest} className="w-full flex items-center justify-center text-sm font-medium px-4 py-2 rounded-[40px] text-white" style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}>Log Test</button>
+              <button onClick={addTest} className="w-full flex items-center justify-center text-sm font-medium px-4 py-2 rounded-[40px] text-white" style={{ background: 'var(--c-btn-primary)' }}>Log Test</button>
             </div>
           </div>
 
-          <div className="md:col-span-2 rounded-[18px] p-4" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>History</h2>
+          <div className="md:col-span-2 rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>History</h2>
             {tests.length === 0 ? (
-              <p className="text-sm text-center py-8" style={{ color: '#888' }}>No tests logged yet.</p>
+              <p className="text-sm text-center py-8" style={{ color: 'var(--c-muted)' }}>No tests logged yet.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr>
-                      <th className="text-[10px] font-semibold uppercase tracking-wider text-left p-2" style={{ color: '#888' }}>Date</th>
-                      <th className="text-[10px] font-semibold uppercase tracking-wider text-left p-2" style={{ color: '#888' }}>Subjects</th>
-                      <th className="text-[10px] font-semibold uppercase tracking-wider text-left p-2" style={{ color: '#888' }}>Score</th>
-                      <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-wider text-left p-2" style={{ color: '#888' }}>Accuracy</th>
+                      <th className="text-[10px] font-semibold uppercase tracking-wider text-left p-2" style={{ color: 'var(--c-muted)' }}>Date</th>
+                      <th className="text-[10px] font-semibold uppercase tracking-wider text-left p-2" style={{ color: 'var(--c-muted)' }}>Subjects</th>
+                      <th className="text-[10px] font-semibold uppercase tracking-wider text-left p-2" style={{ color: 'var(--c-muted)' }}>Score</th>
+                      <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-wider text-left p-2" style={{ color: 'var(--c-muted)' }}>Accuracy</th>
                     </tr>
                   </thead>
                   <tbody>
                     {tests.slice().reverse().map(t => (
                       <tr key={t.id}>
-                        <td className="text-sm p-2" style={{ color: '#0f0f0f' }}>{t.date}</td>
+                        <td className="text-sm p-2" style={{ color: 'var(--c-text)' }}>{t.date}</td>
                         <td className="p-2">
                           <div className="flex flex-wrap gap-1">
                             {(t.subjects || [t.subject]).map(s => (
                               <span key={s} className="text-[10px] font-medium uppercase px-1 py-0.5 rounded" style={{
-                                color: s === 'physics' ? '#2383e2' : s === 'chemistry' ? '#0f8a5e' : '#d9730d',
-                                backgroundColor: `${s === 'physics' ? '#2383e2' : s === 'chemistry' ? '#0f8a5e' : '#d9730d'}15`
+                                color: s === 'physics' ? 'var(--c-blue)' : s === 'chemistry' ? 'var(--c-green)' : 'var(--c-orange)',
+                                backgroundColor: `${s === 'physics' ? 'var(--c-blue)' : s === 'chemistry' ? 'var(--c-green)' : 'var(--c-orange)'}15`
                               }}>{s}</span>
                             ))}
                           </div>
                         </td>
-                        <td className="text-sm font-medium p-2" style={{ color: '#0f0f0f' }}>{t.score}/{t.total}</td>
+                        <td className="text-sm font-medium p-2" style={{ color: 'var(--c-text)' }}>{t.score}/{t.total}</td>
                         <td className={`text-sm hidden md:table-cell p-2`} style={{
-                          color: t.accuracy >= 80 ? '#0f8a5e' : t.accuracy >= 60 ? '#d9730d' : '#e03e3e',
+                          color: t.accuracy >= 80 ? 'var(--c-green)' : t.accuracy >= 60 ? 'var(--c-orange)' : 'var(--c-red)',
                         }}>
                           {t.accuracy}%
                         </td>

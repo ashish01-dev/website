@@ -149,7 +149,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen pb-[80px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen pb-[80px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       {/* Navbar */}
       <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
         <div className="flex items-center justify-between">
@@ -170,7 +170,7 @@ export default function LandingPage() {
             <Link
               href="/auth"
               className="flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
-              style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
+              style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
             >
               <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -229,7 +229,7 @@ export default function LandingPage() {
         <div className="mt-auto">
           <Link href="/auth" onClick={() => setMenuOpen(false)}
             className="inline-flex items-center gap-3 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px]"
-            style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
+            style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
             <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />
@@ -245,7 +245,7 @@ export default function LandingPage() {
         <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-6" style={{ color: '#888' }}>JEE 2027 — Command Center</p>
         <h1 className="text-[clamp(42px,7vw,72px)] font-medium leading-[1.05] tracking-[-2px] max-w-4xl" style={{ color: '#0f0f0f' }}>
           Master your JEE prep<br />
-          <span className="text-[#2383e2] font-semibold">with purpose.</span>
+          <span className="text-[var(--c-blue)] font-semibold">with purpose.</span>
         </h1>
         <p className="text-[15px] mt-5 max-w-lg" style={{ color: '#888', lineHeight: 1.7 }}>
           Track syllabus progress, optimize your timetable, analyze tests — a command center built for the systematic mind.
@@ -253,7 +253,7 @@ export default function LandingPage() {
         <div className="flex items-center gap-4 mt-8 flex-wrap justify-center">
           <Link href="/auth"
             className="flex items-center gap-2 text-white text-[14px] font-medium rounded-[40px] px-[22px] py-[8px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
-            style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
+            style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
             <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />
@@ -263,14 +263,14 @@ export default function LandingPage() {
           </Link>
           <a href="#features"
             className="text-[14px] font-medium rounded-[40px] px-[22px] py-[8px] transition-all duration-200 hover:-translate-y-[1px]"
-            style={{ color: '#555', border: '1px solid rgba(0,0,0,0.1)' }}>Explore</a>
+            style={{ color: 'var(--c-text-secondary)', border: '1px solid var(--c-border-input)' }}>Explore</a>
         </div>
       </motion.section>
 
       {/* Stats Strip */}
       <motion.div {...fadeUp} className="max-w-[900px] mx-auto px-5 pb-12">
         <div className="rounded-[18px] px-[28px] py-[32px] grid grid-cols-2 md:grid-cols-4 gap-8" style={{
-          background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
         }}>
           {STATS.map(s => (<CountUp key={s.label} value={s.value} label={s.label} />))}
         </div>
@@ -287,11 +287,11 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-3 gap-4">
           {FEATURES.map(f => (
             <div key={f.label} className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]" style={{
-              background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
             }}
-              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.08)' }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.04)' }}>
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: '#eaecf0' }}>
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow-hover)' }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow)' }}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--c-tag)' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 24, color: '#111' }}>{f.icon}</span>
               </div>
               <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: '#0f0f0f' }}>{f.label}</h3>
@@ -315,9 +315,9 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-4 gap-4">
           {STEPS.map(s => (
             <div key={s.step} className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]" style={{
-              background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
             }}>
-              <div className="text-[32px] font-bold tracking-[-1px] mb-3" style={{ color: '#2383e2' }}>{s.step}</div>
+              <div className="text-[32px] font-bold tracking-[-1px] mb-3" style={{ color: 'var(--c-blue)' }}>{s.step}</div>
               <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: '#0f0f0f' }}>{s.title}</h3>
               <p className="text-[13px] leading-relaxed" style={{ color: '#888' }}>{s.desc}</p>
             </div>
@@ -340,8 +340,8 @@ export default function LandingPage() {
           {TOPPERS.map((t, i) => (
             <div key={t.name} onMouseEnter={() => setTopHovered(i)} onMouseLeave={() => setTopHovered(null)}
               className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200" style={{
-                background: '#fff', border: '1px solid rgba(0,0,0,0.05)',
-                boxShadow: topHovered === i ? '0 8px 28px rgba(0,0,0,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
+                background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
+                boxShadow: topHovered === i ? 'var(--c-shadow-hover)' : 'var(--c-shadow)',
                 transform: topHovered === i ? 'translateY(-3px)' : 'translateY(0)',
               }}>
               <div className="flex items-center justify-between mb-3">
@@ -350,8 +350,8 @@ export default function LandingPage() {
                   <div className="text-[12px]" style={{ color: '#888' }}>JEE {t.year}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[20px] font-bold tracking-tight" style={{ color: '#2383e2' }}>{t.rank}</div>
-                  <div className="text-[12px] font-medium" style={{ color: '#0f8a5e' }}>{t.score}</div>
+                  <div className="text-[20px] font-bold tracking-tight" style={{ color: 'var(--c-blue)' }}>{t.rank}</div>
+                  <div className="text-[12px] font-medium" style={{ color: 'var(--c-green)' }}>{t.score}</div>
                 </div>
               </div>
               <div className="border-t border-black/[0.06] pt-3">
@@ -372,12 +372,12 @@ export default function LandingPage() {
           {PLANS.map((plan, i) => (
             <div key={plan.name} onMouseEnter={() => setHoveredPlan(i)} onMouseLeave={() => setHoveredPlan(null)}
               className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200" style={{
-                background: '#fff',
-                border: plan.popular ? '1px solid #2383e2' : '1px solid rgba(0,0,0,0.05)',
-                boxShadow: hoveredPlan === i ? '0 8px 28px rgba(0,0,0,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
+                background: 'var(--c-card)',
+                border: plan.popular ? '1px solid #2383e2' : '1px solid var(--c-border-card)',
+                boxShadow: hoveredPlan === i ? 'var(--c-shadow-hover)' : 'var(--c-shadow)',
                 transform: hoveredPlan === i ? 'translateY(-3px)' : 'translateY(0)',
               }}>
-              {plan.popular && <div className="text-[11px] font-semibold uppercase tracking-wider text-[#2383e2] mb-3">Most Popular</div>}
+              {plan.popular && <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--c-blue)] mb-3">Most Popular</div>}
               <div className="text-[18px] font-bold mb-1" style={{ color: '#0f0f0f' }}>{plan.name}</div>
               <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-[36px] font-bold tracking-tight" style={{ color: '#0f0f0f' }}>{plan.price === '—' ? '—' : `$${plan.price}`}</span>
@@ -386,23 +386,23 @@ export default function LandingPage() {
               <p className="text-[13px] mb-6" style={{ color: '#888' }}>{plan.desc}</p>
               <ul className="space-y-2.5 mb-8">
                 {plan.features.map(f => (
-                  <li key={f} className="text-[13px] flex items-center gap-2" style={{ color: '#555' }}>
-                    <span className="text-[#2383e2]">✓</span> {f}
+                  <li key={f} className="text-[13px] flex items-center gap-2" style={{ color: 'var(--c-text-secondary)' }}>
+                    <span className="text-[var(--c-blue)]">✓</span> {f}
                   </li>
                 ))}
               </ul>
               {plan.name === 'Teams' ? (
                 <button onClick={openContact}
                   className="w-full py-3 text-[13px] font-medium rounded-[40px] transition-all duration-200"
-                  style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555', cursor: 'pointer' }}
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)', cursor: 'pointer' }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.2)'; e.currentTarget.style.color = '#111' }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; e.currentTarget.style.color = '#555' }}>
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)'; e.currentTarget.style.color = 'var(--c-text-secondary)' }}>
                   Contact Us
                 </button>
               ) : (
                 <Link href="/auth"
                   className="block w-full py-3 text-[13px] font-medium rounded-[40px] text-white text-center transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
-                  style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
+                  style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
                   {plan.cta}
                 </Link>
               )}
@@ -424,12 +424,12 @@ export default function LandingPage() {
             { quote: 'The Pomodoro timer + activity journal helped me stay consistent for 6+ hours daily.', author: 'Rahul K.', role: 'JEE 2026 Aspirant' },
           ].map(t => (
             <div key={t.author} className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]" style={{
-              background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
             }}
-              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.08)' }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.04)' }}>
-              <div className="text-[#2383e2] text-2xl font-serif mb-3 leading-none">&ldquo;</div>
-              <p className="text-[14px] mb-6 leading-relaxed" style={{ color: '#555' }}>{t.quote}</p>
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow-hover)' }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow)' }}>
+              <div className="text-[var(--c-blue)] text-2xl font-serif mb-3 leading-none">&ldquo;</div>
+              <p className="text-[14px] mb-6 leading-relaxed" style={{ color: 'var(--c-text-secondary)' }}>{t.quote}</p>
               <div className="border-t border-black/[0.06] pt-4">
                 <div className="text-[14px] font-semibold" style={{ color: '#0f0f0f' }}>{t.author}</div>
                 <div className="text-[12px]" style={{ color: '#888' }}>{t.role}</div>
@@ -448,9 +448,9 @@ export default function LandingPage() {
         <div className="space-y-3">
           {FAQS.map((faq, i) => (
             <div key={i} className="rounded-[18px] transition-all duration-200" style={{
-              background: '#fff',
-              border: '1px solid rgba(0,0,0,0.05)',
-              boxShadow: openFaq === i ? '0 4px 20px rgba(0,0,0,0.06)' : '0 2px 12px rgba(0,0,0,0.04)',
+              background: 'var(--c-card)',
+              border: '1px solid var(--c-border-card)',
+              boxShadow: openFaq === i ? '0 4px 20px rgba(0,0,0,0.06)' : 'var(--c-shadow)',
             }}>
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -483,7 +483,7 @@ export default function LandingPage() {
         </p>
         <Link href="/auth"
           className="inline-flex items-center gap-2 text-white text-[14px] font-medium rounded-[40px] px-[24px] py-[10px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
-          style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
+          style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
           <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18l6-6-6-6" />
@@ -500,23 +500,23 @@ export default function LandingPage() {
         pointerEvents: showFloatingBar ? 'auto' : 'none',
       }}>
         <div className="flex items-center gap-1 px-3 py-2 rounded-[18px]" style={{
-          background: 'rgba(255,255,255,0.85)',
+          background: 'var(--c-navbar-bg)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(0,0,0,0.06)',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+          border: '1px solid var(--c-border)',
+          boxShadow: 'var(--c-shadow-nav)',
         }}>
           {NAV_ITEMS.map(item => (
             <a key={item.label} href={item.href}
               className="px-3 py-1.5 rounded-xl text-[12px] font-medium transition-all duration-200 hover:bg-black/[0.04]"
-              style={{ color: '#555' }}>
+              style={{ color: 'var(--c-text-secondary)' }}>
               {item.label}
             </a>
           ))}
           <div className="w-px h-5 mx-1" style={{ background: 'rgba(0,0,0,0.08)' }} />
           <Link href="/auth"
             className="px-4 py-1.5 rounded-xl text-[12px] font-medium text-white transition-all duration-200"
-            style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}>
+            style={{ background: 'var(--c-btn-primary)' }}>
             Get Started
           </Link>
         </div>
@@ -528,34 +528,34 @@ export default function LandingPage() {
           <div>
             <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: '#0f0f0f' }}>Product</h3>
             <ul className="space-y-2.5">
-              <li><a href="#features" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Features</a></li>
-              <li><a href="#pricing" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Pricing</a></li>
-              <li><a href="#about" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Testimonials</a></li>
-              <li><Link href="/auth" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Sign Up</Link></li>
+              <li><a href="#features" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Features</a></li>
+              <li><a href="#pricing" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Pricing</a></li>
+              <li><a href="#about" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Testimonials</a></li>
+              <li><Link href="/auth" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Sign Up</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: '#0f0f0f' }}>Explore</h3>
             <ul className="space-y-2.5">
-              <li><Link href="/dashboard" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Dashboard</Link></li>
-              <li><Link href="/syllabus" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Syllabus</Link></li>
-              <li><Link href="/roadmap" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Roadmap</Link></li>
-              <li><Link href="/timetable" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Timetable</Link></li>
+              <li><Link href="/dashboard" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Dashboard</Link></li>
+              <li><Link href="/syllabus" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Syllabus</Link></li>
+              <li><Link href="/roadmap" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Roadmap</Link></li>
+              <li><Link href="/timetable" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Timetable</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: '#0f0f0f' }}>Company</h3>
             <ul className="space-y-2.5">
-              <li><a href="#about" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>About</a></li>
-              <li><Link href="/contact" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Contact</Link></li>
-              <li><Link href="/auth?mode=login" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Login</Link></li>
+              <li><a href="#about" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>About</a></li>
+              <li><Link href="/contact" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Contact</Link></li>
+              <li><Link href="/auth?mode=login" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Login</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: '#0f0f0f' }}>Legal</h3>
             <ul className="space-y-2.5">
-              <li><Link href="/privacy" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-[13px] transition-colors hover:text-[#2383e2]" style={{ color: '#888' }}>Terms of Service</Link></li>
+              <li><Link href="/privacy" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Terms of Service</Link></li>
             </ul>
           </div>
         </div>
@@ -565,10 +565,10 @@ export default function LandingPage() {
             <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 22, filter: 'brightness(0)' }} />
             <span className="text-[18px] font-bold tracking-[-0.3px]" style={{ color: '#111' }}>JEEIFY</span>
           </div>
-          <div className="text-[12px]" style={{ color: '#aaa' }}>
+          <div className="text-[12px]" style={{ color: 'var(--c-caption)' }}>
             Made with <span style={{ color: '#E03E3E' }}>&#9829;</span> by Ashish
           </div>
-          <div className="text-[12px]" style={{ color: '#aaa' }}>
+          <div className="text-[12px]" style={{ color: 'var(--c-caption)' }}>
             &copy; 2026 JEEIFY. All rights reserved.
           </div>
         </div>

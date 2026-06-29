@@ -16,9 +16,9 @@ import type { SyllabusData, Subject, DailyPlan, PomodoroSession } from '@/types'
 const syllabus = syllabusData as unknown as SyllabusData
 
 const SUBJECT_META: Record<Subject, { emoji: string; light: string }> = {
-  physics: { emoji: '⚡', light: '#2383e2' },
-  chemistry: { emoji: '🧪', light: '#0f8a5e' },
-  maths: { emoji: '📐', light: '#d9730d' },
+  physics: { emoji: '⚡', light: 'var(--c-blue)' },
+  chemistry: { emoji: '🧪', light: 'var(--c-green)' },
+  maths: { emoji: '📐', light: 'var(--c-orange)' },
 }
 
 const GREETINGS = ['Morning', 'Afternoon', 'Evening']
@@ -114,7 +114,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
@@ -125,7 +125,7 @@ export default function DashboardPage() {
         {/* Greeting + date */}
         <div className="mb-8">
           <h1 className="text-[clamp(24px,3vw,32px)] font-medium tracking-[-0.5px] mb-1" style={{ color: '#0f0f0f' }}>
-            Good {greeting}, <span style={{ color: '#2383e2' }}>{settings.name || 'Champion'}</span>
+            Good {greeting}, <span style={{ color: 'var(--c-blue)' }}>{settings.name || 'Champion'}</span>
           </h1>
           <p className="text-[14px]" style={{ color: '#888' }}>
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -136,18 +136,18 @@ export default function DashboardPage() {
         {/* Days left + Subject progress cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="rounded-[18px] px-[22px] py-[24px] text-center relative overflow-hidden" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <div className="absolute inset-0 bg-gradient-to-br from-[#2383e2]/10 to-transparent" />
             <div className="relative">
-              <div className="text-[clamp(36px,4vw,48px)] font-bold tracking-[-1px]" style={{ color: '#2383e2' }}>{daysLeft}</div>
+              <div className="text-[clamp(36px,4vw,48px)] font-bold tracking-[-1px]" style={{ color: 'var(--c-blue)' }}>{daysLeft}</div>
               <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#888' }}>Days to JEE</div>
             </div>
           </div>
 
           {stats && (['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
             <div key={s} className="rounded-[18px] px-[22px] py-[20px] relative overflow-hidden" style={{
-              background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
             }}>
               <div className="relative">
                 <div className="flex items-center justify-between mb-2">
@@ -155,9 +155,9 @@ export default function DashboardPage() {
                   <span className="text-lg">{SUBJECT_META[s].emoji}</span>
                 </div>
                 <div className="text-[clamp(28px,2.5vw,34px)] font-bold tracking-[-0.5px] mb-2" style={{ color: '#0f0f0f' }}>
-                  {stats[s]}<span className="text-sm font-normal" style={{ color: '#aaa' }}>%</span>
+                  {stats[s]}<span className="text-sm font-normal" style={{ color: 'var(--c-caption)' }}>%</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
+                <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
                   <div className="h-full rounded-full transition-all" style={{ width: `${stats[s]}%`, backgroundColor: SUBJECT_META[s].light }} />
                 </div>
               </div>
@@ -168,13 +168,13 @@ export default function DashboardPage() {
         {/* Today's Plan + Continue Studying */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <div className="rounded-[18px] px-[22px] py-[24px] relative overflow-hidden" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl" style={{ background: '#2383e2' }} />
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl" style={{ background: 'var(--c-blue)' }} />
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[15px] font-semibold" style={{ color: '#0f0f0f' }}>Today&apos;s Plan</h2>
-                <button onClick={() => setShowPlanModal(true)} className="text-[10px] font-semibold uppercase tracking-wider transition-colors" style={{ color: '#2383e2' }}>
+                <button onClick={() => setShowPlanModal(true)} className="text-[10px] font-semibold uppercase tracking-wider transition-colors" style={{ color: 'var(--c-blue)' }}>
                   {plan ? 'Edit' : 'Plan'}
                 </button>
               </div>
@@ -184,19 +184,19 @@ export default function DashboardPage() {
                     <div key={s.subject}>
                       <div className="flex items-center gap-2 mb-1.5">
                         <span>{SUBJECT_META[s.subject].emoji}</span>
-                        <span className="text-xs font-medium capitalize" style={{ color: '#555' }}>{s.subject}</span>
-                        <span className="text-[10px] ml-auto" style={{ color: '#aaa' }}>{s.questions}q</span>
+                        <span className="text-xs font-medium capitalize" style={{ color: 'var(--c-text-secondary)' }}>{s.subject}</span>
+                        <span className="text-[10px] ml-auto" style={{ color: 'var(--c-caption)' }}>{s.questions}q</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {s.chapters.map((ch, i) => (
                           <span key={ch + i} className="px-2.5 py-0.5 text-[11px] rounded-full" style={{
-                            background: '#f5f5f5', color: '#555', border: '1px solid rgba(0,0,0,0.06)',
+                            background: '#f5f5f5', color: 'var(--c-text-secondary)', border: '1px solid var(--c-border)',
                           }}>
                             {ch}
                           </span>
                         ))}
                         {s.chapters.length === 0 && (
-                          <span className="text-[11px] italic" style={{ color: '#aaa' }}>No chapters selected</span>
+                          <span className="text-[11px] italic" style={{ color: 'var(--c-caption)' }}>No chapters selected</span>
                         )}
                       </div>
                     </div>
@@ -208,18 +208,18 @@ export default function DashboardPage() {
                   <p className="text-sm mb-3" style={{ color: '#888' }}>No plan set for today</p>
                   <button onClick={() => setShowPlanModal(true)}
                     className="inline-flex items-center gap-1.5 text-white text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200 hover:-translate-y-[0.5px]"
-                    style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}
+                    style={{ background: 'var(--c-btn-primary)' }}
                   >Plan Your Day</button>
                 </div>
               )}
               {stats && (
-                <div className="mt-4 pt-3 border-t" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
+                <div className="mt-4 pt-3 border-t" style={{ borderColor: 'var(--c-border)' }}>
                   <div className="flex items-center justify-between text-xs mb-1.5" style={{ color: '#888' }}>
                     <span>Overall Progress</span>
-                    <span className="font-semibold" style={{ color: '#2383e2' }}>{stats.overall}%</span>
+                    <span className="font-semibold" style={{ color: 'var(--c-blue)' }}>{stats.overall}%</span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
-                    <div className="h-full rounded-full transition-all" style={{ width: `${stats.overall}%`, backgroundColor: '#2383e2' }} />
+                  <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${stats.overall}%`, backgroundColor: 'var(--c-blue)' }} />
                   </div>
                 </div>
               )}
@@ -227,9 +227,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="rounded-[18px] px-[22px] py-[24px] relative overflow-hidden" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl" style={{ background: '#d9730d' }} />
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl" style={{ background: 'var(--c-orange)' }} />
             <div className="relative">
               <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Continue Studying</h2>
               {continueChapter ? (
@@ -248,13 +248,13 @@ export default function DashboardPage() {
                       <span>{continueChapter.doneTopics}/{continueChapter.totalTopics} topics</span>
                       <span>{continueChapter.percent}%</span>
                     </div>
-                    <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
+                    <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
                       <div className="h-full rounded-full transition-all" style={{ width: `${continueChapter.percent}%`, backgroundColor: SUBJECT_META[continueChapter.subject].light }} />
                     </div>
                   </div>
                   <button
                     className="w-full text-center text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200 hover:-translate-y-[0.5px]"
-                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#555' }}
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}
                   >
                     Resume → {continueChapter.chapter.name}
                   </button>
@@ -272,7 +272,7 @@ export default function DashboardPage() {
         {/* Heatmap + Study Pace */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="rounded-[18px] px-[22px] py-[24px] md:col-span-2" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Study Heatmap — Last 30 Days</h2>
             <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(30, 1fr)' }}>
@@ -284,26 +284,26 @@ export default function DashboardPage() {
                     key={i}
                     className="aspect-square rounded-[4px] hover:ring-1 hover:ring-black/20 transition-all cursor-default"
                     style={{
-                      backgroundColor: level === 0 ? '#f5f5f5' : level === 1 ? '#dbeafe' : level === 2 ? '#93c5fd' : level === 3 ? '#60a5fa' : '#2383e2',
+                      backgroundColor: level === 0 ? '#f5f5f5' : level === 1 ? '#dbeafe' : level === 2 ? '#93c5fd' : level === 3 ? '#60a5fa' : 'var(--c-blue)',
                     }}
                     title={`${d.date}: ${d.hours.toFixed(1)}h`}
                   />
                 )
               })}
             </div>
-            <div className="flex items-center gap-2 mt-3 text-[10px]" style={{ color: '#aaa' }}>
+            <div className="flex items-center gap-2 mt-3 text-[10px]" style={{ color: 'var(--c-caption)' }}>
               <span>Less</span>
               <div className="w-3 h-3 rounded-[3px]" style={{ background: '#f5f5f5' }} />
               <div className="w-3 h-3 rounded-[3px]" style={{ background: '#dbeafe' }} />
               <div className="w-3 h-3 rounded-[3px]" style={{ background: '#93c5fd' }} />
               <div className="w-3 h-3 rounded-[3px]" style={{ background: '#60a5fa' }} />
-              <div className="w-3 h-3 rounded-[3px]" style={{ background: '#2383e2' }} />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: 'var(--c-blue)' }} />
               <span>More</span>
             </div>
           </div>
 
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Study Pace</h2>
             {pace ? (
@@ -316,20 +316,20 @@ export default function DashboardPage() {
                       <span className="text-sm">{SUBJECT_META[s].emoji}</span>
                       <div className="flex-1">
                         <div className="text-xs capitalize mb-0.5" style={{ color: '#888' }}>{s} — {pct}%</div>
-                        <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
+                        <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
                           <div className="h-full rounded-full transition-all" style={{
                             width: `${pct}%`,
-                            backgroundColor: isOnTrack ? '#0f8a5e' : '#e03e3e',
+                            backgroundColor: isOnTrack ? 'var(--c-green)' : 'var(--c-red)',
                           }} />
                         </div>
                       </div>
-                      <span className={`text-[10px] font-medium ${isOnTrack ? 'text-[#0f8a5e]' : 'text-[#e03e3e]'}`}>
+                      <span className={`text-[10px] font-medium ${isOnTrack ? 'text-[var(--c-green)]' : 'text-[#e03e3e]'}`}>
                         {isOnTrack ? 'On Track' : 'Behind'}
                       </span>
                     </div>
                   )
                 })}
-                <div className="pt-2 mt-2 border-t text-xs text-center" style={{ borderColor: 'rgba(0,0,0,0.06)', color: '#888' }}>
+                <div className="pt-2 mt-2 border-t text-xs text-center" style={{ borderColor: 'var(--c-border)', color: '#888' }}>
                   Phase: <span className="font-medium" style={{ color: '#0f0f0f' }}>
                     {pace.currentPhase === 'foundation' ? 'Foundation' : pace.currentPhase === 'consolidation' ? 'Consolidation' : 'Final Sprint'}
                   </span>
@@ -344,7 +344,7 @@ export default function DashboardPage() {
         {/* Empty state */}
         {loaded && !stats && (
           <div className="rounded-[18px] px-[22px] py-[32px] text-center" style={{
-            background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <div className="text-4xl mb-3">🚀</div>
             <h2 className="text-lg font-semibold mb-2" style={{ color: '#0f0f0f' }}>Ready to start your journey?</h2>

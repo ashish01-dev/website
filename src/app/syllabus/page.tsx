@@ -32,14 +32,14 @@ export default function SyllabusPage() {
   )
 
   return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
 
       <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8">
-        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: '#0f0f0f' }}>Syllabus Tracker</h1>
-        <p className="text-sm mb-6" style={{ color: '#888' }}>Track your JEE 2027 syllabus progress</p>
+        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>Syllabus Tracker</h1>
+        <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>Track your JEE 2027 syllabus progress</p>
 
         <div className="flex items-center gap-1 mb-6 border-b border-[rgba(0,0,0,0.06)] pb-0">
           {SUBJECTS.map(s => (
@@ -47,9 +47,9 @@ export default function SyllabusPage() {
               key={s.id}
               onClick={() => setActiveSubject(s.id)}
               className={`px-3 py-2 text-sm transition-colors border-b-2 -mb-[1px] ${
-                activeSubject === s.id ? 'border-[#2383e2] text-[#2383e2] font-medium' : 'border-transparent hover:text-[#0f0f0f]' 
+                activeSubject === s.id ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[#0f0f0f]' 
               }`}
-              style={{ color: activeSubject === s.id ? undefined : '#888' }}
+              style={{ color: activeSubject === s.id ? undefined : 'var(--c-muted)' }}
             >
               {s.label}
             </button>
@@ -61,9 +61,9 @@ export default function SyllabusPage() {
               onChange={e => setSearch(e.target.value)}
               placeholder="Search chapters..."
               className="w-full px-3 py-2 text-xs outline-none rounded-[40px]"
-              style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0f0f0f', background: '#fafafa' }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }}
+              style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
             />
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function SyllabusPage() {
         <div className="space-y-6">
           {filteredDivisions.map(div => (
             <div key={div.id}>
-              <h2 className="text-[15px] font-semibold mb-2" style={{ color: '#0f0f0f' }}>{div.name}</h2>
+              <h2 className="text-[15px] font-semibold mb-2" style={{ color: 'var(--c-text)' }}>{div.name}</h2>
               <div className="space-y-1">
                 {div.chapters.map(ch => (
                   <ChapterCard key={ch.id} chapter={ch} />
@@ -82,12 +82,12 @@ export default function SyllabusPage() {
 
           {subjectData.deletedChapters.length > 0 && (
             <div>
-              <h2 className="text-[15px] font-semibold mb-2 line-through" style={{ color: '#888' }}>Removed Chapters</h2>
+              <h2 className="text-[15px] font-semibold mb-2 line-through" style={{ color: 'var(--c-muted)' }}>Removed Chapters</h2>
               <div className="space-y-1">
                 {subjectData.deletedChapters.map((dc, i) => (
-                  <div key={i} className="rounded-[18px] p-3 opacity-40" style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-                    <span className="text-sm line-through" style={{ color: '#888' }}>{dc.name}</span>
-                    <span className="text-xs ml-2" style={{ color: '#888' }}>({dc.reason})</span>
+                  <div key={i} className="rounded-[18px] p-3 opacity-40" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+                    <span className="text-sm line-through" style={{ color: 'var(--c-muted)' }}>{dc.name}</span>
+                    <span className="text-xs ml-2" style={{ color: 'var(--c-muted)' }}>({dc.reason})</span>
                   </div>
                 ))}
               </div>

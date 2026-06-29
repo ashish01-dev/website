@@ -63,7 +63,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen flex" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       {/* Left: Auth form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
@@ -85,9 +85,9 @@ export default function AuthPage() {
 
           <button onClick={handleGoogleSignIn}
             className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-[40px] transition-all duration-200 mb-6"
-            style={{ border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer', background: '#fff' }}
+            style={{ border: '1px solid var(--c-border-input)', cursor: 'pointer', background: 'var(--c-card)' }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.2)'; e.currentTarget.style.background = 'rgba(0,0,0,0.02)' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)'; e.currentTarget.style.background = '#fff' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)'; e.currentTarget.style.background = '#fff' }}
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>
             <span className="text-sm font-medium" style={{ color: '#111' }}>Continue with Google</span>
@@ -95,7 +95,7 @@ export default function AuthPage() {
 
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/[0.06]" /></div>
-            <div className="relative flex justify-center"><span className="bg-[#F5F5F5] px-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: '#aaa' }}>Or</span></div>
+            <div className="relative flex justify-center"><span className="bg-[#F5F5F5] px-3 text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--c-caption)' }}>Or</span></div>
           </div>
 
           <form onSubmit={handleEmailSignIn} className="space-y-4">
@@ -103,23 +103,23 @@ export default function AuthPage() {
               <input type="email" placeholder="Email address" value={email}
                 onChange={e => { setEmail(e.target.value); setError(''); setSubmittedEmail(false); if (!emailTouched) setEmailTouched(true) }}
                 className={`w-full px-4 py-3 text-sm outline-none transition-colors rounded-[40px] ${emailWarning ? 'border-[#E03E3E]' : ''}`}
-                style={{ border: `1px solid ${emailWarning ? '#E03E3E' : 'rgba(0,0,0,0.1)'}`, color: '#111', background: '#fff' }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                onBlur={e => { if (!emailWarning) e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                style={{ border: `1px solid ${emailWarning ? '#E03E3E' : 'var(--c-border-input)'}`, color: '#111', background: 'var(--c-card)' }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                onBlur={e => { if (!emailWarning) e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               {emailWarning && <p className="text-[#E03E3E] text-[11px] mt-1.5 font-medium">Please enter a valid email address</p>}
             </div>
             <div>
               <input type="password" placeholder="Password" value={password}
                 onChange={e => { setPassword(e.target.value); setError(''); setSubmittedEmail(false) }}
                 className="w-full px-4 py-3 text-sm outline-none rounded-[40px] transition-colors"
-                style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#111', background: '#fff' }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }} />
+                style={{ border: '1px solid var(--c-border-input)', color: '#111', background: 'var(--c-card)' }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               {mode === 'signup' && password.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {PASSWORD_RULES.map(r => {
                     const pass = r.test(password)
-                    return <div key={r.label} className={`text-[11px] flex items-center gap-1.5 ${pass ? 'text-[#0f8a5e]' : 'text-[#aaa]'}`}>
+                    return <div key={r.label} className={`text-[11px] flex items-center gap-1.5 ${pass ? 'text-[var(--c-green)]' : 'text-[#aaa]'}`}>
                       <span>{pass ? '✓' : '○'}</span> {r.label}
                     </div>
                   })}
@@ -130,8 +130,8 @@ export default function AuthPage() {
             <button type="submit" disabled={!canSubmit}
               className="w-full px-4 py-3 text-sm font-semibold rounded-[40px] transition-all disabled:opacity-40"
               style={{
-                background: canSubmit ? '#2383e2' : 'rgba(0,0,0,0.06)',
-                color: canSubmit ? '#fff' : '#aaa',
+                background: canSubmit ? 'var(--c-blue)' : 'var(--c-border)',
+                color: canSubmit ? '#fff' : 'var(--c-caption)',
                 cursor: canSubmit ? 'pointer' : 'not-allowed',
               }}>
               {mode === 'signup' ? 'Create Account' : 'Sign In'}
@@ -141,22 +141,22 @@ export default function AuthPage() {
           <p className="text-[12px] text-center mt-6" style={{ color: '#888' }}>
             {mode === 'signup' ? 'Already have an account?' : "Don't have an account?"}{' '}
             <button onClick={() => { setMode(mode === 'signup' ? 'login' : 'signup'); setEmail(''); setPassword(''); setError(''); setEmailTouched(false); setSubmittedEmail(false) }}
-              className="font-medium hover:underline" style={{ color: '#2383e2', cursor: 'pointer' }}>
+              className="font-medium hover:underline" style={{ color: 'var(--c-blue)', cursor: 'pointer' }}>
               {mode === 'signup' ? 'Sign In' : 'Sign Up'}
             </button>
           </p>
 
-          <p className="text-[11px] text-center mt-6 leading-relaxed" style={{ color: '#aaa' }}>
+          <p className="text-[11px] text-center mt-6 leading-relaxed" style={{ color: 'var(--c-caption)' }}>
             By continuing, you agree to our{' '}
-            <Link href="/terms" className="underline hover:text-[#2383e2]">Terms</Link>
+            <Link href="/terms" className="underline hover:text-[var(--c-blue)]">Terms</Link>
             {' '}and{' '}
-            <Link href="/privacy" className="underline hover:text-[#2383e2]">Privacy Policy</Link>.
+            <Link href="/privacy" className="underline hover:text-[var(--c-blue)]">Privacy Policy</Link>.
           </p>
         </div>
       </div>
 
       {/* Right: Decorative */}
-      <div className="hidden lg:flex flex-1 items-center justify-center relative overflow-hidden" style={{ background: '#fff' }}>
+      <div className="hidden lg:flex flex-1 items-center justify-center relative overflow-hidden" style={{ background: 'var(--c-card)' }}>
         <svg viewBox="0 0 600 700" className="w-full h-full max-w-[500px]" preserveAspectRatio="xMidYMid meet" style={{ opacity: 0.9 }}>
           <defs>
             <linearGradient id="leafGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -204,7 +204,7 @@ export default function AuthPage() {
           <circle cx="300" cy="120" r="3" fill="#2383e2" fillOpacity="0.12" />
         </svg>
         <div className="absolute bottom-8 left-0 right-0 text-center">
-          <p className="text-sm font-medium" style={{ color: '#888' }}>Grow your knowledge. <span style={{ color: '#2383e2' }}>Branch out.</span></p>
+          <p className="text-sm font-medium" style={{ color: '#888' }}>Grow your knowledge. <span style={{ color: 'var(--c-blue)' }}>Branch out.</span></p>
         </div>
       </div>
     </div>

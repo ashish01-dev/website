@@ -18,7 +18,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+    <div className="min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       {/* Navbar */}
       <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
         <div className="flex items-center justify-between">
@@ -32,7 +32,7 @@ export default function ContactPage() {
           </Link>
           <Link href="/"
             className="text-sm font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px]"
-            style={{ color: '#555', border: '1px solid rgba(0,0,0,0.1)' }}
+            style={{ color: 'var(--c-text-secondary)', border: '1px solid var(--c-border-input)' }}
           >
             &larr; Back to Home
           </Link>
@@ -56,48 +56,48 @@ export default function ContactPage() {
         <div className="max-w-lg mx-auto">
           {sent ? (
             <div className="rounded-[18px] px-[22px] py-[32px]" style={{
-              background: '#fff',
-              border: '1px solid rgba(0,0,0,0.05)',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              background: 'var(--c-card)',
+              border: '1px solid var(--c-border-card)',
+              boxShadow: 'var(--c-shadow)',
             }}>
               <div className="text-5xl mb-4">&#9993;</div>
               <h2 className="text-xl font-bold tracking-tight mb-2" style={{ color: '#0f0f0f' }}>Message Sent!</h2>
               <p className="text-sm mb-6" style={{ color: '#888' }}>We&apos;ll get back to you within 24 hours.</p>
               <Link href="/"
                 className="inline-flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[20px] py-[8px] transition-all duration-200 hover:-translate-y-[1px]"
-                style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)' }}
+                style={{ background: 'var(--c-btn-primary)' }}
               >
                 Back to Home
               </Link>
             </div>
           ) : (
             <div className="rounded-[18px] px-[26px] py-[28px] text-left" style={{
-              background: '#fff',
-              border: '1px solid rgba(0,0,0,0.05)',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              background: 'var(--c-card)',
+              border: '1px solid var(--c-border-card)',
+              boxShadow: 'var(--c-shadow)',
             }}>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label className="text-[11px] uppercase tracking-wider font-semibold mb-2 block" style={{ color: '#888' }}>Email</label>
                   <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
                     className="w-full px-4 py-3 text-sm outline-none transition-colors rounded-[40px]"
-                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#111' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }}
+                    style={{ border: '1px solid var(--c-border-input)', color: '#111' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
                     placeholder="your@email.com" />
                 </div>
                 <div>
                   <label className="text-[11px] uppercase tracking-wider font-semibold mb-2 block" style={{ color: '#888' }}>Message</label>
                   <textarea required rows={5} value={message} onChange={e => setMessage(e.target.value)}
                     className="w-full px-4 py-3 text-sm outline-none transition-colors resize-none rounded-[18px]"
-                    style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#111' }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#2383e2' }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)' }}
+                    style={{ border: '1px solid var(--c-border-input)', color: '#111' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
                     placeholder="How can we help?" />
                 </div>
                 <button type="submit"
                   className="w-full py-3 text-sm font-semibold rounded-[40px] text-white transition-all duration-200 hover:-translate-y-[1px]"
-                  style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: 'pointer' }}
+                  style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: 'pointer' }}
                   onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 25px rgba(0,0,0,0.25)')}
                   onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)')}
                 >
@@ -111,7 +111,7 @@ export default function ContactPage() {
 
       {/* Footer */}
       <footer className="border-t border-black/[0.06] py-12 md:py-16 px-5 max-w-[1100px] mx-auto">
-        <div className="text-center text-[12px]" style={{ color: '#aaa' }}>
+        <div className="text-center text-[12px]" style={{ color: 'var(--c-caption)' }}>
           Made with <span style={{ color: '#E03E3E' }}>&#9829;</span> by Ashish
         </div>
       </footer>
