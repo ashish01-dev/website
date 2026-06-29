@@ -34,8 +34,8 @@ export default function PomodoroPage() {
   const [paused, setPaused] = useState(false)
   const [sessions, setSessions] = useState<PomodoroSession[]>([])
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const rafRef = useRef<number>(0)
   const startTimeRef = useRef<number | null>(null)
-  const startTsRef = useRef<number>(0)
   const pauseOffsetRef = useRef<number>(0)
 
   const today = formatDate(new Date())
@@ -52,45 +52,47 @@ export default function PomodoroPage() {
   }, [running])
 
   const tick = useCallback(() => {
-    setElapsed(Math.floor((Date.now() - startTsRef.current) / 1000) + pauseOffsetRef.current)
+    setElapsed(Math.floor((Date.now() - startTimeRef.current!) / 1000) + pauseOffsetRef.current)
+    rafRef.current = requestAnimationFrame(tick)
   }, [])
 
   const stopTimer = useCallback(() => {
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = 0 }
   }, [])
 
   const startSession = useCallback(() => {
     stopTimer()
-    startTimeRef.current = Date.now()
-    startTsRef.current = Date.now()
+    startTimeRef.current = performance.now()
     pauseOffsetRef.current = 0
     setElapsed(0)
     setRunning(true)
     setPaused(false)
-    intervalRef.current = setInterval(tick, 200)
+    rafRef.current = requestAnimationFrame(tick)
+    intervalRef.current = setInterval(tick, 1000)
   }, [stopTimer, tick])
 
   const pauseSession = useCallback(() => {
-    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
-    pauseOffsetRef.current += Math.floor((Date.now() - startTsRef.current) / 1000)
-    startTsRef.current = Date.now()
+    stopTimer()
+    pauseOffsetRef.current += Math.floor((performance.now() - startTimeRef.current!) / 1000)
     setPaused(true)
   }, [])
 
   const resumeSession = useCallback(() => {
-    startTsRef.current = Date.now()
+    startTimeRef.current = performance.now()
     setPaused(false)
-    intervalRef.current = setInterval(tick, 200)
+    rafRef.current = requestAnimationFrame(tick)
+    intervalRef.current = setInterval(tick, 1000)
   }, [tick])
 
   const endSession = useCallback(async () => {
     stopTimer()
-    const totalElapsed = Math.floor((Date.now() - startTsRef.current) / 1000) + pauseOffsetRef.current
+    const totalElapsed = Math.floor((performance.now() - startTimeRef.current!) / 1000) + pauseOffsetRef.current
     if (totalElapsed < 5) { setRunning(false); setPaused(false); setElapsed(0); return }
     const session: PomodoroSession = {
       id: generateId(),
       date: today,
-      start: startTimeRef.current || Date.now(),
+      start: startTimeRef.current ? Date.now() - Math.floor((performance.now() - startTimeRef.current) / 1000) * 1000 - pauseOffsetRef.current * 1000 : Date.now(),
       end: Date.now(),
       duration: totalElapsed,
       completed: true,
@@ -111,7 +113,6 @@ export default function PomodoroPage() {
     setPaused(false)
     setElapsed(0)
     startTimeRef.current = null
-    startTsRef.current = 0
     pauseOffsetRef.current = 0
   }, [stopTimer, today])
 

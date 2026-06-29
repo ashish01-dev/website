@@ -17,14 +17,12 @@ function isValidEmail(email: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
 
 export default function AuthPage() {
   const router = useRouter()
-  const [mode, setMode] = useState<'signup' | 'login'>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      if (params.get('mode') === 'signup') return 'signup'
-      return 'login'
-    }
-    return 'login'
-  })
+  const [mode, setMode] = useState<'signup' | 'login'>('login')
+
+  useEffect(() => {
+    const m = new URLSearchParams(window.location.search).get('mode')
+    setMode(m === 'signup' ? 'signup' : 'login')
+  }, [])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')

@@ -9,6 +9,7 @@ export default function TopBar() {
   const router = useRouter()
   const { settings, update } = useSettingsStore()
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 })
+  const [liveTime, setLiveTime] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
 
   useEffect(() => {
@@ -26,6 +27,13 @@ export default function TopBar() {
     const interval = setInterval(update, 60000)
     return () => clearInterval(interval)
   }, [settings.examDate])
+
+  useEffect(() => {
+    const update = () => setLiveTime(new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+    update()
+    const interval = setInterval(update, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     const sb = getSupabase()
@@ -83,6 +91,9 @@ export default function TopBar() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             )}
           </button>
+          <span className="text-[12px] font-mono tabular-nums" style={{ color: 'var(--c-muted)' }}>
+            {liveTime}
+          </span>
           <span className="text-[13px] font-medium" style={{ color: 'var(--c-blue)' }}>
             {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
           </span>

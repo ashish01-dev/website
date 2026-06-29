@@ -20,7 +20,17 @@ export async function GET(request: NextRequest) {
           setAll: (cookies) => cookies.forEach(c => response.cookies.set(c.name, c.value, c.options)),
         },
       })
-      await sb.auth.exchangeCodeForSession(code)
+      const { data: { session } } = await sb.auth.exchangeCodeForSession(code)
+      if (session?.user?.user_metadata) {
+        const meta = session.user.user_metadata
+        const name = meta.full_name || meta.name || ''
+        const avatar = meta.avatar_url || meta.picture || ''
+        if (name || avatar) {
+          const { data: existing } = await sb.from('settings').select('value').eq('id', 'main').eq('user_id', session.user.id).single() as any
+          const merged = { ...(existing?.value || {}), ...(name ? { name } : {}), ...(avatar ? { avatarUrl: avatar } : {}) }
+          await sb.from('settings').upsert({ user_id: session.user.id, id: 'main', value: merged }, { onConflict: 'user_id,id' })
+        }
+      }
       return response
     } catch {
       return NextResponse.redirect(`${origin}/?error=auth_failed`)

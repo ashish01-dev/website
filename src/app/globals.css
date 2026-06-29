@@ -61,6 +61,7 @@ body {
   }
 
   .dark {
+    color-scheme: dark;
     --c-text: #e2e2e0;
     --c-text-secondary: #aaa;
     --c-muted: #9b9a97;
