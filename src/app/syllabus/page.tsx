@@ -47,7 +47,7 @@ export default function SyllabusPage() {
               key={s.id}
               onClick={() => setActiveSubject(s.id)}
               className={`px-3 py-2 text-sm transition-colors border-b-2 -mb-[1px] ${
-                activeSubject === s.id ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[#0f0f0f]' 
+                activeSubject === s.id ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[var(--c-text)]' 
               }`}
               style={{ color: activeSubject === s.id ? undefined : 'var(--c-muted)' }}
             >

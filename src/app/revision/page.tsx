@@ -119,10 +119,10 @@ export default function RevisionPage() {
         <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>Error log and formula vault</p>
 
         <div className="flex items-center gap-1 mb-6 border-b pb-0" style={{ borderColor: 'var(--c-border)' }}>
-          <button onClick={() => setTab('errors')} className={`px-3 py-2 text-sm border-b-2 -mb-[1px] transition-colors ${tab === 'errors' ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[#0f0f0f]'}`} style={{ color: tab !== 'errors' ? 'var(--c-muted)' : undefined }}>
+          <button onClick={() => setTab('errors')} className={`px-3 py-2 text-sm border-b-2 -mb-[1px] transition-colors ${tab === 'errors' ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[var(--c-text)]'}`} style={{ color: tab !== 'errors' ? 'var(--c-muted)' : undefined }}>
             Error Log
           </button>
-          <button onClick={() => setTab('formulas')} className={`px-3 py-2 text-sm border-b-2 -mb-[1px] transition-colors ${tab === 'formulas' ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[#0f0f0f]'}`} style={{ color: tab !== 'formulas' ? 'var(--c-muted)' : undefined }}>
+          <button onClick={() => setTab('formulas')} className={`px-3 py-2 text-sm border-b-2 -mb-[1px] transition-colors ${tab === 'formulas' ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[var(--c-text)]'}`} style={{ color: tab !== 'formulas' ? 'var(--c-muted)' : undefined }}>
             Formula Vault
           </button>
         </div>
@@ -206,7 +206,7 @@ export default function RevisionPage() {
                   key={s}
                   onClick={() => setSubjectTab(s)}
                   className={`px-3 py-2 text-sm border-b-2 -mb-[1px] transition-colors ${
-                    subjectTab === s ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[#0f0f0f]'
+                    subjectTab === s ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[var(--c-text)]'
                   }`}
                   style={{ color: subjectTab !== s ? 'var(--c-muted)' : undefined }}
                 >

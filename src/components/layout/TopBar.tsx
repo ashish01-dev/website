@@ -60,14 +60,14 @@ export default function TopBar() {
             {avatarUrl ? (
               <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-sm font-semibold" style={{ color: '#888' }}>
+              <span className="text-sm font-semibold" style={{ color: 'var(--c-muted)' }}>
                 {(settings.name || 'U').charAt(0).toUpperCase()}
               </span>
             )}
           </div>
           <div className="hidden sm:block text-left">
-            <div className="text-[13px] font-medium leading-tight" style={{ color: '#0f0f0f' }}>{settings.name || 'User'}</div>
-            <div className="text-[10px] leading-tight" style={{ color: '#888' }}>JEE 2027</div>
+            <div className="text-[13px] font-medium leading-tight" style={{ color: 'var(--c-text)' }}>{settings.name || 'User'}</div>
+            <div className="text-[10px] leading-tight" style={{ color: 'var(--c-muted)' }}>JEE 2027</div>
           </div>
         </button>
 

@@ -61,7 +61,7 @@ export default function CompletionPage() {
               key={s}
               onClick={() => setTab(s)}
               className={`px-4 py-2 text-sm border-b-2 -mb-[1px] transition-colors flex items-center gap-1.5 ${
-                tab === s ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[#0f0f0f]'
+                tab === s ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[var(--c-text)]'
               }`}
               style={{ color: tab !== s ? 'var(--c-muted)' : undefined }}
             >

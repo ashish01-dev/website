@@ -34,8 +34,8 @@ export default function ChapterCard({ chapter }: ChapterCardProps) {
       <div className="rounded-[18px] p-3 opacity-40" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
         <div className="flex items-center gap-2">
           <span className="text-base">🚫</span>
-          <span className="text-sm line-through" style={{ color: '#888' }}>{chapter.name}</span>
-          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--c-progress-bg)', color: '#888' }}>Removed</span>
+          <span className="text-sm line-through" style={{ color: 'var(--c-muted)' }}>{chapter.name}</span>
+          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--c-progress-bg)', color: 'var(--c-muted)' }}>Removed</span>
         </div>
       </div>
     )
@@ -63,8 +63,8 @@ export default function ChapterCard({ chapter }: ChapterCardProps) {
           {status === 'done' ? '✅' : status === 'in_progress' ? '🔄' : '📄'}
         </span>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium" style={{ color: '#0f0f0f' }}>{chapter.name}</div>
-          <div className="text-xs" style={{ color: '#888' }}>
+          <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>{chapter.name}</div>
+          <div className="text-xs" style={{ color: 'var(--c-muted)' }}>
             Class {chapter.class} · {chapter.weightage} weightage
             {!chapter.verified && <span className="ml-1.5" style={{ color: 'var(--c-orange)' }}>(needs check)</span>}
           </div>
@@ -75,10 +75,10 @@ export default function ChapterCard({ chapter }: ChapterCardProps) {
               <div className="w-12 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
                 <div className="h-full rounded-full bg-[var(--c-blue)] transition-all" style={{ width: `${percent}%` }} />
               </div>
-              <span className="text-xs w-6 text-right" style={{ color: '#888' }}>{percent}%</span>
+              <span className="text-xs w-6 text-right" style={{ color: 'var(--c-muted)' }}>{percent}%</span>
             </>
           )}
-          <span className="text-xs" style={{ color: '#888' }}>{expanded ? '▲' : '▼'}</span>
+          <span className="text-xs" style={{ color: 'var(--c-muted)' }}>{expanded ? '▲' : '▼'}</span>
         </div>
       </button>
 
@@ -96,8 +96,8 @@ export default function ChapterCard({ chapter }: ChapterCardProps) {
                     style={{ borderColor: 'rgba(0,0,0,0.2)' }}
                     disabled={topic.deleted}
                   />
-                  <span className="text-sm" style={{ color: '#0f0f0f' }}>{topic.name}</span>
-                  {topic.deleted && <span className="text-xs" style={{ color: '#888' }}>(deleted)</span>}
+                  <span className="text-sm" style={{ color: 'var(--c-text)' }}>{topic.name}</span>
+                  {topic.deleted && <span className="text-xs" style={{ color: 'var(--c-muted)' }}>(deleted)</span>}
                 </label>
               ))}
               {customTopicIds.map(id => (
@@ -109,13 +109,13 @@ export default function ChapterCard({ chapter }: ChapterCardProps) {
                     className="w-3.5 h-3.5 rounded-sm text-[var(--c-blue)] focus:ring-[#2383e2]"
                     style={{ borderColor: 'rgba(0,0,0,0.2)' }}
                   />
-                  <span className="text-sm" style={{ color: '#0f0f0f' }}>{customTopics[id]}</span>
+                  <span className="text-sm" style={{ color: 'var(--c-text)' }}>{customTopics[id]}</span>
                   <span className="text-[10px]" style={{ color: 'var(--c-orange)' }}>(custom)</span>
                 </label>
               ))}
             </div>
           ) : (
-            <p className="text-xs mb-3 italic" style={{ color: '#888' }}>Topics not yet added — cross-check with NCERT.</p>
+            <p className="text-xs mb-3 italic" style={{ color: 'var(--c-muted)' }}>Topics not yet added — cross-check with NCERT.</p>
           )}
 
           <div className="flex gap-2 mb-3">
@@ -126,7 +126,7 @@ export default function ChapterCard({ chapter }: ChapterCardProps) {
               onKeyDown={e => e.key === 'Enter' && handleAddTopic()}
               placeholder="Add a custom topic..."
               className="flex-1 px-2 py-1 text-xs outline-none rounded-[40px]"
-              style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+              style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
               onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
               onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
             />

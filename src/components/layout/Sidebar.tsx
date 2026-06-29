@@ -96,7 +96,7 @@ export default function Sidebar() {
                 <span className={`text-[18px] leading-none transition-transform duration-200 group-hover:scale-110 ${active ? 'scale-110' : ''}`}>
                   {item.icon}
                 </span>
-                <span className={`text-[9px] font-medium leading-none whitespace-nowrap transition-colors ${active ? 'text-[var(--c-blue)]' : 'text-black/40'}`}>
+                <span className={`text-[9px] font-medium leading-none whitespace-nowrap transition-colors ${active ? 'text-[var(--c-blue)]' : 'text-[var(--c-muted)]'}`}>
                   {item.label}
                 </span>
                 {active && (
@@ -126,7 +126,7 @@ export default function Sidebar() {
               }`}
             >
               <span className="text-[20px] leading-none">{group.icon}</span>
-              <span className={`text-[10px] font-medium leading-none ${openGroup === gi ? 'text-[var(--c-blue)]' : 'text-black/40'}`}>
+              <span className={`text-[10px] font-medium leading-none ${openGroup === gi ? 'text-[var(--c-blue)]' : 'text-[var(--c-muted)]'}`}>
                 {group.label}
               </span>
             </button>
@@ -150,7 +150,7 @@ export default function Sidebar() {
             }}
           >
             <div className="px-2 py-2">
-              <div className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5" style={{ color: '#888' }}>
+              <div className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5" style={{ color: 'var(--c-muted)' }}>
                 {MOBILE_GROUPS[openGroup].label}
               </div>
               {MOBILE_GROUPS[openGroup].items.map(item => {

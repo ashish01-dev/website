@@ -18,13 +18,13 @@ export default function NotFound() {
               alt="logo"
               style={{ height: 28, filter: 'brightness(0)' }}
             />
-            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: '#111' }}>JEEIFY</span>
+            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-9">
-            <Link href="/" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Home</Link>
-            <Link href="/dashboard" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Dashboard</Link>
-            <Link href="/syllabus" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Syllabus</Link>
+            <Link href="/" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Home</Link>
+            <Link href="/dashboard" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Dashboard</Link>
+            <Link href="/syllabus" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Syllabus</Link>
           </div>
 
           <div className="hidden md:block">
@@ -34,7 +34,7 @@ export default function NotFound() {
               style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
             >
               <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 18l6-6-6-6" />
                 </svg>
               </span>
@@ -69,7 +69,7 @@ export default function NotFound() {
       >
         <div className="flex justify-end mb-16">
           <button onClick={() => setMenuOpen(false)} className="w-8 h-8 flex items-center justify-center" style={{ cursor: 'pointer' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2" strokeLinecap="round">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
@@ -84,8 +84,8 @@ export default function NotFound() {
               key={item.label}
               href={item.href}
               onClick={() => setMenuOpen(false)}
-              className="text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-black/[0.06]"
-              style={{ color: '#111' }}
+              className="text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-[var(--c-border)]"
+              style={{ color: 'var(--c-text)' }}
             >
               {item.label}
             </Link>
@@ -99,7 +99,7 @@ export default function NotFound() {
             style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
           >
             <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </span>
@@ -110,7 +110,7 @@ export default function NotFound() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center px-5 pb-[30px] pt-5 text-center mx-auto w-full" style={{ maxWidth: 700 }}>
-        <p className="text-[15px] mb-3" style={{ color: '#888' }}>Seems you&apos;ve wandered off...</p>
+        <p className="text-[15px] mb-3" style={{ color: 'var(--c-muted)' }}>Seems you&apos;ve wandered off...</p>
 
         <div className="relative inline-block mb-[14px]">
           <span
@@ -144,14 +144,14 @@ export default function NotFound() {
             className="font-medium leading-[1.08] tracking-[-1.5px]"
             style={{
               fontSize: 'clamp(34px, 5vw, 52px)',
-              color: '#0f0f0f',
+              color: 'var(--c-text)',
             }}
           >
             Whoops! Nothing here yet
           </h1>
         </div>
 
-        <p className="text-[14px] leading-[1.7] mb-7" style={{ color: '#888', maxWidth: 470 }}>
+        <p className="text-[14px] leading-[1.7] mb-7" style={{ color: 'var(--c-muted)', maxWidth: 470 }}>
           Grab a 30-minute{' '}
           <span className="inline-flex items-center text-[12.5px] font-semibold px-[12px] py-[2px] rounded-md" style={{ background: '#E0E2E7', color: 'var(--c-text-secondary)' }}>
             chat
@@ -169,7 +169,7 @@ export default function NotFound() {
             {
               href: '/',
               icon: (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z" />
                   <path d="M9 21V12h6v9" stroke="#fff" strokeWidth="2" fill="#fff" />
                 </svg>
@@ -181,7 +181,7 @@ export default function NotFound() {
               href: '/contact',
               icon: (
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="9" stroke="#111" strokeWidth="1.8" />
+                  <circle cx="12" cy="12" r="9" stroke="var(--c-text)" strokeWidth="1.8" />
                   <circle cx="12" cy="12" r="3.5" fill="#fff" stroke="#fff" strokeWidth="1" />
                 </svg>
               ),
@@ -210,13 +210,13 @@ export default function NotFound() {
                   {card.icon}
                 </div>
                 <div className="text-left">
-                  <div className="text-[15px] font-semibold" style={{ color: '#0f0f0f' }}>{card.title}</div>
-                  <div className="text-[12px]" style={{ color: '#888' }}>{card.subtitle}</div>
+                  <div className="text-[15px] font-semibold" style={{ color: 'var(--c-text)' }}>{card.title}</div>
+                  <div className="text-[12px]" style={{ color: 'var(--c-muted)' }}>{card.subtitle}</div>
                 </div>
               </div>
               <span
                 className="text-[21px] transition-transform duration-200"
-                style={{ transform: hoveredCard === i ? 'translateX(6px)' : 'translateX(0)', color: '#888' }}
+                style={{ transform: hoveredCard === i ? 'translateX(6px)' : 'translateX(0)', color: 'var(--c-muted)' }}
               >
                 &rsaquo;
               </span>

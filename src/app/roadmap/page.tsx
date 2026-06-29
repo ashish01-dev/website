@@ -193,7 +193,7 @@ export default function RoadmapPage() {
               key={v}
               onClick={() => setView(v)}
               className={`px-3 py-2 text-sm border-b-2 -mb-[1px] transition-colors ${
-                view === v ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[#0f0f0f]'
+                view === v ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[var(--c-text)]'
               }`}
               style={{ color: view !== v ? 'var(--c-muted)' : undefined }}
             >

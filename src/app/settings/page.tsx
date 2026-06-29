@@ -72,9 +72,10 @@ export default function SettingsPage() {
       const dataUrl = await resizeImage(file, 400)
       const sb = getSupabase()
       if (!sb) { alert('Supabase not configured. Avatar uploaded locally only.'); update({ avatarUrl: dataUrl }); setUploading(false); return }
-      const { data: { user: u } } = await sb.auth.getUser()
-      if (!u) throw new Error('Not signed in')
-      const path = `${u.id}/avatar.jpg`
+      const { data: { session } } = await sb.auth.getSession()
+      const uid = session?.user?.id || user?.id
+      if (!uid) throw new Error('Not signed in')
+      const path = `${uid}/avatar.jpg`
       const blob = await (await fetch(dataUrl)).blob()
       const { error } = await sb.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
       if (error) throw error
@@ -145,7 +146,7 @@ export default function SettingsPage() {
       <MobileBottomNav />
 
       <div className="max-w-[700px] mx-auto px-4 md:px-6 py-8">
-        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-6" style={{ color: '#0f0f0f' }}>Settings</h1>
+        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-6" style={{ color: 'var(--c-text)' }}>Settings</h1>
 
         <div className="space-y-4">
 
@@ -153,7 +154,7 @@ export default function SettingsPage() {
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Profile</h2>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Profile</h2>
             <div className="flex items-center gap-5 mb-4">
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -164,7 +165,7 @@ export default function SettingsPage() {
                 {avatarDisplay ? (
                   <img src={avatarDisplay} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-xl font-semibold" style={{ background: 'var(--c-tag)', color: '#888' }}>
+                  <div className="w-full h-full flex items-center justify-center text-xl font-semibold" style={{ background: 'var(--c-tag)', color: 'var(--c-muted)' }}>
                     {(settings.name || 'U').charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -174,16 +175,16 @@ export default function SettingsPage() {
               </button>
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
               <div>
-                <div className="text-sm font-medium" style={{ color: '#0f0f0f' }}>{settings.name || 'User'}</div>
-                <div className="text-xs" style={{ color: '#888' }}>JEE 2027</div>
+                <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>{settings.name || 'User'}</div>
+                <div className="text-xs" style={{ color: 'var(--c-muted)' }}>JEE 2027</div>
               </div>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>DISPLAY NAME</label>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>DISPLAY NAME</label>
                 <input type="text" value={settings.name} onChange={e => update({ name: e.target.value.slice(0, 50) })} placeholder="Your name"
                   className="w-full px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
-                  style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
                   onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
                   onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
@@ -194,29 +195,29 @@ export default function SettingsPage() {
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Exam Configuration</h2>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Exam Configuration</h2>
             <div className="space-y-4">
               <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>EXAM DATE</label>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>EXAM DATE</label>
                 <input type="date" value={settings.examDate} onChange={e => update({ examDate: e.target.value })}
                   className="w-full max-w-[200px] px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
-                  style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
                   onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
                   onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
               <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>DAILY STUDY HOURS TARGET</label>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>DAILY STUDY HOURS TARGET</label>
                 <input type="number" min={1} max={16} value={settings.dailyStudyHours} onChange={e => update({ dailyStudyHours: parseInt(e.target.value, 10) || 9 })}
                   className="w-full max-w-[100px] px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
-                  style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
                   onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
                   onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
               <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: '#888' }}>FREEZE DAYS (no new content before exam)</label>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>FREEZE DAYS (no new content before exam)</label>
                 <input type="number" min={0} max={60} value={settings.freezeDays} onChange={e => update({ freezeDays: parseInt(e.target.value, 10) || 21 })}
                   className="w-full max-w-[100px] px-4 py-2.5 text-sm outline-none transition-colors rounded-[40px]"
-                  style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
                   onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
                   onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
@@ -227,12 +228,12 @@ export default function SettingsPage() {
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Preferences</h2>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Preferences</h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Dark Mode</div>
-                  <div className="text-xs" style={{ color: '#888' }}>Default dark theme</div>
+                  <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Dark Mode</div>
+                  <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Default dark theme</div>
                 </div>
                 <button onClick={() => update({ theme: settings.theme === 'dark' ? 'light' : 'dark' })}
                   className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.theme === 'dark' ? 'text-white' : ''}`}
@@ -247,8 +248,8 @@ export default function SettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium" style={{ color: '#0f0f0f' }}>Confetti</div>
-                  <div className="text-xs" style={{ color: '#888' }}>Celebrate chapter completions</div>
+                  <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Confetti</div>
+                  <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Celebrate chapter completions</div>
                 </div>
                 <button onClick={() => update({ confettiEnabled: !settings.confettiEnabled })}
                   className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.confettiEnabled ? 'text-white' : ''}`}
@@ -268,15 +269,15 @@ export default function SettingsPage() {
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Cloud Sync</h2>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Cloud Sync</h2>
             <div className="flex items-center gap-3">
               {user ? (
                 <>
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     {avatarDisplay && <img src={avatarDisplay} alt="" className="w-8 h-8 rounded-full object-cover" />}
                     <div className="min-w-0">
-                      <div className="text-sm font-medium truncate" style={{ color: '#0f0f0f' }}>{user.user_metadata?.full_name || user.email}</div>
-                      <div className="text-[10px]" style={{ color: '#888' }}>Signed in</div>
+                      <div className="text-sm font-medium truncate" style={{ color: 'var(--c-text)' }}>{user.user_metadata?.full_name || user.email}</div>
+                      <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>Signed in</div>
                     </div>
                   </div>
                   <button onClick={handleSignOut}
@@ -286,7 +287,7 @@ export default function SettingsPage() {
                 </>
               ) : (
                 <>
-                  <p className="text-xs flex-1" style={{ color: '#888' }}>Sign in to sync data across devices</p>
+                  <p className="text-xs flex-1" style={{ color: 'var(--c-muted)' }}>Sign in to sync data across devices</p>
                   <button onClick={handleGoogleSignIn}
                     className="text-xs font-medium px-4 py-1.5 rounded-[40px] text-white transition-all"
                     style={{ background: 'var(--c-btn-primary)' }}
@@ -303,7 +304,7 @@ export default function SettingsPage() {
           <div className="rounded-[18px] px-[22px] py-[24px]" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <h2 className="text-[15px] font-semibold mb-4" style={{ color: '#0f0f0f' }}>Data</h2>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Data</h2>
             <div className="flex flex-wrap gap-3">
               <button onClick={exportData}
                 className="text-xs font-medium px-4 py-2 rounded-[40px] text-white transition-all"
@@ -325,7 +326,7 @@ export default function SettingsPage() {
                     value={deleteConfirm}
                     onChange={e => setDeleteConfirm(e.target.value)}
                     className="w-full px-3 py-2 text-xs outline-none rounded-[40px]"
-                    style={{ border: '1px solid #e03e3e', color: '#0f0f0f', background: 'var(--c-input)' }}
+                    style={{ border: '1px solid #e03e3e', color: 'var(--c-text)', background: 'var(--c-input)' }}
                     placeholder="DELETE"
                   />
                   <div className="flex gap-2">

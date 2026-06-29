@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 
-const COLORS = ['#2383e2', '#0f8a5e', '#d9730d', '#e03e3e', '#da3690', '#6940a5', '#f59e0b', '#4da6ff']
+const COLORS = ['var(--c-blue)', 'var(--c-green)', 'var(--c-orange)', 'var(--c-red)', '#da3690', '#6940a5', '#f59e0b', 'var(--heat-3)']
 
 interface Particle {
   id: number

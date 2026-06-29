@@ -108,10 +108,10 @@ function CountUp({ value, label }: { value: string; label: string }) {
 
   return (
     <div ref={ref} className="text-center">
-      <div className="text-[clamp(28px,3.5vw,42px)] font-bold tracking-[-1px]" style={{ color: '#0f0f0f' }}>
+      <div className="text-[clamp(28px,3.5vw,42px)] font-bold tracking-[-1px]" style={{ color: 'var(--c-text)' }}>
         {value.includes('+') ? `${count.toLocaleString()}+` : `${count}%`}
       </div>
-      <div className="text-[13px] mt-1" style={{ color: '#888' }}>{label}</div>
+      <div className="text-[13px] mt-1" style={{ color: 'var(--c-muted)' }}>{label}</div>
     </div>
   )
 }
@@ -155,25 +155,25 @@ export default function LandingPage() {
         <div className="flex items-center justify-between">
           <button onClick={() => router.push('/')} className="flex items-center gap-[9px]" style={{ cursor: 'pointer' }}>
             <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 28, filter: 'brightness(0)' }} />
-            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: '#111' }}>JEEIFY</span>
+            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
           </button>
 
           <div className="hidden md:flex items-center gap-9">
-            <a href="#features" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Features</a>
-            <a href="#results" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Results</a>
-            <a href="#pricing" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Pricing</a>
-            <a href="#about" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>About</a>
+            <a href="#features" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Features</a>
+            <a href="#results" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Results</a>
+            <a href="#pricing" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Pricing</a>
+            <a href="#about" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>About</a>
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/auth?mode=login" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Sign In</Link>
+            <Link href="/auth?mode=login" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: 'var(--c-text)' }}>Sign In</Link>
             <Link
               href="/auth"
               className="flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
               style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
             >
               <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 18l6-6-6-6" />
                 </svg>
               </span>
@@ -199,7 +199,7 @@ export default function LandingPage() {
         style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(100%)', transitionTimingFunction: 'cubic-bezier(0.77, 0, 0.175, 1)' }}>
         <div className="flex justify-end mb-16">
           <button onClick={() => setMenuOpen(false)} className="w-8 h-8 flex items-center justify-center" style={{ cursor: 'pointer' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
         </div>
         <div className="flex flex-col">
@@ -213,14 +213,14 @@ export default function LandingPage() {
             if (item.isLink) {
               return (
                 <Link key={item.label} href={item.href} onClick={() => setMenuOpen(false)}
-                  className="text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-black/[0.06]" style={{ color: '#111' }}>
+                  className="text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-[var(--c-border)]" style={{ color: 'var(--c-text)' }}>
                   {item.label}
                 </Link>
               )
             }
             return (
               <a key={item.label} href={item.href} onClick={() => setMenuOpen(false)}
-                className="text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-black/[0.06]" style={{ color: '#111' }}>
+                className="text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-[var(--c-border)]" style={{ color: 'var(--c-text)' }}>
                 {item.label}
               </a>
             )
@@ -231,7 +231,7 @@ export default function LandingPage() {
             className="inline-flex items-center gap-3 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px]"
             style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
             <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </span>
@@ -242,12 +242,12 @@ export default function LandingPage() {
 
       {/* Hero */}
       <motion.section {...fadeUp} className="flex flex-col items-center justify-center text-center px-5 py-24 md:py-32">
-        <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-6" style={{ color: '#888' }}>JEE 2027 — Command Center</p>
-        <h1 className="text-[clamp(42px,7vw,72px)] font-medium leading-[1.05] tracking-[-2px] max-w-4xl" style={{ color: '#0f0f0f' }}>
+        <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-6" style={{ color: 'var(--c-muted)' }}>JEE 2027 — Command Center</p>
+        <h1 className="text-[clamp(42px,7vw,72px)] font-medium leading-[1.05] tracking-[-2px] max-w-4xl" style={{ color: 'var(--c-text)' }}>
           Master your JEE prep<br />
           <span className="text-[var(--c-blue)] font-semibold">with purpose.</span>
         </h1>
-        <p className="text-[15px] mt-5 max-w-lg" style={{ color: '#888', lineHeight: 1.7 }}>
+        <p className="text-[15px] mt-5 max-w-lg" style={{ color: 'var(--c-muted)', lineHeight: 1.7 }}>
           Track syllabus progress, optimize your timetable, analyze tests — a command center built for the systematic mind.
         </p>
         <div className="flex items-center gap-4 mt-8 flex-wrap justify-center">
@@ -255,7 +255,7 @@ export default function LandingPage() {
             className="flex items-center gap-2 text-white text-[14px] font-medium rounded-[40px] px-[22px] py-[8px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
             style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
             <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </span>
@@ -279,8 +279,8 @@ export default function LandingPage() {
       {/* Features */}
       <motion.section {...fadeUp} id="features" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
         <div className="text-center mb-16">
-          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Capabilities</p>
-          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Capabilities</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
             Everything you need.<span className="text-[#888]"> Nothing you don&apos;t.</span>
           </h2>
         </div>
@@ -292,10 +292,10 @@ export default function LandingPage() {
               onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow-hover)' }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow)' }}>
               <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--c-tag)' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: 24, color: '#111' }}>{f.icon}</span>
+                <span className="material-symbols-rounded" style={{ fontSize: 24, color: 'var(--c-text)' }}>{f.icon}</span>
               </div>
-              <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: '#0f0f0f' }}>{f.label}</h3>
-              <p className="text-[13px] leading-relaxed" style={{ color: '#888' }}>{f.desc}</p>
+              <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: 'var(--c-text)' }}>{f.label}</h3>
+              <p className="text-[13px] leading-relaxed" style={{ color: 'var(--c-muted)' }}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -304,11 +304,11 @@ export default function LandingPage() {
       {/* How It Works */}
       <motion.section {...fadeUp} className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
         <div className="text-center mb-16">
-          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>How It Works</p>
-          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>How It Works</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
             From zero to<span className="text-[#888]"> hero.</span>
           </h2>
-          <p className="text-[14px] mt-4 max-w-md mx-auto" style={{ color: '#888', lineHeight: 1.7 }}>
+          <p className="text-[14px] mt-4 max-w-md mx-auto" style={{ color: 'var(--c-muted)', lineHeight: 1.7 }}>
             Four simple steps to transform your preparation into a structured, trackable system.
           </p>
         </div>
@@ -318,8 +318,8 @@ export default function LandingPage() {
               background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
             }}>
               <div className="text-[32px] font-bold tracking-[-1px] mb-3" style={{ color: 'var(--c-blue)' }}>{s.step}</div>
-              <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: '#0f0f0f' }}>{s.title}</h3>
-              <p className="text-[13px] leading-relaxed" style={{ color: '#888' }}>{s.desc}</p>
+              <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: 'var(--c-text)' }}>{s.title}</h3>
+              <p className="text-[13px] leading-relaxed" style={{ color: 'var(--c-muted)' }}>{s.desc}</p>
             </div>
           ))}
         </div>
@@ -328,11 +328,11 @@ export default function LandingPage() {
       {/* Results / Toppers */}
       <motion.section {...fadeUp} id="results" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
         <div className="text-center mb-16">
-          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Results</p>
-          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Results</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
             Built by toppers.<span className="text-[#888]"> For toppers.</span>
           </h2>
-          <p className="text-[14px] mt-4 max-w-md mx-auto" style={{ color: '#888', lineHeight: 1.7 }}>
+          <p className="text-[14px] mt-4 max-w-md mx-auto" style={{ color: 'var(--c-muted)', lineHeight: 1.7 }}>
             Our platform has helped hundreds of students achieve top ranks. Here are some of our standout performers.
           </p>
         </div>
@@ -346,16 +346,16 @@ export default function LandingPage() {
               }}>
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <div className="text-[16px] font-bold" style={{ color: '#0f0f0f' }}>{t.name}</div>
-                  <div className="text-[12px]" style={{ color: '#888' }}>JEE {t.year}</div>
+                  <div className="text-[16px] font-bold" style={{ color: 'var(--c-text)' }}>{t.name}</div>
+                  <div className="text-[12px]" style={{ color: 'var(--c-muted)' }}>JEE {t.year}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-[20px] font-bold tracking-tight" style={{ color: 'var(--c-blue)' }}>{t.rank}</div>
                   <div className="text-[12px] font-medium" style={{ color: 'var(--c-green)' }}>{t.score}</div>
                 </div>
               </div>
-              <div className="border-t border-black/[0.06] pt-3">
-                <p className="text-[13px] italic leading-relaxed" style={{ color: '#888' }}>&ldquo;{t.quote}&rdquo;</p>
+              <div className="border-t border-[var(--c-border)] pt-3">
+                <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--c-muted)' }}>&ldquo;{t.quote}&rdquo;</p>
               </div>
             </div>
           ))}
@@ -365,8 +365,8 @@ export default function LandingPage() {
       {/* Pricing */}
       <motion.section {...fadeUp} id="pricing" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
         <div className="text-center mb-16">
-          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Pricing</p>
-          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>Choose your plan</h2>
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Pricing</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>Choose your plan</h2>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {PLANS.map((plan, i) => (
@@ -378,12 +378,12 @@ export default function LandingPage() {
                 transform: hoveredPlan === i ? 'translateY(-3px)' : 'translateY(0)',
               }}>
               {plan.popular && <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--c-blue)] mb-3">Most Popular</div>}
-              <div className="text-[18px] font-bold mb-1" style={{ color: '#0f0f0f' }}>{plan.name}</div>
+              <div className="text-[18px] font-bold mb-1" style={{ color: 'var(--c-text)' }}>{plan.name}</div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-[36px] font-bold tracking-tight" style={{ color: '#0f0f0f' }}>{plan.price === '—' ? '—' : `$${plan.price}`}</span>
-                {plan.price !== '—' && <span className="text-[13px]" style={{ color: '#888' }}>/month</span>}
+                <span className="text-[36px] font-bold tracking-tight" style={{ color: 'var(--c-text)' }}>{plan.price === '—' ? '—' : `$${plan.price}`}</span>
+                {plan.price !== '—' && <span className="text-[13px]" style={{ color: 'var(--c-muted)' }}>/month</span>}
               </div>
-              <p className="text-[13px] mb-6" style={{ color: '#888' }}>{plan.desc}</p>
+              <p className="text-[13px] mb-6" style={{ color: 'var(--c-muted)' }}>{plan.desc}</p>
               <ul className="space-y-2.5 mb-8">
                 {plan.features.map(f => (
                   <li key={f} className="text-[13px] flex items-center gap-2" style={{ color: 'var(--c-text-secondary)' }}>
@@ -395,7 +395,7 @@ export default function LandingPage() {
                 <button onClick={openContact}
                   className="w-full py-3 text-[13px] font-medium rounded-[40px] transition-all duration-200"
                   style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)', cursor: 'pointer' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.2)'; e.currentTarget.style.color = '#111' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.2)'; e.currentTarget.style.color = 'var(--c-text)' }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)'; e.currentTarget.style.color = 'var(--c-text-secondary)' }}>
                   Contact Us
                 </button>
@@ -414,8 +414,8 @@ export default function LandingPage() {
       {/* Testimonials */}
       <motion.section {...fadeUp} id="about" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
         <div className="text-center mb-16">
-          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Stories</p>
-          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>What our users say</h2>
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Stories</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>What our users say</h2>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {[
@@ -430,9 +430,9 @@ export default function LandingPage() {
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow)' }}>
               <div className="text-[var(--c-blue)] text-2xl font-serif mb-3 leading-none">&ldquo;</div>
               <p className="text-[14px] mb-6 leading-relaxed" style={{ color: 'var(--c-text-secondary)' }}>{t.quote}</p>
-              <div className="border-t border-black/[0.06] pt-4">
-                <div className="text-[14px] font-semibold" style={{ color: '#0f0f0f' }}>{t.author}</div>
-                <div className="text-[12px]" style={{ color: '#888' }}>{t.role}</div>
+              <div className="border-t border-[var(--c-border)] pt-4">
+                <div className="text-[14px] font-semibold" style={{ color: 'var(--c-text)' }}>{t.author}</div>
+                <div className="text-[12px]" style={{ color: 'var(--c-muted)' }}>{t.role}</div>
               </div>
             </div>
           ))}
@@ -442,8 +442,8 @@ export default function LandingPage() {
       {/* FAQ */}
       <motion.section {...fadeUp} className="px-5 py-24 md:py-32 max-w-[800px] mx-auto">
         <div className="text-center mb-12">
-          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>FAQ</p>
-          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>Got questions?<span className="text-[#888]"> We&apos;ve got answers.</span></h2>
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>FAQ</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>Got questions?<span className="text-[#888]"> We&apos;ve got answers.</span></h2>
         </div>
         <div className="space-y-3">
           {FAQS.map((faq, i) => (
@@ -456,14 +456,14 @@ export default function LandingPage() {
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 className="w-full flex items-center justify-between px-[22px] py-[16px] text-left"
               >
-                <span className="text-[14px] font-medium pr-4" style={{ color: '#0f0f0f' }}>{faq.q}</span>
+                <span className="text-[14px] font-medium pr-4" style={{ color: 'var(--c-text)' }}>{faq.q}</span>
                 <span className="text-[#888] text-lg flex-shrink-0 transition-transform duration-200" style={{ transform: openFaq === i ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
               </button>
               <div className="overflow-hidden transition-all duration-300" style={{
                 maxHeight: openFaq === i ? '300px' : '0px',
                 opacity: openFaq === i ? 1 : 0,
               }}>
-                <div className="px-[22px] pb-[16px] text-[13px] leading-relaxed" style={{ color: '#888' }}>
+                <div className="px-[22px] pb-[16px] text-[13px] leading-relaxed" style={{ color: 'var(--c-muted)' }}>
                   {faq.a}
                 </div>
               </div>
@@ -474,18 +474,18 @@ export default function LandingPage() {
 
       {/* CTA */}
       <motion.section {...fadeUp} className="px-5 py-24 md:py-32 text-center">
-        <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-4" style={{ color: '#888' }}>Ready</p>
-        <h2 className="text-[clamp(32px,5vw,52px)] font-medium tracking-[-1.5px] mb-4" style={{ color: '#0f0f0f' }}>
-          Ace JEE 2027.<br /><span style={{ color: '#888' }}>Start today.</span>
+        <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-4" style={{ color: 'var(--c-muted)' }}>Ready</p>
+        <h2 className="text-[clamp(32px,5vw,52px)] font-medium tracking-[-1.5px] mb-4" style={{ color: 'var(--c-text)' }}>
+          Ace JEE 2027.<br /><span style={{ color: 'var(--c-muted)' }}>Start today.</span>
         </h2>
-        <p className="text-[14px] mb-8 max-w-md mx-auto" style={{ color: '#888', lineHeight: 1.7 }}>
+        <p className="text-[14px] mb-8 max-w-md mx-auto" style={{ color: 'var(--c-muted)', lineHeight: 1.7 }}>
           Free. No credit card. Just your Google account and the determination to succeed.
         </p>
         <Link href="/auth"
           className="inline-flex items-center gap-2 text-white text-[14px] font-medium rounded-[40px] px-[24px] py-[10px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
           style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
           <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18l6-6-6-6" />
             </svg>
           </span>
@@ -523,47 +523,47 @@ export default function LandingPage() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-black/[0.06] py-16 md:py-20 px-5 max-w-[1100px] mx-auto">
+      <footer className="border-t border-[var(--c-border)] py-16 md:py-20 px-5 max-w-[1100px] mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <div>
-            <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: '#0f0f0f' }}>Product</h3>
+            <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--c-text)' }}>Product</h3>
             <ul className="space-y-2.5">
-              <li><a href="#features" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Features</a></li>
-              <li><a href="#pricing" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Pricing</a></li>
-              <li><a href="#about" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Testimonials</a></li>
-              <li><Link href="/auth" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Sign Up</Link></li>
+              <li><a href="#features" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Features</a></li>
+              <li><a href="#pricing" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Pricing</a></li>
+              <li><a href="#about" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Testimonials</a></li>
+              <li><Link href="/auth" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Sign Up</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: '#0f0f0f' }}>Explore</h3>
+            <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--c-text)' }}>Explore</h3>
             <ul className="space-y-2.5">
-              <li><Link href="/dashboard" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Dashboard</Link></li>
-              <li><Link href="/syllabus" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Syllabus</Link></li>
-              <li><Link href="/roadmap" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Roadmap</Link></li>
-              <li><Link href="/timetable" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Timetable</Link></li>
+              <li><Link href="/dashboard" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Dashboard</Link></li>
+              <li><Link href="/syllabus" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Syllabus</Link></li>
+              <li><Link href="/roadmap" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Roadmap</Link></li>
+              <li><Link href="/timetable" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Timetable</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: '#0f0f0f' }}>Company</h3>
+            <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--c-text)' }}>Company</h3>
             <ul className="space-y-2.5">
-              <li><a href="#about" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>About</a></li>
-              <li><Link href="/contact" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Contact</Link></li>
-              <li><Link href="/auth?mode=login" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Login</Link></li>
+              <li><a href="#about" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>About</a></li>
+              <li><Link href="/contact" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Contact</Link></li>
+              <li><Link href="/auth?mode=login" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Login</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: '#0f0f0f' }}>Legal</h3>
+            <h3 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--c-text)' }}>Legal</h3>
             <ul className="space-y-2.5">
-              <li><Link href="/privacy" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: '#888' }}>Terms of Service</Link></li>
+              <li><Link href="/privacy" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Terms of Service</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-black/[0.06]">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-[var(--c-border)]">
           <div className="flex items-center gap-[9px]">
             <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 22, filter: 'brightness(0)' }} />
-            <span className="text-[18px] font-bold tracking-[-0.3px]" style={{ color: '#111' }}>JEEIFY</span>
+            <span className="text-[18px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
           </div>
           <div className="text-[12px]" style={{ color: 'var(--c-caption)' }}>
             Made with <span style={{ color: '#E03E3E' }}>&#9829;</span> by Ashish

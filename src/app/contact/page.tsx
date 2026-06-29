@@ -28,7 +28,7 @@ export default function ContactPage() {
               alt="logo"
               style={{ height: 28, filter: 'brightness(0)' }}
             />
-            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: '#111' }}>JEEIFY</span>
+            <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
           </Link>
           <Link href="/"
             className="text-sm font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px]"
@@ -45,11 +45,11 @@ export default function ContactPage() {
 
       {/* Hero */}
       <section className="px-5 pt-20 pb-16 md:pt-28 md:pb-20 max-w-[1100px] mx-auto text-center">
-        <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-4" style={{ color: '#888' }}>Get in touch</p>
-        <h1 className="text-[clamp(32px,5vw,52px)] font-medium tracking-[-1.5px] mb-4" style={{ color: '#0f0f0f' }}>
-          Let&apos;s build something<br /><span style={{ color: '#888' }}>great together.</span>
+        <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-4" style={{ color: 'var(--c-muted)' }}>Get in touch</p>
+        <h1 className="text-[clamp(32px,5vw,52px)] font-medium tracking-[-1.5px] mb-4" style={{ color: 'var(--c-text)' }}>
+          Let&apos;s build something<br /><span style={{ color: 'var(--c-muted)' }}>great together.</span>
         </h1>
-        <p className="text-[14px] mb-10 max-w-md mx-auto" style={{ color: '#888', lineHeight: 1.7 }}>
+        <p className="text-[14px] mb-10 max-w-md mx-auto" style={{ color: 'var(--c-muted)', lineHeight: 1.7 }}>
           Have a question, feedback, or just want to say hi? We&apos;d love to hear from you.
         </p>
 
@@ -61,8 +61,8 @@ export default function ContactPage() {
               boxShadow: 'var(--c-shadow)',
             }}>
               <div className="text-5xl mb-4">&#9993;</div>
-              <h2 className="text-xl font-bold tracking-tight mb-2" style={{ color: '#0f0f0f' }}>Message Sent!</h2>
-              <p className="text-sm mb-6" style={{ color: '#888' }}>We&apos;ll get back to you within 24 hours.</p>
+              <h2 className="text-xl font-bold tracking-tight mb-2" style={{ color: 'var(--c-text)' }}>Message Sent!</h2>
+              <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>We&apos;ll get back to you within 24 hours.</p>
               <Link href="/"
                 className="inline-flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[20px] py-[8px] transition-all duration-200 hover:-translate-y-[1px]"
                 style={{ background: 'var(--c-btn-primary)' }}
@@ -78,19 +78,19 @@ export default function ContactPage() {
             }}>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider font-semibold mb-2 block" style={{ color: '#888' }}>Email</label>
+                  <label className="text-[11px] uppercase tracking-wider font-semibold mb-2 block" style={{ color: 'var(--c-muted)' }}>Email</label>
                   <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
                     className="w-full px-4 py-3 text-sm outline-none transition-colors rounded-[40px]"
-                    style={{ border: '1px solid var(--c-border-input)', color: '#111' }}
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}
                     onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
                     onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
                     placeholder="your@email.com" />
                 </div>
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider font-semibold mb-2 block" style={{ color: '#888' }}>Message</label>
+                  <label className="text-[11px] uppercase tracking-wider font-semibold mb-2 block" style={{ color: 'var(--c-muted)' }}>Message</label>
                   <textarea required rows={5} value={message} onChange={e => setMessage(e.target.value)}
                     className="w-full px-4 py-3 text-sm outline-none transition-colors resize-none rounded-[18px]"
-                    style={{ border: '1px solid var(--c-border-input)', color: '#111' }}
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}
                     onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
                     onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
                     placeholder="How can we help?" />
@@ -110,7 +110,7 @@ export default function ContactPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-black/[0.06] py-12 md:py-16 px-5 max-w-[1100px] mx-auto">
+      <footer className="border-t border-[var(--c-border)] py-12 md:py-16 px-5 max-w-[1100px] mx-auto">
         <div className="text-center text-[12px]" style={{ color: 'var(--c-caption)' }}>
           Made with <span style={{ color: '#E03E3E' }}>&#9829;</span> by Ashish
         </div>

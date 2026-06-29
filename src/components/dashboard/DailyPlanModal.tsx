@@ -95,14 +95,14 @@ export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }
         border: '1px solid var(--c-border-card)',
         boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
       }}>
-        <h2 className="text-[18px] font-semibold tracking-[-0.3px] mb-1" style={{ color: '#0f0f0f' }}>Plan Your Day</h2>
-        <p className="text-[13px] mb-5" style={{ color: '#888' }}>Set today&apos;s study targets</p>
+        <h2 className="text-[18px] font-semibold tracking-[-0.3px] mb-1" style={{ color: 'var(--c-text)' }}>Plan Your Day</h2>
+        <p className="text-[13px] mb-5" style={{ color: 'var(--c-muted)' }}>Set today&apos;s study targets</p>
 
         <div className="mb-5">
-          <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{ color: '#888' }}>HOURS GOAL</label>
+          <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{ color: 'var(--c-muted)' }}>HOURS GOAL</label>
           <input type="number" min={1} max={16} value={hoursInput} onChange={e => { setHoursInput(e.target.value); const v = parseInt(e.target.value, 10); if (!isNaN(v) && v > 0) setHoursGoal(v) }}
             className="w-full max-w-[100px] px-3 py-2 text-sm outline-none rounded-[40px]"
-            style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+            style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
             onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
             onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
         </div>
@@ -113,7 +113,7 @@ export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }
             {subjects.map(s => (
               <div key={s.subject} className="rounded-[12px] p-3" style={{ background: 'var(--c-input)', border: '1px solid var(--c-border)' }}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium" style={{ color: '#0f0f0f' }}>{SUBJECT_LABELS[s.subject]}</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>{SUBJECT_LABELS[s.subject]}</span>
                   <button onClick={() => removeSubject(s.subject)} className="text-[10px] font-medium hover:underline" style={{ color: 'var(--c-red)' }}>Remove</button>
                 </div>
                 <div className="mb-2">
@@ -122,7 +122,7 @@ export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }
                     onChange={e => { setSelectedSubject(s.subject); setChapterSearch(e.target.value) }}
                     placeholder="Search chapters..."
                     className="w-full px-3 py-1.5 text-xs outline-none rounded-[40px]"
-                    style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-card)' }}
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-card)' }}
                     onFocus={e => { e.currentTarget.style.borderColor = SUBJECT_COLORS[s.subject]; setSelectedSubject(s.subject) }}
                     onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
                   {selectedSubject === s.subject && chapterSearch && (
@@ -153,10 +153,10 @@ export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <label className="text-[10px] font-medium" style={{ color: '#888' }}>Questions:</label>
+                  <label className="text-[10px] font-medium" style={{ color: 'var(--c-muted)' }}>Questions:</label>
                   <input type="number" min={0} value={s.questions} onChange={e => setQuestions(s.subject, parseInt(e.target.value, 10) || 0)}
                     className="w-16 px-2 py-1 text-xs outline-none rounded-[40px]"
-                    style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-card)' }}
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-card)' }}
                     onFocus={e => { e.currentTarget.style.borderColor = SUBJECT_COLORS[s.subject] }}
                     onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
                 </div>
@@ -173,7 +173,7 @@ export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }
             onChange={e => { setSubjectSearch(e.target.value); setShowSubjectDropdown(true) }}
             placeholder="Add a subject..."
             className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
-            style={{ border: '1px solid var(--c-border-input)', color: '#0f0f0f', background: 'var(--c-input)' }}
+            style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
             onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)'; setShowSubjectDropdown(true) }}
             onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)'; setTimeout(() => setShowSubjectDropdown(false), 200) }} />
           {showSubjectDropdown && (
