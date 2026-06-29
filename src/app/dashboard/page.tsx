@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
@@ -24,6 +25,7 @@ const SUBJECT_META: Record<Subject, { emoji: string; light: string }> = {
 const GREETINGS = ['Morning', 'Afternoon', 'Evening']
 
 export default function DashboardPage() {
+  const router = useRouter()
   const { progress, getProgress, loaded } = useProgressStore()
   const { settings } = useSettingsStore()
   const [plan, setPlan] = useState<DailyPlan | null>(null)
@@ -338,6 +340,36 @@ export default function DashboardPage() {
             ) : (
               <div className="text-center py-6 text-sm" style={{ color: 'var(--c-muted)' }}>Loading pace data...</div>
             )}
+          </div>
+        </div>
+
+        {/* Upgrade to Pro */}
+        <div className="rounded-[18px] px-[22px] py-[24px] mb-8 relative overflow-hidden" style={{
+          background: 'linear-gradient(135deg, var(--c-card) 0%, rgba(35,131,226,0.06) 100%)',
+          border: '1px solid rgba(35,131,226,0.2)',
+          boxShadow: 'var(--c-shadow)',
+        }}>
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[60px] opacity-20 pointer-events-none" style={{ background: 'var(--c-blue)' }} />
+          <div className="relative flex items-center gap-6 flex-wrap">
+            <div className="flex-1 min-w-[200px]">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-3" style={{ background: 'rgba(35,131,226,0.1)', color: 'var(--c-blue)' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                Pro
+              </div>
+              <h3 className="text-[17px] font-semibold mb-1" style={{ color: 'var(--c-text)' }}>Unlock Pro features</h3>
+              <p className="text-[13px]" style={{ color: 'var(--c-muted)' }}>Unlimited storage, advanced analytics, priority support, and more.</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-[28px] font-bold tracking-[-0.5px]" style={{ color: 'var(--c-text)' }}>₹50</div>
+                <div className="text-[11px]" style={{ color: 'var(--c-muted)' }}>/month</div>
+              </div>
+              <button onClick={() => router.push('/pricing')}
+                className="text-white text-[13px] font-medium rounded-[40px] px-[22px] py-[9px] transition-all duration-200 hover:-translate-y-[0.5px] hover:brightness-110 whitespace-nowrap"
+                style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
+                Upgrade Now
+              </button>
+            </div>
           </div>
         </div>
 

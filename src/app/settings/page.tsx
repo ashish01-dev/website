@@ -271,7 +271,7 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     {avatarDisplay && <img src={avatarDisplay} alt="" className="w-8 h-8 rounded-full object-cover" />}
                     <div className="min-w-0">
-                      <div className="text-sm font-medium truncate" style={{ color: 'var(--c-text)' }}>{user.user_metadata?.full_name || user.email}</div>
+                      <div className="text-sm font-medium truncate" style={{ color: 'var(--c-text)' }}>{user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.given_name || user.email?.split('@')[0] || 'User'}</div>
                       <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>Signed in</div>
                     </div>
                   </div>

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       const { data: { session } } = await sb.auth.exchangeCodeForSession(code)
       if (!session?.user) return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
 
-      const response = NextResponse.redirect(`${origin}${session.user.created_at && Date.now() - new Date(session.user.created_at).getTime() < 60000 ? '/auth?onboarding=true' : '/dashboard'}`)
+      const response = NextResponse.redirect(`${origin}/`)
 
       if (session.user.user_metadata) {
         const meta = session.user.user_metadata

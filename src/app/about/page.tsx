@@ -10,9 +10,7 @@ const MILESTONES = [
 ]
 
 const TEAM = [
-  { name: 'Arjun Verma', role: 'Founder & Lead Developer', text: 'Ex-IITian who built the first version in a single weekend. Believes great tools create great outcomes.' },
-  { name: 'Dr. Neha Kapoor', role: 'Education Advisor', text: 'PhD in STEM education with 10+ years of experience designing curriculum for competitive exams.' },
-  { name: 'Rohit Sharma', role: 'Product Designer', text: 'Self-taught designer who obsesses over every pixel. Makes complex data feel simple and beautiful.' },
+  { name: 'Ashish Singh', role: 'GGSIPU Student', text: 'A passionate JEE mentor and self-taught developer who built JEEIFY from his own preparation experience. Believes that the right system can turn any aspirant into a top performer.' },
 ]
 
 export default function AboutPage() {
@@ -258,9 +256,9 @@ export default function AboutPage() {
             Built with<span className="text-[#888]"> purpose</span>
           </h2>
         </div>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="flex justify-center">
           {TEAM.map(t => (
-            <div key={t.name} className="rounded-[18px] px-[22px] py-[24px] text-center" style={{
+            <div key={t.name} className="rounded-[18px] px-[22px] py-[24px] text-center max-w-[380px]" style={{
               background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
             }}>
               <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-xl font-bold" style={{ background: 'var(--c-tag)', color: 'var(--c-blue)' }}>
