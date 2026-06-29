@@ -10,7 +10,7 @@ import type { SyllabusData, Subject } from '@/types'
 const syllabus = syllabusData as unknown as SyllabusData
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Dashboard', icon: '📊' },
+  { href: '/dashboard', label: 'Dashboard', icon: '📊' },
   { href: '/syllabus', label: 'Syllabus', icon: '📚' },
   { href: '/roadmap', label: 'Roadmap', icon: '🗺️' },
   { href: '/timetable', label: 'Timetable', icon: '📅' },

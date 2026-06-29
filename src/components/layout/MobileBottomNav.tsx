@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const ITEMS = [
-  { href: '/', label: '📊' },
+  { href: '/dashboard', label: '📊' },
   { href: '/completion', label: '✅' },
   { href: '/activity', label: '📓' },
   { href: '/syllabus', label: '📚' },
