@@ -67,8 +67,8 @@ export default function RevisionPage() {
       let url = ''
       let storagePath = ''
       try {
-        url = await uploadFile(chapterId, file)
-        storagePath = `formulas/${chapterId}/${Date.now()}_${file.name}`
+        url = await uploadFile(chapterId, file, subjectTab)
+        storagePath = `${subjectTab}/${chapterId}/${Date.now()}_${file.name}`
       } catch (err) {
         console.error('revision file upload:', err)
       }
@@ -88,10 +88,29 @@ export default function RevisionPage() {
     setUploading(null)
   }
 
+  const downloadFile = async (file: FormulaFile) => {
+    if (!file.url) return
+    try {
+      const res = await fetch(file.url)
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = file.name
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('Download failed:', err)
+    }
+  }
+
   const deleteFile = async (chapterId: string, fileIndex: number) => {
     const existing = formulaEntries[chapterId]
     if (!existing) return
     const file = existing.files[fileIndex]
+    if (!confirm(`Delete "${file.name}"? This cannot be undone.`)) return
     if (file?.url) {
       await deleteStorageFile(file.url)
     }
@@ -244,7 +263,10 @@ export default function RevisionPage() {
                                 <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>{formatFileSize(file.size)}</div>
                               </div>
                               {file.url && (
-                                <a href={file.url} target="_blank" rel="noopener noreferrer" className="text-[10px] hover:underline flex-shrink-0" style={{ color: 'var(--c-blue)' }}>Open</a>
+                                <>
+                                  <a href={file.url} target="_blank" rel="noopener noreferrer" className="text-[10px] hover:underline flex-shrink-0" style={{ color: 'var(--c-blue)' }}>Open</a>
+                                  <button onClick={() => downloadFile(file)} className="text-[10px] hover:underline flex-shrink-0" style={{ color: 'var(--c-green)' }}>Download</button>
+                                </>
                               )}
                               <button onClick={() => deleteFile(ch.id, idx)} className="text-[10px] hover:underline flex-shrink-0" style={{ color: 'var(--c-red)' }}>Delete</button>
                             </div>

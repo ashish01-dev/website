@@ -9,7 +9,7 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { db } from '@/lib/db'
 import { downloadJSON } from '@/lib/utils'
 import { getSupabase } from '@/lib/supabase'
-import { setSyncUser } from '@/lib/supabase-sync'
+import { setSyncUser, uploadAvatar } from '@/lib/supabase-sync'
 import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 function resizeImage(file: File, maxSize: number): Promise<string> {
@@ -75,20 +75,8 @@ export default function SettingsPage() {
       const { data: { session } } = await sb.auth.getSession()
       const uid = session?.user?.id || user?.id
       if (!uid) throw new Error('Not signed in')
-      const path = `${uid}/avatar.jpg`
       const blob = await (await fetch(dataUrl)).blob()
-      let publicUrl: string
-      const { error } = await sb.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
-      if (error?.message?.includes('Bucket not found')) {
-        const fallbackPath = `avatars/${uid}/avatar.jpg`
-        const { error: fbErr } = await sb.storage.from('formulas').upload(fallbackPath, blob, { upsert: true, contentType: 'image/jpeg' })
-        if (fbErr) throw fbErr
-        publicUrl = sb.storage.from('formulas').getPublicUrl(fallbackPath).data.publicUrl
-      } else if (error) {
-        throw error
-      } else {
-        publicUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl
-      }
+      const publicUrl = await uploadAvatar(blob, uid)
       await update({ avatarUrl: publicUrl })
     } catch (err: any) {
       alert('Failed to upload avatar: ' + (err?.message || 'Unknown error'))

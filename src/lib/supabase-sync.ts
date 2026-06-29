@@ -1,8 +1,15 @@
 import { getSupabase } from './supabase'
+import type { Subject } from '@/types'
 
 let userId: string | null = null
 
 export function setSyncUser(uid: string | null) { userId = uid }
+
+const BUCKET_FORMULAS: Record<Subject, string> = {
+  physics: 'formulas-physics',
+  chemistry: 'formulas-chemistry',
+  maths: 'formulas-maths',
+}
 
 /* ─── camelCase ↔ snake_case column mapping ─── */
 
@@ -101,7 +108,7 @@ function sanitizeFileName(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100)
 }
 
-export async function uploadFile(chapterId: string, file: File): Promise<string> {
+export async function uploadFile(chapterId: string, file: File, subject: Subject): Promise<string> {
   const sb = getSupabase()
   if (!sb) throw new Error('Supabase not configured')
   const { data: { user } } = await sb.auth.getUser()
@@ -110,9 +117,10 @@ export async function uploadFile(chapterId: string, file: File): Promise<string>
   if (file.size > MAX_SIZE) throw new Error('File too large (max 10 MB)')
   const safeName = sanitizeFileName(file.name)
   const path = `${user.id}/${chapterId}/${Date.now()}_${safeName}`
-  const { error } = await sb.storage.from('formulas').upload(path, file, { upsert: true })
+  const bucket = BUCKET_FORMULAS[subject]
+  const { error } = await sb.storage.from(bucket).upload(path, file, { upsert: true })
   if (error) throw error
-  const { data: { publicUrl } } = sb.storage.from('formulas').getPublicUrl(path)
+  const { data: { publicUrl } } = sb.storage.from(bucket).getPublicUrl(path)
   return publicUrl
 }
 
@@ -120,16 +128,31 @@ export async function deleteStorageFile(url: string) {
   try {
     const sb = getSupabase()
     if (!sb) return
-    const parts = url.split('/')
-    const bucketIdx = parts.indexOf('formulas')
-    if (bucketIdx === -1) return
-    const path = parts.slice(bucketIdx + 1).join('/').split('?')[0]
-    if (!path) return
-    if (!userId) return
+    const marker = '/storage/v1/object/public/'
+    const pubIdx = url.indexOf(marker)
+    if (pubIdx === -1) return
+    const after = url.slice(pubIdx + marker.length)
+    const bucket = after.split('/')[0]
+    const path = after.split('/').slice(1).join('/').split('?')[0]
+    if (!path || !userId) return
     if (!path.startsWith(`${userId}/`)) {
       console.error('deleteStorageFile: path does not belong to current user')
       return
     }
-    await sb.storage.from('formulas').remove([path])
+    await sb.storage.from(bucket).remove([path])
   } catch (err) { console.error('deleteStorageFile error:', err) }
+}
+
+export async function uploadAvatar(file: Blob, uid: string): Promise<string> {
+  const sb = getSupabase()
+  if (!sb) throw new Error('Supabase not configured')
+  const path = `${uid}/avatar.jpg`
+  for (const bucket of ['avatars', 'formulas-physics']) {
+    const { error } = await sb.storage.from(bucket).upload(path, file, { upsert: true, contentType: 'image/jpeg' })
+    if (!error) {
+      return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl
+    }
+    if (!error?.message?.includes('Bucket not found')) throw error
+  }
+  throw new Error('No storage bucket available. Create an "avatars" bucket in Supabase Storage.')
 }

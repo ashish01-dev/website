@@ -30,8 +30,6 @@ async function fillLocalFromCloud() {
     if (!tbl || !tbl._raw) continue
     if (items.length) {
       await tbl._raw.bulkPut(items)
-    } else {
-      await tbl._raw.clear()
     }
   }
 }
