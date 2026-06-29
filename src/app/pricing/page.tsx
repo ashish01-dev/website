@@ -157,7 +157,7 @@ export default function PricingPage() {
                   className="w-full py-3 text-[13px] font-medium rounded-[40px] text-white text-center transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110 disabled:opacity-50"
                   style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: loading ? 'not-allowed' : 'pointer' }}>
                   {plan.price === '0' && user ? 'Your Current Plan' : loading ? 'Processing...' : plan.cta}
-                </div>
+                </button>
               )}
             </div>
           ))}
