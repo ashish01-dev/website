@@ -8,8 +8,8 @@ export default function NotFound() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 
   return (
-    <div className="min-h-screen flex flex-col overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-      {/* ─── Navbar ─── */}
+    <div className="min-h-screen flex flex-col overflow-hidden" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+      {/* Navbar */}
       <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-[9px]">
@@ -22,20 +22,16 @@ export default function NotFound() {
           </Link>
 
           <div className="hidden md:flex items-center gap-9">
-            <Link href="/" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Our Team</Link>
-            <Link href="/" className="text-sm font-normal hover:opacity-100 transition-opacity flex items-center gap-1" style={{ opacity: 0.65, color: '#111' }}>
-              Solutions <span className="text-xs">▾</span>
-            </Link>
-            <Link href="/" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Showcase</Link>
-            <Link href="/" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>News</Link>
+            <Link href="/" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Home</Link>
+            <Link href="/dashboard" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Dashboard</Link>
+            <Link href="/syllabus" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Syllabus</Link>
           </div>
 
           <div className="hidden md:block">
-            <button
-              className="flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
-              style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: 'pointer' }}
-              onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 6px 25px rgba(0,0,0,0.25)')}
-              onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)')}
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"
+              style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
             >
               <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -43,7 +39,7 @@ export default function NotFound() {
                 </svg>
               </span>
               Let&apos;s Connect
-            </button>
+            </Link>
           </div>
 
           <button
@@ -63,7 +59,7 @@ export default function NotFound() {
         }} />
       </nav>
 
-      {/* ─── Mobile Menu ─── */}
+      {/* Mobile Menu */}
       <div
         className={`fixed inset-0 z-50 bg-white flex flex-col px-10 py-8 transition-transform duration-500 md:hidden`}
         style={{
@@ -79,22 +75,28 @@ export default function NotFound() {
           </button>
         </div>
         <div className="flex flex-col">
-          {['Our Team', 'Solutions', 'Showcase', 'News'].map((label, i) => (
+          {[
+            { label: 'Home', href: '/' },
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Syllabus', href: '/syllabus' },
+          ].map(item => (
             <Link
-              key={label}
-              href="/"
+              key={item.label}
+              href={item.href}
               onClick={() => setMenuOpen(false)}
               className="text-[38px] font-extrabold tracking-[-1.5px] py-6 border-b border-black/[0.06]"
               style={{ color: '#111' }}
             >
-              {label}
+              {item.label}
             </Link>
           ))}
         </div>
         <div className="mt-auto">
-          <button
-            className="flex items-center gap-3 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px]"
-            style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: 'pointer' }}
+          <Link
+            href="/contact"
+            onClick={() => setMenuOpen(false)}
+            className="inline-flex items-center gap-3 text-white text-[13px] font-medium rounded-[40px] px-[16px] py-[5px]"
+            style={{ background: 'linear-gradient(180deg, #2c2c2c 0%, #111111 100%)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
           >
             <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -102,16 +104,13 @@ export default function NotFound() {
               </svg>
             </span>
             Let&apos;s Connect
-          </button>
+          </Link>
         </div>
       </div>
 
-      {/* ─── Main Content ─── */}
-      <main
-        className="flex-1 flex flex-col items-center justify-center px-5 pb-[30px] pt-5 text-center mx-auto w-full"
-        style={{ maxWidth: 700, background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)', backgroundAttachment: 'fixed' }}
-      >
-        <p className="text-[15px] mb-3" style={{ color: 'var(--text-secondary)' }}>Seems you&apos;ve wandered off...</p>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col items-center justify-center px-5 pb-[30px] pt-5 text-center mx-auto w-full" style={{ maxWidth: 700 }}>
+        <p className="text-[15px] mb-3" style={{ color: '#888' }}>Seems you&apos;ve wandered off...</p>
 
         <div className="relative inline-block mb-[14px]">
           <span
@@ -152,19 +151,19 @@ export default function NotFound() {
           </h1>
         </div>
 
-        <p className="text-[14px] leading-[1.7] mb-7" style={{ color: 'var(--text-secondary)', maxWidth: 470 }}>
+        <p className="text-[14px] leading-[1.7] mb-7" style={{ color: '#888', maxWidth: 470 }}>
           Grab a 30-minute{' '}
-          <span className="inline-flex items-center text-[12.5px] font-semibold px-[12px] py-[2px] rounded-md" style={{ background: '#E0E2E7' }}>
+          <span className="inline-flex items-center text-[12.5px] font-semibold px-[12px] py-[2px] rounded-md" style={{ background: '#E0E2E7', color: '#555' }}>
             chat
           </span>{' '}
           to explore your ideas, scope, and vision. We&apos;ll find common ground, sync and{' '}
-          <span className="inline-flex items-center text-[12.5px] font-semibold px-[12px] py-[2px] rounded-md" style={{ background: '#E0E2E7' }}>
+          <span className="inline-flex items-center text-[12.5px] font-semibold px-[12px] py-[2px] rounded-md" style={{ background: '#E0E2E7', color: '#555' }}>
             define
           </span>{' '}
           a clear roadmap.
         </p>
 
-        {/* ─── Navigation Cards ─── */}
+        {/* Navigation Cards */}
         <div className="flex flex-col gap-3 w-full mt-auto" style={{ maxWidth: 460 }}>
           {[
             {
@@ -179,15 +178,15 @@ export default function NotFound() {
               subtitle: 'Back where it all begins...',
             },
             {
-              href: '/',
+              href: '/contact',
               icon: (
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="9" stroke="#111" strokeWidth="1.8" />
                   <circle cx="12" cy="12" r="3.5" fill="#fff" stroke="#fff" strokeWidth="1" />
                 </svg>
               ),
-              title: 'Showcase',
-              subtitle: 'Where we walk the walk',
+              title: 'Let&apos;s Connect',
+              subtitle: 'We&apos;d love to hear from you',
             },
           ].map((card, i) => (
             <Link
@@ -197,7 +196,7 @@ export default function NotFound() {
               onMouseLeave={() => setHoveredCard(null)}
               className="flex items-center justify-between rounded-[18px] px-[22px] py-[18px] transition-all duration-200"
               style={{
-                background: 'var(--card-bg)',
+                background: '#fff',
                 border: '1px solid rgba(0,0,0,0.05)',
                 boxShadow: hoveredCard === i ? '0 8px 28px rgba(0,0,0,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
                 transform: hoveredCard === i ? 'translateY(-3px)' : 'translateY(0)',
@@ -211,13 +210,13 @@ export default function NotFound() {
                   {card.icon}
                 </div>
                 <div className="text-left">
-                  <div className="text-[15px] font-semibold" style={{ color: 'var(--text-main)' }}>{card.title}</div>
-                  <div className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{card.subtitle}</div>
+                  <div className="text-[15px] font-semibold" style={{ color: '#0f0f0f' }}>{card.title}</div>
+                  <div className="text-[12px]" style={{ color: '#888' }}>{card.subtitle}</div>
                 </div>
               </div>
               <span
                 className="text-[21px] transition-transform duration-200"
-                style={{ transform: hoveredCard === i ? 'translateX(6px)' : 'translateX(0)' }}
+                style={{ transform: hoveredCard === i ? 'translateX(6px)' : 'translateX(0)', color: '#888' }}
               >
                 &rsaquo;
               </span>

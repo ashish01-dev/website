@@ -7,6 +7,7 @@ interface TimetableState {
   loaded: boolean
   load: () => Promise<void>
   setCell: (day: keyof TimetableData, hour: string, activity: Activity | '') => Promise<void>
+  clearAll: () => Promise<void>
   applyTemplate: (template: 'gym' | 'full_study' | 'test_day') => Promise<void>
 }
 
@@ -54,6 +55,10 @@ export const useTimetableStore = create<TimetableState>((set, get) => ({
     current[day] = { ...current[day], [hour]: activity }
     set({ timetable: current })
     try { await db.timetable.put({ id: 'main', data: current }) } catch (err) { console.error('timetable.setCell:', err) }
+  },
+  clearAll: async () => {
+    set({ timetable: {} })
+    try { await db.timetable.put({ id: 'main', data: {} }) } catch (err) { console.error('timetable.clearAll:', err) }
   },
   applyTemplate: async (template) => {
     if (template === 'test_day') {

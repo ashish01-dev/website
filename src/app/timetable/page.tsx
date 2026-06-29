@@ -21,7 +21,7 @@ function fmtHour(h: number): string {
 const ACTIVITIES: Activity[] = ['physics', 'chemistry', 'maths', 'break', 'sleep', 'gym', 'revision', 'mock_test']
 
 export default function TimetablePage() {
-  const { timetable, setCell, applyTemplate } = useTimetableStore()
+  const { timetable, setCell, applyTemplate, clearAll } = useTimetableStore()
   const [activeCell, setActiveCell] = useState<{ day: string; hour: string } | null>(null)
   const [selectedDay, setSelectedDay] = useState(todayIndex())
 
@@ -58,6 +58,9 @@ export default function TimetablePage() {
                 {t === 'gym' ? '💪 Gym' : t === 'full_study' ? '📚 Full Study' : '📝 Test Day'}
               </button>
             ))}
+            <button onClick={() => { if (confirm('Clear all timetable entries?')) clearAll() }} className="notion-btn-ghost text-xs text-[#e03e3e]">
+              🗑 Clear All
+            </button>
           </div>
         </div>
 

@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
+import { motion } from 'framer-motion'
 
 const FEATURES = [
   { icon: 'menu_book', label: 'Syllabus Tracker', desc: 'Track every chapter and topic across Physics, Chemistry, and Maths with real-time progress.' },
@@ -32,11 +33,78 @@ const PLANS = [
   },
 ]
 
-const TESTIMONIALS = [
-  { quote: 'The daily plan modal + pace tracking combo is a game changer. I know exactly what to study every day.', author: 'Arjun S.', role: 'JEE 2026 Aspirant' },
-  { quote: 'Finally a tool that understands the JEE syllabus. The chapter-level tracking is incredibly detailed.', author: 'Priya M.', role: 'JEE 2027 Aspirant' },
-  { quote: 'The Pomodoro timer + activity journal helped me stay consistent for 6+ hours daily.', author: 'Rahul K.', role: 'JEE 2026 Aspirant' },
+const STEPS = [
+  { step: '01', title: 'Connect Google', desc: 'Sign in with your Google account in under 10 seconds. No credit card needed.' },
+  { step: '02', title: 'Set Your Target', desc: 'Pick your exam date and daily study goals. We calculate the perfect pace for you.' },
+  { step: '03', title: 'Track Daily', desc: 'Log chapters, questions, tests, and pomodoros. Watch your progress compound daily.' },
+  { step: '04', title: 'Ace the Exam', desc: 'Stay on track with smart recommendations and reach your target with confidence.' },
 ]
+
+const TOPPERS = [
+  { name: 'Rohan Mehta', rank: 'AIR 1', score: '360/360', year: '2026', quote: 'Consistency over intensity. JEEIFY kept me accountable every single day.' },
+  { name: 'Ananya Sharma', rank: 'AIR 3', score: '352/360', year: '2026', quote: 'The pace tracking algorithm is genius. It told me exactly where I was falling behind.' },
+  { name: 'Arjun Reddy', rank: 'AIR 7', score: '348/360', year: '2025', quote: 'From 150 to 320+ marks — the syllabus tracker and test analyzer changed everything.' },
+  { name: 'Priya Patel', rank: 'AIR 15', score: '341/360', year: '2026', quote: 'I planned every hour of my day using the timetable. Absolute game changer.' },
+]
+
+const STATS = [
+  { value: '50,000+', label: 'Hours Tracked', suffix: '' },
+  { value: '10,000+', label: 'Active Students', suffix: '' },
+  { value: '98.6%', label: 'Avg. Score Improvement', suffix: '' },
+  { value: '250+', label: 'AIR Rankers Mentored', suffix: '' },
+]
+
+function useCountUp(ref: React.RefObject<HTMLDivElement | null>, target: number, duration = 2000) {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          const start = performance.now()
+
+          const animate = (now: number) => {
+            const elapsed = now - start
+            const progress = Math.min(elapsed / duration, 1)
+            const eased = 1 - Math.pow(1 - progress, 3)
+            setCount(Math.floor(eased * target))
+
+            if (progress < 1) requestAnimationFrame(animate)
+          }
+
+          requestAnimationFrame(animate)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.3 }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [ref, target, duration])
+
+  return count
+}
+
+function CountUp({ value, label }: { value: string; label: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const num = parseInt(value.replace(/,/g, ''))
+  const count = useCountUp(ref, num)
+
+  return (
+    <div ref={ref} className="text-center">
+      <div className="text-[clamp(28px,3.5vw,42px)] font-bold tracking-[-1px]" style={{ color: '#0f0f0f' }}>
+        {value.includes('+') ? `${count.toLocaleString()}+` : `${count}%`}
+      </div>
+      <div className="text-[13px] mt-1" style={{ color: '#888' }}>{label}</div>
+    </div>
+  )
+}
+
+function isValidEmail(email: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) }
 
 const PASSWORD_RULES = [
   { label: 'At least 1 uppercase letter', test: (v: string) => /[A-Z]/.test(v) },
@@ -44,8 +112,6 @@ const PASSWORD_RULES = [
   { label: 'At least 1 number', test: (v: string) => /[0-9]/.test(v) },
   { label: 'At least 6 characters', test: (v: string) => v.length >= 6 },
 ]
-
-function isValidEmail(email: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) }
 
 export default function LandingPage() {
   const router = useRouter()
@@ -60,7 +126,7 @@ export default function LandingPage() {
   const [showPrivacy, setShowPrivacy] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+  const [topHovered, setTopHovered] = useState<number | null>(null)
 
   const emailValid = isValidEmail(authEmail)
   const emailWarning = emailTouched && authEmail.length > 0 && !emailValid
@@ -98,12 +164,18 @@ export default function LandingPage() {
   }
 
   const resetAuth = () => { setShowAuth(false); setAuthEmail(''); setAuthPassword(''); setAuthError(''); setEmailTouched(false); setSubmittedEmail(false) }
-
   const openContact = () => router.push('/contact')
+
+  const fadeUp = {
+    initial: { opacity: 0, y: 30 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: '-80px' },
+    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+  }
 
   return (
     <div className="min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
-      {/* ─── Navbar ─── */}
+      {/* Navbar */}
       <nav className="relative max-w-[1100px] mx-auto w-full px-[40px] py-[28px] max-md:px-5">
         <div className="flex items-center justify-between">
           <button onClick={() => router.push('/')} className="flex items-center gap-[9px]" style={{ cursor: 'pointer' }}>
@@ -117,6 +189,7 @@ export default function LandingPage() {
 
           <div className="hidden md:flex items-center gap-9">
             <a href="#features" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Features</a>
+            <a href="#results" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Results</a>
             <a href="#pricing" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>Pricing</a>
             <a href="#about" className="text-sm font-normal hover:opacity-100 transition-opacity" style={{ opacity: 0.65, color: '#111' }}>About</a>
           </div>
@@ -156,7 +229,7 @@ export default function LandingPage() {
         }} />
       </nav>
 
-      {/* ─── Mobile Menu ─── */}
+      {/* Mobile Menu */}
       <div
         className={`fixed inset-0 z-50 bg-white flex flex-col px-10 py-8 transition-transform duration-500 md:hidden`}
         style={{
@@ -174,6 +247,7 @@ export default function LandingPage() {
         <div className="flex flex-col">
           {[
             { label: 'Features', href: '#features' },
+            { label: 'Results', href: '#results' },
             { label: 'Pricing', href: '#pricing' },
             { label: 'About', href: '#about' },
             { label: 'Sign In', href: '#', action: () => { setMenuOpen(false); openAuth('login') } },
@@ -209,8 +283,8 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ─── Hero ─── */}
-      <section className="flex flex-col items-center justify-center text-center px-5 py-24 md:py-32" style={{ background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+      {/* Hero */}
+      <motion.section {...fadeUp} className="flex flex-col items-center justify-center text-center px-5 py-24 md:py-32">
         <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-6" style={{ color: '#888' }}>JEE 2027 — Command Center</p>
         <h1 className="text-[clamp(42px,7vw,72px)] font-medium leading-[1.05] tracking-[-2px] max-w-4xl" style={{ color: '#0f0f0f' }}>
           Master your JEE prep<br />
@@ -239,10 +313,23 @@ export default function LandingPage() {
             style={{ color: '#555', border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer' }}
           >Explore</a>
         </div>
-      </section>
+      </motion.section>
 
-      {/* ─── Features ─── */}
-      <section id="features" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
+      {/* Stats Strip */}
+      <motion.div {...fadeUp} className="max-w-[900px] mx-auto px-5 pb-12">
+        <div className="rounded-[18px] px-[28px] py-[32px] grid grid-cols-2 md:grid-cols-4 gap-8" style={{
+          background: '#fff',
+          border: '1px solid rgba(0,0,0,0.05)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+        }}>
+          {STATS.map(s => (
+            <CountUp key={s.label} value={s.value} label={s.label} />
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Features */}
+      <motion.section {...fadeUp} id="features" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
         <div className="text-center mb-16">
           <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Capabilities</p>
           <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
@@ -255,7 +342,7 @@ export default function LandingPage() {
               key={f.label}
               className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]"
               style={{
-                background: 'var(--card-bg)',
+                background: '#fff',
                 border: '1px solid rgba(0,0,0,0.05)',
                 boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
                 cursor: 'default',
@@ -266,15 +353,88 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: '#eaecf0' }}>
                 <span className="material-symbols-rounded" style={{ fontSize: 24, color: '#111' }}>{f.icon}</span>
               </div>
-              <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: 'var(--text-main)' }}>{f.label}</h3>
-              <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{f.desc}</p>
+              <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: '#0f0f0f' }}>{f.label}</h3>
+              <p className="text-[13px] leading-relaxed" style={{ color: '#888' }}>{f.desc}</p>
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
-      {/* ─── Pricing ─── */}
-      <section id="pricing" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
+      {/* How It Works */}
+      <motion.section {...fadeUp} className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto" style={{ background: 'linear-gradient(to top left, #F5F5F5, #F7F7F7)' }}>
+        <div className="text-center mb-16">
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>How It Works</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
+            From zero to<span className="text-[#888]"> hero.</span>
+          </h2>
+          <p className="text-[14px] mt-4 max-w-md mx-auto" style={{ color: '#888', lineHeight: 1.7 }}>
+            Four simple steps to transform your preparation into a structured, trackable system.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-4 gap-4">
+          {STEPS.map((s, i) => (
+            <div
+              key={s.step}
+              className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]"
+              style={{
+                background: '#fff',
+                border: '1px solid rgba(0,0,0,0.05)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              }}
+            >
+              <div className="text-[32px] font-bold tracking-[-1px] mb-3" style={{ color: '#2383e2' }}>{s.step}</div>
+              <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: '#0f0f0f' }}>{s.title}</h3>
+              <p className="text-[13px] leading-relaxed" style={{ color: '#888' }}>{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </motion.section>
+
+      {/* Results / Toppers */}
+      <motion.section {...fadeUp} id="results" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
+        <div className="text-center mb-16">
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Results</p>
+          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
+            Built by toppers.<span className="text-[#888]"> For toppers.</span>
+          </h2>
+          <p className="text-[14px] mt-4 max-w-md mx-auto" style={{ color: '#888', lineHeight: 1.7 }}>
+            Our platform has helped hundreds of students achieve top ranks. Here are some of our standout performers.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {TOPPERS.map((t, i) => (
+            <div
+              key={t.name}
+              onMouseEnter={() => setTopHovered(i)}
+              onMouseLeave={() => setTopHovered(null)}
+              className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200"
+              style={{
+                background: '#fff',
+                border: '1px solid rgba(0,0,0,0.05)',
+                boxShadow: topHovered === i ? '0 8px 28px rgba(0,0,0,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
+                transform: topHovered === i ? 'translateY(-3px)' : 'translateY(0)',
+              }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <div className="text-[16px] font-bold" style={{ color: '#0f0f0f' }}>{t.name}</div>
+                  <div className="text-[12px]" style={{ color: '#888' }}>JEE {t.year}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[20px] font-bold tracking-tight" style={{ color: '#2383e2' }}>{t.rank}</div>
+                  <div className="text-[12px] font-medium" style={{ color: '#0f8a5e' }}>{t.score}</div>
+                </div>
+              </div>
+              <div className="border-t border-black/[0.06] pt-3">
+                <p className="text-[13px] italic leading-relaxed" style={{ color: '#888' }}>&ldquo;{t.quote}&rdquo;</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.section>
+
+      {/* Pricing */}
+      <motion.section {...fadeUp} id="pricing" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
         <div className="text-center mb-16">
           <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Pricing</p>
           <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
@@ -289,7 +449,7 @@ export default function LandingPage() {
               onMouseLeave={() => setHoveredPlan(null)}
               className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200"
               style={{
-                background: 'var(--card-bg)',
+                background: '#fff',
                 border: plan.popular ? '1px solid #2383e2' : '1px solid rgba(0,0,0,0.05)',
                 boxShadow: hoveredPlan === i ? '0 8px 28px rgba(0,0,0,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
                 transform: hoveredPlan === i ? 'translateY(-3px)' : 'translateY(0)',
@@ -298,12 +458,12 @@ export default function LandingPage() {
               {plan.popular && (
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-[#2383e2] mb-3">Most Popular</div>
               )}
-              <div className="text-[18px] font-bold mb-1" style={{ color: 'var(--text-main)' }}>{plan.name}</div>
+              <div className="text-[18px] font-bold mb-1" style={{ color: '#0f0f0f' }}>{plan.name}</div>
               <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-[36px] font-bold tracking-tight" style={{ color: '#0f0f0f' }}>{plan.price === '—' ? '—' : `$${plan.price}`}</span>
-                {plan.price !== '—' && <span className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>/month</span>}
+                {plan.price !== '—' && <span className="text-[13px]" style={{ color: '#888' }}>/month</span>}
               </div>
-              <p className="text-[13px] mb-6" style={{ color: 'var(--text-secondary)' }}>{plan.desc}</p>
+              <p className="text-[13px] mb-6" style={{ color: '#888' }}>{plan.desc}</p>
               <ul className="space-y-2.5 mb-8">
                 {plan.features.map(f => (
                   <li key={f} className="text-[13px] flex items-center gap-2" style={{ color: '#555' }}>
@@ -329,10 +489,10 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
-      {/* ─── Testimonials ─── */}
-      <section id="about" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
+      {/* Testimonials */}
+      <motion.section {...fadeUp} id="about" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
         <div className="text-center mb-16">
           <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: '#888' }}>Stories</p>
           <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: '#0f0f0f' }}>
@@ -340,12 +500,16 @@ export default function LandingPage() {
           </h2>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
-          {TESTIMONIALS.map((t, i) => (
+          {[
+            { quote: 'The daily plan modal + pace tracking combo is a game changer. I know exactly what to study every day.', author: 'Arjun S.', role: 'JEE 2026 Aspirant' },
+            { quote: 'Finally a tool that understands the JEE syllabus. The chapter-level tracking is incredibly detailed.', author: 'Priya M.', role: 'JEE 2027 Aspirant' },
+            { quote: 'The Pomodoro timer + activity journal helped me stay consistent for 6+ hours daily.', author: 'Rahul K.', role: 'JEE 2026 Aspirant' },
+          ].map((t, i) => (
             <div
               key={t.author}
               className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]"
               style={{
-                background: 'var(--card-bg)',
+                background: '#fff',
                 border: '1px solid rgba(0,0,0,0.05)',
                 boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
               }}
@@ -355,16 +519,16 @@ export default function LandingPage() {
               <div className="text-[#2383e2] text-2xl font-serif mb-3 leading-none">&ldquo;</div>
               <p className="text-[14px] mb-6 leading-relaxed" style={{ color: '#555' }}>{t.quote}</p>
               <div className="border-t border-black/[0.06] pt-4">
-                <div className="text-[14px] font-semibold" style={{ color: 'var(--text-main)' }}>{t.author}</div>
-                <div className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t.role}</div>
+                <div className="text-[14px] font-semibold" style={{ color: '#0f0f0f' }}>{t.author}</div>
+                <div className="text-[12px]" style={{ color: '#888' }}>{t.role}</div>
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
-      {/* ─── CTA ─── */}
-      <section className="px-5 py-24 md:py-32 text-center">
+      {/* CTA */}
+      <motion.section {...fadeUp} className="px-5 py-24 md:py-32 text-center">
         <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-4" style={{ color: '#888' }}>Ready</p>
         <h2 className="text-[clamp(32px,5vw,52px)] font-medium tracking-[-1.5px] mb-4" style={{ color: '#0f0f0f' }}>
           Ace JEE 2027.<br /><span style={{ color: '#888' }}>Start today.</span>
@@ -385,9 +549,9 @@ export default function LandingPage() {
           </span>
           Get Started Free
         </button>
-      </section>
+      </motion.section>
 
-      {/* ─── Footer ─── */}
+      {/* Footer */}
       <footer className="border-t border-black/[0.06] py-12 md:py-16 px-5 max-w-[1100px] mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
           <div className="flex items-center gap-2 text-sm" style={{ color: '#888' }}>
@@ -407,7 +571,7 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* ─── Auth Modal ─── */}
+      {/* Auth Modal */}
       {showAuth && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="w-full max-w-sm p-8 bg-white rounded-[18px] relative" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
@@ -477,7 +641,7 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* ─── T&C Modal ─── */}
+      {/* T&C Modal */}
       {showTc && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="w-full max-w-lg p-8 bg-white rounded-[18px] relative max-h-[80vh] overflow-y-auto" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
@@ -501,7 +665,7 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* ─── Privacy Modal ─── */}
+      {/* Privacy Modal */}
       {showPrivacy && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="w-full max-w-lg p-8 bg-white rounded-[18px] relative max-h-[80vh] overflow-y-auto" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
