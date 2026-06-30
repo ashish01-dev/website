@@ -33,8 +33,6 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     try {
       const saved = await db.settings.get('main')
       const merged = saved?.value ? { ...DEFAULT_SETTINGS, ...(saved.value as Partial<Settings>) } : DEFAULT_SETTINGS
-      document.documentElement.classList.toggle('dark', merged.theme === 'dark')
-      document.documentElement.classList.toggle('light', merged.theme === 'light')
       set({ settings: merged, loaded: true })
     } catch (err) { console.error('settings.load:', err); set({ loaded: true }) }
   },
@@ -52,7 +50,8 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     }
   },
   reset: async () => {
-    set({ settings: { ...DEFAULT_SETTINGS } })
+    const prevVersion = get().settings.changelogSeenVersion
+    set({ settings: { ...DEFAULT_SETTINGS, changelogSeenVersion: prevVersion } })
     try {
       await dexie.settings.delete('main')
       localStorage.removeItem('jee-theme')
