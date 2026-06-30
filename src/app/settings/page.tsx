@@ -313,6 +313,24 @@ export default function SettingsPage() {
                     {settings.showChangelog ? 'On' : 'Off'}
                   </button>
                 </div>
+                {user && isProEmail(user.email || '') && (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Auto Plan Popup</div>
+                    <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Show Plan Your Day popup on dashboard</div>
+                  </div>
+                  <button onClick={() => update({ autoPlanPopup: !settings.autoPlanPopup })}
+                    className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.autoPlanPopup ? 'text-white' : ''}`}
+                    style={{
+                      background: settings.autoPlanPopup ? 'var(--c-blue)' : 'var(--c-input)',
+                      border: settings.autoPlanPopup ? 'none' : '1px solid var(--c-border-input)',
+                      color: settings.autoPlanPopup ? '#fff' : 'var(--c-text-secondary)',
+                    }}
+                  >
+                    {settings.autoPlanPopup ? 'On' : 'Off'}
+                  </button>
+                </div>
+                )}
             </div>
           </div>
 

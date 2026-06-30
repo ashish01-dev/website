@@ -44,7 +44,7 @@ export default function DashboardPage() {
   useEffect(() => {
     db.dailyPlans.get(today).then(p => {
       setPlan(p || null)
-      if (!p && isPro) setShowPlanModal(true)
+      if (!p && isPro && settings.autoPlanPopup) setShowPlanModal(true)
       setPlanLoaded(true)
     })
     db.pomodoro.toArray().then(setSessions)

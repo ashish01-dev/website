@@ -15,7 +15,6 @@ export default function TopBar() {
   const setSidebarOpen = useSidebarStore(s => s.setOpen)
   const { user } = useUser()
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 })
-  const [liveTime, setLiveTime] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dateInputRef = useRef<HTMLInputElement>(null)
 
@@ -36,11 +35,6 @@ export default function TopBar() {
     }
     fn(); const id = setInterval(fn, 60000); return () => clearInterval(id)
   }, [settings.examDate])
-
-  useEffect(() => {
-    const fn = () => setLiveTime(new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }))
-    fn(); const id = setInterval(fn, 1000); return () => clearInterval(id)
-  }, [])
 
   const handleSignOut = async () => {
     if (!window.confirm('Are you sure you want to sign out? Your data will remain saved and synced.')) return
@@ -65,7 +59,7 @@ export default function TopBar() {
     }}>
       <div className="max-w-[1000px] mx-auto flex items-center justify-between h-12 px-4 md:px-6">
         {/* Left: hamburger + live time + days left + clickable date */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="sidebar-trigger w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
@@ -79,10 +73,7 @@ export default function TopBar() {
               )}
             </svg>
           </button>
-          <span className="text-[11px] font-mono tabular-nums ml-1" style={{ color: 'var(--c-muted)' }}>
-            {liveTime}
-          </span>
-          <span className="text-[13px] font-medium ml-1" style={{ color: 'var(--c-blue)' }}>
+          <span className="text-[13px] font-medium" style={{ color: 'var(--c-blue)' }}>
             {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
           </span>
           <button

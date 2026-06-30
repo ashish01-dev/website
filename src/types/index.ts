@@ -191,4 +191,5 @@ export interface Settings {
   changelogSeenVersion: string
   showChangelog: boolean
   storageWarningShown: boolean
+  autoPlanPopup: boolean
 }

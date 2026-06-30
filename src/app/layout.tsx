@@ -57,26 +57,28 @@ async function clearAllLocalData() {
 async function initSync() {
   const sb = getSupabase()
   if (!sb) return
-  const { data: { user } } = await sb.auth.getUser()
-  if (user) {
-    setSyncUser(user.id)
-    await fillLocalFromCloud()
-    await useSettingsStore.getState().load()
-    await useProgressStore.getState().load()
-    await useTimetableStore.getState().load()
-    const meta = user.user_metadata
-    const googleName = meta?.full_name || meta?.name || meta?.given_name || ''
-    const googleAvatar = meta?.avatar_url || meta?.picture || ''
-    const s = useSettingsStore.getState().settings
-    const updates: Record<string, any> = {}
-    if (googleName && s.name !== googleName) updates.name = googleName
-    if (googleAvatar && !s.avatarUrl) updates.avatarUrl = googleAvatar
-    if (Object.keys(updates).length) await useSettingsStore.getState().update(updates)
-  }
+  try {
+    const { data: { user } } = await sb.auth.getUser()
+    if (user) {
+      setSyncUser(user.id)
+      await fillLocalFromCloud()
+      await useSettingsStore.getState().load()
+      await useProgressStore.getState().load()
+      await useTimetableStore.getState().load()
+      const meta = user.user_metadata
+      const googleName = meta?.full_name || meta?.name || meta?.given_name || ''
+      const googleAvatar = meta?.avatar_url || meta?.picture || ''
+      const s = useSettingsStore.getState().settings
+      const updates: Record<string, any> = {}
+      if (googleName && s.name !== googleName) updates.name = googleName
+      if (googleAvatar && !s.avatarUrl) updates.avatarUrl = googleAvatar
+      if (Object.keys(updates).length) await useSettingsStore.getState().update(updates)
+    }
+  } catch (e) { console.error('initSync getUser:', e) }
   sb.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
     const uid = session?.user?.id ?? null
     setSyncUser(uid)
-    if (event === 'SIGNED_IN' && uid) {
+    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && uid) {
       fillLocalFromCloud().then(() => {
         useSettingsStore.getState().load()
         useProgressStore.getState().load()
@@ -112,8 +114,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const isAppPage = APP_PATHS.some(p => pathname.startsWith(p))
 
   useEffect(() => {
-    initSync()
-    load().then(() => { loadProgress(); loadTimetable() })
+    let cancelled = false
+    const run = async () => {
+      try {
+        await initSync()
+      } catch (e) { console.error('initSync failed:', e) }
+      if (cancelled) return
+      if (!useSettingsStore.getState().loaded) {
+        await load()
+        await loadProgress()
+        await loadTimetable()
+      }
+    }
+    run()
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {
