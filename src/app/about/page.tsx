@@ -7,7 +7,6 @@ const MILESTONES = [
   { year: '2024', title: 'The Idea', desc: 'JEEIFY was born from late-night study sessions — a small tool to track syllabus progress that our founder built for himself.' },
   { year: '2025', title: 'First 100 Users', desc: 'Word spread among coaching institutes. Within months, 100+ JEE aspirants were using JEEIFY daily to organize their prep.' },
   { year: '2026', title: 'Full Platform Launch', desc: 'Syllabus tracker, timetable planner, test analyzer, Pomodoro timer, and cloud sync — a complete command center for JEE.' },
-  { year: '2027+', title: 'Empowering Millions', desc: 'Our vision: every JEE aspirant in India has access to world-class preparation tools, regardless of their background.' },
 ]
 
 const TEAM = [

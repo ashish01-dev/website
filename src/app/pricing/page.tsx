@@ -8,6 +8,8 @@ import ProActivationPopup from '@/components/ProActivationPopup'
 import { useUser } from '@/lib/useUser'
 import { useSettingsStore } from '@/store/settingsStore'
 
+const ASTERISK_FEATURES = new Set(['Unlimited storage', '1-on-1 mentorship access'])
+
 const MONTHLY_PLANS = [
   {
     name: 'Free', price: '0', desc: 'Start your prep journey',
@@ -132,7 +134,7 @@ export default function PricingPage() {
               <ul className="space-y-3 mb-8">
                 {plan.features.map(f => (
                   <li key={f} className="text-[13px] flex items-center gap-2" style={{ color: 'var(--c-text-secondary)' }}>
-                    <span className="text-[var(--c-blue)]">✓</span> {f}
+                    <span className="text-[var(--c-blue)]">✓</span> {f}{ASTERISK_FEATURES.has(f) ? <sup className="text-[var(--c-muted)]">*</sup> : null}
                   </li>
                 ))}
               </ul>
@@ -149,14 +151,28 @@ export default function PricingPage() {
                 </div>
               ) : (
                 <button onClick={() => handleSubscribe(plan.price)} disabled={loading}
-                  className="w-full py-3 text-[13px] font-medium rounded-[40px] text-white text-center transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110 disabled:opacity-50"
-                  style={{ background: 'var(--c-btn-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', cursor: loading ? 'not-allowed' : 'pointer' }}>
+                  className="w-full py-3 text-[13px] font-medium rounded-[40px] text-white text-center transition-all duration-300"
+                  style={{
+                    background: 'var(--c-btn-primary)',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+                    cursor: loading ? 'default' : 'pointer',
+                    opacity: loading ? 0 : 1,
+                    transform: loading ? 'translateY(8px)' : 'translateY(0)',
+                    pointerEvents: loading ? 'none' : 'auto',
+                  }}>
                   {plan.price === '0' && user ? 'Your Current Plan' : loading ? 'Processing...' : plan.cta}
                 </button>
               )}
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Footnotes */}
+      <div className="max-w-[650px] mx-auto px-5 pb-10 text-center">
+        <p className="text-[11px] leading-relaxed" style={{ color: 'var(--c-caption)' }}>
+          <sup>*</sup> Subject to fair usage policy. Unlimited storage applies to study materials, notes, and test papers. 1-on-1 mentorship access depends on mentor availability and is provided on a first-come, first-served basis.
+        </p>
       </div>
 
       {/* Testimonials */}

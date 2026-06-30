@@ -59,7 +59,7 @@ export default function DashboardPage() {
       setPlanLoaded(true)
     })
     db.pomodoro.toArray().then(setSessions)
-  }, [today, isPro])
+  }, [today, isPro, settings.autoPlanPopup])
 
   const pace = useMemo(() => {
     if (!loaded) return null

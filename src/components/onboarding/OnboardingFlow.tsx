@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter, usePathname } from 'next/navigation'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSupabase } from '@/lib/supabase'
+import { uploadAvatar } from '@/lib/supabase-sync'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 interface Question {
@@ -192,7 +193,20 @@ export default function OnboardingFlow() {
       onboarded: true,
     }
     if (answers.exam === 'jee_advanced') updates.examDate = '2027-06-01'
-    if (avatarDataUrl) updates.avatarUrl = avatarDataUrl
+    if (avatarDataUrl) {
+      updates.avatarUrl = avatarDataUrl
+      const sb = getSupabase()
+      if (sb) {
+        try {
+          const { data: { user } } = await sb.auth.getUser()
+          if (user) {
+            const blob = await fetch(avatarDataUrl).then(r => r.blob())
+            const url = await uploadAvatar(blob, user.id)
+            updates.avatarUrl = url
+          }
+        } catch (err) { console.error('avatar upload failed:', err) }
+      }
+    }
     await update(updates)
     const key = onboardingKey(userEmail)
     if (key) localStorage.setItem(key, '1')
