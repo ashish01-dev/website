@@ -19,13 +19,13 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 const TABLE_KEYS: Record<string, string> = {
   progress: 'chapterId', timetable: 'id', tests: 'id', errors: 'id',
-  formulas: 'id', dailylogs: 'date', settings: 'id', pomodoro: 'id',
+  formulas: 'id', dailylogs: 'date', settings: 'id',
   dailyplans: 'date', questions: 'id',
 }
 const SUPABASE_TO_DEXIE: Record<string, keyof typeof db> = {
   progress: 'progress', timetable: 'timetable', tests: 'tests', errors: 'errors',
   formulas: 'formulas', dailylogs: 'dailyLogs', settings: 'settings',
-  pomodoro: 'pomodoro', dailyplans: 'dailyPlans', questions: 'questions',
+  dailyplans: 'dailyPlans', questions: 'questions',
 }
 
 async function fillLocalFromCloud() {
@@ -49,7 +49,6 @@ async function clearAllLocalData() {
     await dexie.formulas.clear()
     await dexie.dailyLogs.clear()
     await dexie.settings.clear()
-    await dexie.pomodoro.clear()
     await dexie.dailyPlans.clear()
     await dexie.questions.clear()
   } catch (err) { console.error('clearAllLocalData:', err) }
@@ -111,7 +110,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const { load: loadTimetable } = useTimetableStore()
   const pathname = usePathname()
   const [userName, setUserName] = useState<string | null>(null)
-  const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings', '/ai']
+  const APP_PATHS = ['/dashboard', '/syllabus', '/timetable', '/progress', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings', '/ai']
   const isAppPage = APP_PATHS.some(p => pathname.startsWith(p))
 
   useEffect(() => {

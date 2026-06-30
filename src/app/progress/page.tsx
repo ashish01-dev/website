@@ -8,7 +8,7 @@ import { calculatePace } from '@/lib/pacing'
 import { db } from '@/lib/db'
 import { formatDate } from '@/lib/utils'
 import syllabusData from '@/data/syllabus.json'
-import type { SyllabusData, Subject, TestEntry, PomodoroSession, Chapter } from '@/types'
+import type { SyllabusData, Subject, TestEntry, Chapter } from '@/types'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
@@ -64,14 +64,12 @@ export default function ProgressPage() {
   const { user } = useUser()
   const isPro = user?.isPro ?? false
   const [tests, setTests] = useState<TestEntry[]>([])
-  const [sessions, setSessions] = useState<PomodoroSession[]>([])
   const [questionEntries, setQuestionEntries] = useState<{ count: number }[]>([])
   const [dailyLogs, setDailyLogs] = useState<{ date: string; studyMinutes: number }[]>([])
   const [restDays, setRestDays] = useState(1)
   const [dailyHoursInput, setDailyHoursInput] = useState(settings.dailyStudyHours || 6)
 
   useEffect(() => { db.tests.toArray().then(setTests) }, [])
-  useEffect(() => { db.pomodoro.toArray().then(setSessions) }, [])
   useEffect(() => { db.questions.toArray().then(setQuestionEntries) }, [])
   useEffect(() => { db.dailyLogs.toArray().then(setDailyLogs) }, [])
 
@@ -220,11 +218,12 @@ export default function ProgressPage() {
     const days: { hours: number }[] = []
     for (let i = 181; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate() - i)
-      const daySessions = sessions.filter(s => s.date === formatDate(d))
-      days.push({ hours: daySessions.reduce((a, s) => a + s.duration, 0) / 3600 })
+      const ds = formatDate(d)
+      const log = dailyLogs.find(l => l.date === ds)
+      days.push({ hours: log ? log.studyMinutes / 60 : 0 })
     }
     return days
-  }, [sessions])
+  }, [dailyLogs])
 
   const heatLevel = (hours: number) => hours === 0 ? 0 : hours < 2 ? 1 : hours < 4 ? 2 : hours < 7 ? 3 : 4
 

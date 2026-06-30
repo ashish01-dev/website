@@ -106,7 +106,7 @@ export default function OnboardingFlow() {
   const [answers, setAnswers] = useState<Record<string, string>>({ class: '12', exam: 'both', study_hours: '6-8' })
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings']
+  const APP_PATHS = ['/dashboard', '/syllabus', '/timetable', '/progress', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings']
 
   const [checkingOnboarded, setCheckingOnboarded] = useState(true)
   const [userEmail, setUserEmail] = useState<string | null>(null)

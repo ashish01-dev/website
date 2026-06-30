@@ -6,10 +6,11 @@ import TopBar from '@/components/layout/TopBar'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import { db } from '@/lib/db'
 import { getMonthDays, formatDate } from '@/lib/utils'
+import { useUser } from '@/lib/useUser'
 import syllabusData from '@/data/syllabus.json'
-import type { Subject, Chapter, QuestionsEntry, PomodoroSession, DailyLog } from '@/types'
+import type { Subject, Chapter, QuestionsEntry, DailyLog, DailyPlan, DailyPlanSubject, SyllabusData } from '@/types'
 
-const syllabus = syllabusData as unknown as { [key in Subject]: { divisions: { chapters: Chapter[] }[] } }
+const syllabus = syllabusData as unknown as SyllabusData
 
 function getChapterName(chapterId: string): string | null {
   for (const sub of ['physics', 'chemistry', 'maths'] as Subject[]) {
@@ -43,13 +44,43 @@ export default function ActivityPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [progressEntries, setProgressEntries] = useState<any[]>([])
   const [questionEntries, setQuestionEntries] = useState<QuestionsEntry[]>([])
-  const [pomodoroSessions, setPomodoroSessions] = useState<PomodoroSession[]>([])
   const [dailyLogs, setDailyLogs] = useState<DailyLog[]>([])
+  const { user } = useUser()
+  const isPro = user?.isPro ?? false
+
+  /* Plan editing state */
+  const [dayPlan, setDayPlan] = useState<DailyPlan | null>(null)
+  const [planHours, setPlanHours] = useState(8)
+  const [planSubjects, setPlanSubjects] = useState<DailyPlanSubject[]>([])
+  const [selSubject, setSelSubject] = useState<Subject | null>(null)
+  const [selDivision, setSelDivision] = useState<string | null>(null)
+  const [selChapter, setSelChapter] = useState<string | null>(null)
+
+  const divisions = useMemo(() => {
+    if (!selSubject) return []
+    return syllabus[selSubject].divisions.map(d => ({
+      id: d.id,
+      name: d.name,
+      chapters: d.chapters.filter(c => !c.deleted),
+    }))
+  }, [selSubject])
+
+  const currentDiv = divisions.find(d => d.id === selDivision)
+
+  useEffect(() => {
+    if (!selectedDate) return
+    const key = formatDate(selectedDate)
+    db.dailyPlans.get(key).then(p => {
+      const plan = p || { date: key, hoursGoal: 8, subjects: [] }
+      setDayPlan(plan)
+      setPlanHours(plan.hoursGoal || 8)
+      setPlanSubjects(plan.subjects || [])
+    })
+  }, [selectedDate])
 
   const loadActivity = useCallback(async () => {
     setProgressEntries(await db.progress.toArray())
     setQuestionEntries(await db.questions.toArray())
-    setPomodoroSessions(await db.pomodoro.toArray())
     setDailyLogs(await db.dailyLogs.toArray())
   }, [])
 
@@ -91,11 +122,6 @@ export default function ActivityPage() {
       day.questions.push({ count: q.count, subject: q.subject, chapter: q.chapter })
     }
 
-    for (const s of pomodoroSessions) {
-      const day = addDay(s.date)
-      day.studySeconds += s.duration
-    }
-
     for (const log of dailyLogs) {
       const day = addDay(log.date)
       if (log.studyMinutes > 0) {
@@ -104,7 +130,7 @@ export default function ActivityPage() {
     }
 
     return map
-  }, [progressEntries, questionEntries, pomodoroSessions, dailyLogs])
+  }, [progressEntries, questionEntries, dailyLogs])
 
   const selKey = selectedDate ? formatDate(selectedDate) : null
   const selActivity = selKey ? activityByDate[selKey] : null
@@ -114,11 +140,6 @@ export default function ActivityPage() {
     return questionEntries.filter(q => q.date === selKey)
   }, [questionEntries, selKey])
 
-  const selPomodoro = useMemo(() => {
-    if (!selKey) return []
-    return pomodoroSessions.filter(s => s.date === selKey)
-  }, [pomodoroSessions, selKey])
-
   const prevMonth = () => {
     if (viewMonth === 0) { setViewYear(viewYear - 1); setViewMonth(11) }
     else setViewMonth(viewMonth - 1)
@@ -127,6 +148,36 @@ export default function ActivityPage() {
   const nextMonth = () => {
     if (viewMonth === 11) { setViewYear(viewYear + 1); setViewMonth(0) }
     else setViewMonth(viewMonth + 1)
+  }
+
+  const addChapterToPlan = (subject: Subject, chapterName: string) => {
+    setPlanSubjects(prev => {
+      const existing = prev.find(s => s.subject === subject)
+      if (existing) {
+        if (existing.chapters.includes(chapterName)) return prev
+        return prev.map(s => s.subject === subject ? { ...s, chapters: [...s.chapters, chapterName] } : s)
+      }
+      return [...prev, { subject, chapters: [chapterName], questions: 0 }]
+    })
+  }
+
+  const removeChapterFromPlan = (subject: Subject, chapterName: string) => {
+    setPlanSubjects(prev => prev.map(s => {
+      if (s.subject !== subject) return s
+      const chs = s.chapters.filter(c => c !== chapterName)
+      return { ...s, chapters: chs }
+    }).filter(s => s.chapters.length > 0))
+  }
+
+  const setSubjectQuestions = (subject: Subject, q: number) => {
+    setPlanSubjects(prev => prev.map(s => s.subject === subject ? { ...s, questions: q } : s))
+  }
+
+  const savePlan = async () => {
+    if (!selKey) return
+    const plan: DailyPlan = { date: selKey, hoursGoal: planHours, subjects: planSubjects }
+    await db.dailyPlans.put(plan)
+    setDayPlan(plan)
   }
 
   return (
@@ -205,20 +256,6 @@ export default function ActivityPage() {
               ) : (
                 <p className="text-sm" style={{ color: 'var(--c-muted)' }}>No study sessions logged for this day.</p>
               )}
-              {selPomodoro.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {selPomodoro.slice(0, 5).map(s => (
-                    <div key={s.id} className="flex items-center justify-between text-xs">
-                      <span style={{ color: 'var(--c-muted)' }}>
-                        {new Date(s.start).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true })} &rarr; {s.end ? new Date(s.end).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'now'}
-                      </span>
-                      <span className="font-medium" style={{ color: 'var(--c-text)' }}>
-                        {Math.floor(s.duration / 60)}m {s.duration % 60}s
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
             <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
@@ -282,12 +319,136 @@ export default function ActivityPage() {
                 <p className="text-sm" style={{ color: 'var(--c-muted)' }}>No questions logged for this day.</p>
               )}
             </div>
+
+            {/* Plan for this day — Pro feature */}
+            <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="material-symbols-rounded text-[18px]" style={{ color: 'var(--c-blue)' }}>calendar_today</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Plan for this Day</span>
+                {!isPro && <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: 'rgba(35,131,226,0.15)', color: 'var(--c-blue)' }}>Pro</span>}
+              </div>
+              {!isPro ? (
+                <div className="text-center py-4">
+                  <p className="text-sm mb-3" style={{ color: 'var(--c-muted)' }}>Planning future study sessions is a Pro feature.</p>
+                  <button onClick={() => window.location.href = '/pricing'}
+                    className="inline-flex items-center gap-1.5 text-white text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200"
+                    style={{ background: 'var(--c-btn-primary)' }}>Upgrade to Pro</button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-medium" style={{ color: 'var(--c-muted)' }}>Hours Goal</span>
+                    <input type="number" min={1} max={16} value={planHours} onChange={e => setPlanHours(Math.min(16, Math.max(1, Number(e.target.value) || 1)))}
+                      className="w-16 px-2 py-1 text-sm outline-none rounded-[40px] text-center"
+                      style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }} />
+                  </div>
+
+                  {planSubjects.length > 0 && (
+                    <div className="space-y-2">
+                      {planSubjects.map(s => (
+                        <div key={s.subject} className="rounded-[12px] p-3" style={{ background: 'var(--c-input)', border: '1px solid var(--c-border)' }}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm">{SUBJECT_STYLES[s.subject].emoji}</span>
+                            <span className="text-xs font-medium capitalize" style={{ color: 'var(--c-text)' }}>{s.subject}</span>
+                            <div className="ml-auto flex items-center gap-2">
+                              <label className="text-[10px]" style={{ color: 'var(--c-muted)' }}>Qs:</label>
+                              <input type="number" min={0} value={s.questions} onChange={e => setSubjectQuestions(s.subject, parseInt(e.target.value, 10) || 0)}
+                                className="w-14 px-2 py-0.5 text-xs outline-none rounded-[40px] text-center"
+                                style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-card)' }} />
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {s.chapters.map(ch => (
+                              <span key={ch} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full"
+                                style={{ background: `${SUBJECT_STYLES[s.subject].color}15`, color: SUBJECT_STYLES[s.subject].color }}>
+                                {ch}
+                                <button onClick={() => removeChapterFromPlan(s.subject, ch)} className="hover:opacity-60">&times;</button>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Chapter selector */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-medium" style={{ color: 'var(--c-muted)' }}>Add Chapters</span>
+                      <div className="flex gap-1 flex-1 justify-end flex-wrap">
+                        {(['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
+                          <button key={s} onClick={() => { setSelSubject(s); setSelDivision(null); setSelChapter(null) }}
+                            className="text-xs px-2 py-0.5 rounded-full border transition-colors" style={{
+                              color: selSubject === s ? '#fff' : 'var(--c-muted)',
+                              borderColor: selSubject === s ? 'transparent' : 'var(--c-border-input)',
+                              background: selSubject === s ? SUBJECT_STYLES[s].color : 'transparent',
+                            }}>
+                            {SUBJECT_STYLES[s].emoji} {s.charAt(0).toUpperCase() + s.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {selSubject && (
+                      <div className="flex flex-wrap gap-1 mb-2 ml-1">
+                        {divisions.map(d => (
+                          <button key={d.id} onClick={() => { setSelDivision(d.id); setSelChapter(null) }}
+                            className="text-[10px] px-2 py-0.5 rounded-full transition-colors" style={{
+                              color: selDivision === d.id ? 'var(--c-text)' : 'var(--c-muted)',
+                              background: selDivision === d.id ? 'var(--c-progress-bg)' : 'transparent',
+                            }}>
+                            {d.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {currentDiv && (
+                      <div className="space-y-1 ml-1">
+                        {currentDiv.chapters.map(ch => {
+                          const inPlan = planSubjects.some(s => s.subject === selSubject && s.chapters.includes(ch.name))
+                          return (
+                            <div key={ch.id} onClick={() => {
+                              if (inPlan) removeChapterFromPlan(selSubject!, ch.name)
+                              else addChapterToPlan(selSubject!, ch.name)
+                            }}
+                              className="flex items-center gap-2 px-2 py-1 rounded cursor-pointer" style={{
+                                background: inPlan ? 'var(--c-tag)' : 'transparent',
+                                borderLeft: inPlan ? '2px solid var(--c-blue)' : '2px solid transparent',
+                              }}>
+                              <span className="text-xs" style={{ color: inPlan ? 'var(--c-blue)' : 'var(--c-muted)' }}>
+                                {inPlan ? '✓' : '○'}
+                              </span>
+                              <span className="text-xs flex-1" style={{ color: 'var(--c-text)' }}>{ch.name}</span>
+                              <span className="text-[10px]" style={{ color: 'var(--c-muted)' }}>{ch.topics.filter(t => !t.deleted).length} topics</span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 justify-end pt-1">
+                    <button onClick={() => {
+                      setPlanSubjects([])
+                      setPlanHours(8)
+                    }} className="text-xs font-medium px-4 py-2 rounded-[40px] transition-all"
+                      style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}>
+                      Reset
+                    </button>
+                    <button onClick={savePlan}
+                      className="text-xs font-medium px-5 py-2 rounded-[40px] text-white transition-all"
+                      style={{ background: 'var(--c-btn-primary)' }}>
+                      Save Plan
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         {!selectedDate && (
           <div className="rounded-[18px] p-8 text-center" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
-            <p className="text-sm" style={{ color: 'var(--c-muted)' }}>Click on a date above to see your activity breakdown.</p>
+            <p className="text-sm" style={{ color: 'var(--c-muted)' }}>Click on a date above to see your activity breakdown and plan your day.</p>
           </div>
         )}
       </div>

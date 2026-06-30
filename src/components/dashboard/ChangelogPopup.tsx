@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useSettingsStore } from '@/store/settingsStore'
 
-const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings', '/ai', '/ai-policies']
+const APP_PATHS = ['/dashboard', '/syllabus', '/timetable', '/progress', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings', '/ai', '/ai-policies']
 
 function parseReleaseBody(body: string): string[] {
   return body
