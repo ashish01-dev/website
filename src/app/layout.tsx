@@ -66,12 +66,12 @@ async function initSync() {
     await useTimetableStore.getState().load()
     const meta = user.user_metadata
     const googleName = meta?.full_name || meta?.name || meta?.given_name || ''
-    if (googleName) {
-      const s = useSettingsStore.getState().settings
-      if (s.name !== googleName) {
-        await useSettingsStore.getState().update({ name: googleName })
-      }
-    }
+    const googleAvatar = meta?.avatar_url || meta?.picture || ''
+    const s = useSettingsStore.getState().settings
+    const updates: Record<string, any> = {}
+    if (googleName && s.name !== googleName) updates.name = googleName
+    if (googleAvatar && !s.avatarUrl) updates.avatarUrl = googleAvatar
+    if (Object.keys(updates).length) await useSettingsStore.getState().update(updates)
   }
   sb.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
     const uid = session?.user?.id ?? null
@@ -85,12 +85,12 @@ async function initSync() {
       if (session?.user?.user_metadata) {
         const meta = session.user.user_metadata
         const googleName = meta.full_name || meta.name || meta.given_name || ''
-        if (googleName) {
-          const s = useSettingsStore.getState().settings
-          if (s.name !== googleName) {
-            useSettingsStore.getState().update({ name: googleName })
-          }
-        }
+        const googleAvatar = meta.avatar_url || meta.picture || ''
+        const s = useSettingsStore.getState().settings
+        const updates: Record<string, any> = {}
+        if (googleName && s.name !== googleName) updates.name = googleName
+        if (googleAvatar && !s.avatarUrl) updates.avatarUrl = googleAvatar
+        if (Object.keys(updates).length) useSettingsStore.getState().update(updates)
       }
     }
     if (event === 'SIGNED_OUT') {

@@ -70,20 +70,13 @@ export default function Sidebar() {
   const panelRef = useRef<HTMLDivElement>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
   const autoHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const router = useRouter()
 
   const isPermanent = !settings.sidebarAutoHide
 
-  // Set CSS variable for content margin
+  // Set CSS variable for content margin (snaps, no transition)
   useEffect(() => {
-    const el = document.documentElement
-    if (isPermanent) {
-      el.style.setProperty('--sidebar-w', `${SIDEBAR_WIDTH}px`)
-    } else {
-      el.style.setProperty('--sidebar-w', '0px')
-    }
-    return () => el.style.setProperty('--sidebar-w', '0px')
+    document.documentElement.style.setProperty('--sidebar-w', isPermanent ? `${SIDEBAR_WIDTH}px` : '0px')
   }, [isPermanent])
 
   // Fetch avatar
@@ -97,73 +90,48 @@ export default function Sidebar() {
     })
   }, [settings.avatarUrl])
 
-  // Auto-hide timer logic
+  // Auto-hide timer
   const resetAutoHideTimer = useCallback(() => {
     if (autoHideTimer.current) clearTimeout(autoHideTimer.current)
-    if (settings.sidebarAutoHide && sidebarOpen) {
-      autoHideTimer.current = setTimeout(() => {
-        setSidebarOpen(false)
-      }, 5000)
+    if (isPermanent) return
+    if (sidebarOpen) {
+      autoHideTimer.current = setTimeout(() => setSidebarOpen(false), 5000)
     }
-  }, [settings.sidebarAutoHide, sidebarOpen, setSidebarOpen])
+  }, [isPermanent, sidebarOpen, setSidebarOpen])
 
   useEffect(() => {
-    if (settings.sidebarAutoHide && sidebarOpen) {
-      resetAutoHideTimer()
-    }
-    return () => {
-      if (autoHideTimer.current) clearTimeout(autoHideTimer.current)
-    }
-  }, [sidebarOpen, settings.sidebarAutoHide, resetAutoHideTimer])
+    if (!isPermanent && sidebarOpen) resetAutoHideTimer()
+    return () => { if (autoHideTimer.current) clearTimeout(autoHideTimer.current) }
+  }, [sidebarOpen, isPermanent, resetAutoHideTimer])
 
-  const handleSidebarInteraction = useCallback(() => {
-    resetAutoHideTimer()
-  }, [resetAutoHideTimer])
+  const handleSidebarInteraction = useCallback(() => { resetAutoHideTimer() }, [resetAutoHideTimer])
 
-  // Click-outside for auto-hide mode overlay
+  // Click-outside for auto-hide overlay
   useEffect(() => {
-    if (!settings.sidebarAutoHide || !sidebarOpen) return
-    const handleClickOutside = (e: MouseEvent) => {
+    if (isPermanent || !sidebarOpen) return
+    const handler = (e: MouseEvent) => {
       if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node) &&
           !(e.target as HTMLElement)?.closest?.('.sidebar-trigger')) {
         setSidebarOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [sidebarOpen, settings.sidebarAutoHide, setSidebarOpen])
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [isPermanent, sidebarOpen, setSidebarOpen])
 
-  // Mobile click-outside for group panel
+  // Mobile click-outside
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        setOpenGroup(null)
-      }
+    if (openGroup === null) return
+    const handler = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) setOpenGroup(null)
     }
-    if (openGroup !== null) {
-      document.addEventListener('mousedown', handleClick)
-      return () => document.removeEventListener('mousedown', handleClick)
-    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [openGroup])
 
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href)
 
-  const handleNavClick = () => {
-    setSidebarOpen(false)
-    setOpenGroup(null)
-  }
-
-  const handleTriggerHover = () => {
-    if (settings.sidebarHover) {
-      hoverTimer.current = setTimeout(() => setSidebarOpen(true), 200)
-    }
-  }
-
-  const handleTriggerLeave = () => {
-    if (settings.sidebarHover) {
-      if (hoverTimer.current) clearTimeout(hoverTimer.current)
-    }
-  }
+  const handleNavClick = () => { setSidebarOpen(false); setOpenGroup(null) }
 
   const sidebarContent = (
     <>
@@ -192,7 +160,7 @@ export default function Sidebar() {
           </button>
         )}
       </div>
-      <div className="px-3 py-3 space-y-0.5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 60px)' }}>
+      <div className="px-3 py-3 space-y-0.5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
         {NAV_ITEMS.map(item => {
           const active = isActive(item.href)
           return (
@@ -214,51 +182,29 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Desktop sidebar — auto-hide mode (overlay, slides in) */}
-      {settings.sidebarAutoHide && (
-        <>
-          {sidebarOpen && (
-            <div
-              className="fixed inset-0 z-40 hidden md:block"
-              style={{ background: 'rgba(0,0,0,0.3)' }}
-              onClick={() => setSidebarOpen(false)}
-            />
-          )}
-          <div
-            ref={sidebarRef}
-            onMouseMove={handleSidebarInteraction}
-            onClick={handleSidebarInteraction}
-            className={`fixed top-0 left-0 z-50 h-full hidden md:block transition-transform duration-300 will-change-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-            style={{
-              width: SIDEBAR_WIDTH,
-              background: 'var(--c-card)',
-              borderRight: '1px solid var(--c-border)',
-              boxShadow: '4px 0 24px rgba(0,0,0,0.1)',
-            }}
-          >
-            {sidebarContent}
-          </div>
-        </>
-      )}
+      {/* Desktop sidebar */}
+      <div
+        ref={sidebarRef}
+        onMouseMove={handleSidebarInteraction}
+        onClick={handleSidebarInteraction}
+        className={`fixed top-0 left-0 h-full z-40 hidden md:block transition-transform duration-300 will-change-transform ${isPermanent ? 'translate-x-0' : sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{
+          width: SIDEBAR_WIDTH,
+          background: 'var(--c-card)',
+          borderRight: '1px solid var(--c-border)',
+          boxShadow: isPermanent ? 'none' : '4px 0 24px rgba(0,0,0,0.1)',
+        }}
+      >
+        {sidebarContent}
+      </div>
 
-      {/* Desktop sidebar — permanent mode (always visible, pushes content) */}
-      {!settings.sidebarAutoHide && (
-        <div
-          ref={sidebarRef}
-          className={`fixed top-0 left-0 h-full z-30 hidden md:block`}
-          style={{
-            width: SIDEBAR_WIDTH,
-            background: 'var(--c-card)',
-            borderRight: '1px solid var(--c-border)',
-            boxShadow: '4px 0 24px rgba(0,0,0,0.1)',
-          }}
-        >
-          {sidebarContent}
-        </div>
+      {/* Overlay for auto-hide mode */}
+      {!isPermanent && sidebarOpen && (
+        <div className="fixed inset-0 z-30 hidden md:block" style={{ background: 'rgba(0,0,0,0.3)' }} onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Mobile 3-button bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pb-3 pt-1">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pb-3 pt-1 touch-manipulation">
         <div className="flex items-center gap-2 px-3 py-2 rounded-[16px]" style={{
           background: 'var(--c-navbar-bg)',
           backdropFilter: 'blur(16px)',
@@ -267,12 +213,8 @@ export default function Sidebar() {
           boxShadow: 'var(--c-shadow-nav)',
         }}>
           {MOBILE_GROUPS.map((group, gi) => (
-            <button
-              key={group.label}
-              onClick={() => setOpenGroup(openGroup === gi ? null : gi)}
-              className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl transition-all duration-200 ${
-                openGroup === gi ? 'bg-black/[0.04]' : 'hover:bg-black/[0.02]'
-              }`}
+            <button key={group.label} onClick={() => setOpenGroup(openGroup === gi ? null : gi)}
+              className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl transition-all duration-200 ${openGroup === gi ? 'bg-black/[0.04]' : 'hover:bg-black/[0.02]'}`}
             >
               <span className="text-[20px] leading-none">{group.icon}</span>
               <span className={`text-[10px] font-medium leading-none ${openGroup === gi ? 'text-[var(--c-blue)]' : 'text-[var(--c-muted)]'}`}>
@@ -287,17 +229,13 @@ export default function Sidebar() {
       {openGroup !== null && (
         <>
           <div className="fixed inset-0 z-40 md:hidden" onClick={() => setOpenGroup(null)} />
-          <div
-            ref={panelRef}
-            className="fixed bottom-[80px] left-3 right-3 z-50 md:hidden rounded-[16px] overflow-hidden transition-all duration-200"
-            style={{
-              background: 'var(--c-card)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid var(--c-border)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-            }}
-          >
+          <div ref={panelRef} className="fixed bottom-[80px] left-3 right-3 z-50 md:hidden rounded-[16px] overflow-hidden transition-all duration-200" style={{
+            background: 'var(--c-card)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--c-border)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          }}>
             <div className="px-2 py-2">
               <div className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5" style={{ color: 'var(--c-muted)' }}>
                 {MOBILE_GROUPS[openGroup].label}
@@ -305,15 +243,9 @@ export default function Sidebar() {
               {MOBILE_GROUPS[openGroup].items.map(item => {
                 const active = isActive(item.href)
                 return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpenGroup(null)}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                      active ? 'bg-[var(--c-blue)]/10 text-[var(--c-blue)] font-medium' : 'hover:bg-black/[0.03]'
-                    }`}
-                    style={!active ? { color: 'var(--c-text-secondary)' } : undefined}
-                  >
+                  <Link key={item.href} href={item.href} onClick={() => setOpenGroup(null)}
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all ${active ? 'bg-[var(--c-blue)]/10 text-[var(--c-blue)] font-medium' : 'hover:bg-black/[0.03]'}`}
+                    style={!active ? { color: 'var(--c-text-secondary)' } : undefined}>
                     <span className="text-[16px]">{item.icon}</span>
                     <span>{item.label}</span>
                     {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--c-blue)]" />}

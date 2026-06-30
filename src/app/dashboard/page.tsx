@@ -120,7 +120,7 @@ export default function DashboardPage() {
       <MobileBottomNav />
       <DailyPlanModal open={showPlanModal} onClose={() => setShowPlanModal(false)} onSave={handleSavePlan} presetSubjects={dailyTargetSubjects} />
 
-      <div className="max-w-[1000px] mx-auto px-4 md:px-6 py-6 md:py-10" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+      <div className="max-w-[1000px] mx-auto px-4 md:px-6 py-6 md:py-10" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any }}>
 
         {/* Greeting + date */}
         <div className="mb-8">

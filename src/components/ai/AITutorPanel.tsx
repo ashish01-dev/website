@@ -223,7 +223,7 @@ export default function AITutorPanel() {
 
             {/* Persistent suggested questions for Pro users — always visible below scroll area */}
             {isPro && (
-              <div className="px-4 pb-2 shrink-0 space-y-1">
+              <div className="px-4 pb-2 shrink-0 overflow-y-auto space-y-1" style={{ maxHeight: 120 }}>
                 <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Try asking</p>
                 {SUGGESTED_TUTOR_QUESTIONS.map((q, i) => (
                   <motion.button key={q} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.015, duration: 0.15 }}

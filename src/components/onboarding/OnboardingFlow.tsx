@@ -162,6 +162,10 @@ export default function OnboardingFlow() {
     reader.readAsDataURL(file)
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') { e.preventDefault(); handleNext() }
+  }
+
   const renderQuestion = () => {
     switch (currentQuestion.type) {
       case 'text':
@@ -170,6 +174,7 @@ export default function OnboardingFlow() {
             autoFocus
             value={answers.name || ''}
             onChange={e => setAnswers(a => ({ ...a, name: e.target.value }))}
+            onKeyDown={handleKeyDown}
             placeholder="Enter your name"
             className="w-full px-5 py-3.5 text-lg outline-none rounded-[16px] transition-all"
             style={{

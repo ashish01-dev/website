@@ -38,6 +38,7 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
 
   const handleSignOut = async (e?: React.MouseEvent) => {
     e?.stopPropagation()
+    if (!window.confirm('Are you sure you want to sign out? Your data will remain saved and synced.')) return
     const sb = getSupabase()
     if (!sb) return
     await sb.auth.signOut()

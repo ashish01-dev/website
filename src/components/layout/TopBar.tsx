@@ -16,55 +16,31 @@ export default function TopBar() {
   const { user } = useUser()
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 })
   const [liveTime, setLiveTime] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const dateInputRef = useRef<HTMLInputElement>(null)
 
-  const isPermanent = !settings.sidebarAutoHide
   const isPro = user?.isPro ?? false
-
-  const handleTriggerHover = () => {
-    if (settings.sidebarHover) {
-      hoverTimerRef.current = setTimeout(() => setSidebarOpen(true), 200)
-    }
-  }
-
-  const handleTriggerLeave = () => {
-    if (settings.sidebarHover) {
-      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
-    }
-  }
+  const displayName = user?.name || settings.name || 'User'
+  const firstName = displayName.split(' ')[0]
+  const displayAvatar = settings.avatarUrl || user?.avatar || ''
+  const displayInitial = displayName.charAt(0).toUpperCase()
 
   useEffect(() => {
-    const update = () => {
+    const fn = () => {
       const diff = new Date(settings.examDate).getTime() - Date.now()
-      if (diff > 0) {
-        setTimeLeft({
-          days: Math.floor(diff / 86400000),
-          hours: Math.floor((diff % 86400000) / 3600000),
-          minutes: Math.floor((diff % 3600000) / 60000),
-        })
-      }
+      if (diff > 0) setTimeLeft({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+      })
     }
-    update()
-    const interval = setInterval(update, 60000)
-    return () => clearInterval(interval)
+    fn(); const id = setInterval(fn, 60000); return () => clearInterval(id)
   }, [settings.examDate])
 
   useEffect(() => {
-    const update = () => setLiveTime(new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }))
-    update()
-    const interval = setInterval(update, 1000)
-    return () => clearInterval(interval)
+    const fn = () => setLiveTime(new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+    fn(); const id = setInterval(fn, 1000); return () => clearInterval(id)
   }, [])
-
-  useEffect(() => {
-    if (user?.avatar) setAvatarUrl(user.avatar)
-  }, [user?.avatar])
-
-  useEffect(() => {
-    if (settings.avatarUrl) setAvatarUrl(settings.avatarUrl)
-  }, [settings.avatarUrl])
 
   const handleSignOut = async () => {
     if (!window.confirm('Are you sure you want to sign out? Your data will remain saved and synced.')) return
@@ -74,9 +50,9 @@ export default function TopBar() {
     router.push('/')
   }
 
-  const displayName = user?.name || settings.name || 'User'
-  const displayAvatar = avatarUrl || user?.avatar || ''
-  const displayInitial = displayName.charAt(0).toUpperCase()
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) update({ examDate: e.target.value })
+  }
 
   return (
     <header className="sticky top-0 z-30" style={{
@@ -85,40 +61,42 @@ export default function TopBar() {
       WebkitBackdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--c-border-card)',
       paddingLeft: 'var(--sidebar-w, 0px)',
-      transition: 'padding-left 0.3s ease',
     }}>
       <div className="max-w-[1100px] mx-auto flex items-center justify-between h-12 px-4 md:px-6">
-        {/* Left: hamburger + countdown + live time */}
-        <div className="flex items-center gap-1">
-          {!isPermanent && (
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              onMouseEnter={handleTriggerHover}
-              onMouseLeave={handleTriggerLeave}
-              className="sidebar-trigger w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
-              title="Toggle navigation"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round">
-                {sidebarOpen ? (
-                  <path d="M18 6L6 18M6 6l12 12" />
-                ) : (
-                  <path d="M3 6h18M3 12h18M3 18h18" />
-                )}
-              </svg>
-            </button>
-          )}
+        {/* Left: hamburger + live time + days left + clickable date */}
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="sidebar-trigger w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
+            title="Toggle navigation"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round">
+              {sidebarOpen ? (
+                <path d="M18 6L6 18M6 6l12 12" />
+              ) : (
+                <path d="M3 6h18M3 12h18M3 18h18" />
+              )}
+            </svg>
+          </button>
+          <span className="text-[11px] font-mono tabular-nums ml-1" style={{ color: 'var(--c-muted)' }}>
+            {liveTime}
+          </span>
           <span className="text-[13px] font-medium ml-1" style={{ color: 'var(--c-blue)' }}>
             {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
           </span>
-          <span className="text-[11px] px-2 py-0.5 rounded-full font-medium ml-1" style={{ background: 'var(--c-tag)', color: 'var(--c-text-secondary)' }}>
+          <button
+            onClick={() => dateInputRef.current?.showPicker()}
+            className="text-[11px] px-2 py-0.5 rounded-full font-medium ml-0.5 transition-all hover:opacity-80 active:scale-95"
+            style={{ background: 'var(--c-tag)', color: 'var(--c-text-secondary)', cursor: 'pointer' }}
+            title="Click to change exam date"
+          >
             {new Date(settings.examDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-          </span>
-          <span className="text-[11px] font-mono tabular-nums ml-2" style={{ color: 'var(--c-muted)' }}>
-            {liveTime}
-          </span>
+          </button>
+          <input ref={dateInputRef} type="date" value={settings.examDate} onChange={handleDateChange}
+            className="absolute opacity-0 pointer-events-none" style={{ width: 0, height: 0 }} aria-hidden />
         </div>
 
-        {/* Right: theme toggle + avatar dropdown */}
+        {/* Right: theme toggle + Hi Name + avatar dropdown */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => update({ theme: settings.theme === 'dark' ? 'light' : 'dark' })}
@@ -131,6 +109,10 @@ export default function TopBar() {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             )}
           </button>
+
+          <span className="text-[12px] font-medium hidden sm:block" style={{ color: 'var(--c-text-secondary)' }}>
+            Hi, {firstName}
+          </span>
 
           <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenu.Trigger asChild>
@@ -155,11 +137,16 @@ export default function TopBar() {
                 sideOffset={6}
                 align="end"
                 className="z-50 min-w-[200px] rounded-xl overflow-hidden shadow-lg data-[state=open]:animate-scale-in"
-                style={{
-                  background: 'var(--c-card)',
-                  border: '1px solid var(--c-border)',
-                }}
+                style={{ background: 'var(--c-card)', border: '1px solid var(--c-border)' }}
               >
+                <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--c-border)' }}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>{displayName}</span>
+                    {isPro && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: 'var(--c-blue)' }}>PRO</span>}
+                  </div>
+                  <div className="text-[11px]" style={{ color: 'var(--c-caption)' }}>{user?.email || ''}</div>
+                </div>
+
                 <DropdownMenu.Item
                   onClick={() => { setDropdownOpen(false); router.push('/') }}
                   className="flex items-center gap-2.5 px-4 py-2.5 text-sm outline-none transition-colors cursor-pointer hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"

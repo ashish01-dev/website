@@ -218,7 +218,7 @@ export default function LandingAIAssistant() {
             </ScrollArea>
 
             {/* Starter suggestions — always visible below scroll area */}
-            <div className="px-4 pb-2 shrink-0 space-y-1">
+            <div className="px-4 pb-2 shrink-0 overflow-y-auto space-y-1" style={{ maxHeight: 120 }}>
               <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Quick questions</p>
               {SUGGESTIONS_CURATED.map((item, i) => (
                 <motion.button
