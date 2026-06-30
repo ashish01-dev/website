@@ -91,10 +91,11 @@ export default function AIPage() {
   const daysRemaining = Math.max(0, Math.ceil((examDate.getTime() - today.getTime()) / 86400000))
   const router = useRouter()
   const isPro = user?.isPro ?? false
-  const [showBeta, setShowBeta] = useState(() => {
-    if (typeof window !== 'undefined') return !localStorage.getItem('ai_beta_acknowledged')
-    return true
-  })
+  const [showBeta, setShowBeta] = useState(true)
+
+  useEffect(() => {
+    if (localStorage.getItem('ai_beta_acknowledged')) setShowBeta(false)
+  }, [])
   const [aiLoading, setAiLoading] = useState(true)
   const [quote] = useState(() => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)])
   const [availableHours, setAvailableHours] = useState(settings.dailyStudyHours || 6)

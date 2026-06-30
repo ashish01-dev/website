@@ -532,7 +532,7 @@ export default function SettingsPage() {
                       setDeletingAccount(true)
                       try {
                         const res = await fetch('/api/delete-account', { method: 'POST' })
-                        if (!res.ok) { alert('Failed to delete account. Try signing out and back in.'); setDeletingAccount(false); return }
+                        if (!res.ok) { const err = await res.json().catch(() => ({ error: 'Unknown error' })); alert(err.error || 'Failed to delete account.'); setDeletingAccount(false); return }
                         await db.progress.clear()
                         await db.timetable.clear()
                         await db.tests.clear()
