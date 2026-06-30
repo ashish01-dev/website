@@ -10,9 +10,9 @@ export default function PageTransition({ children }: { children: React.ReactNode
     <AnimatePresence mode="popLayout">
       <motion.div
         key={pathname}
-        initial={{ opacity: 0, y: 3 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.12, ease: 'easeOut' }}
       >
         {children}
       </motion.div>

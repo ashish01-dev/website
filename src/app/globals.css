@@ -312,6 +312,11 @@ select option {
   color: var(--c-text);
 }
 
+/* Mobile sidebar override */
+@media (max-width: 767px) {
+  :root { --sidebar-w: 0px; }
+}
+
 /* Touch optimisation */
 .touch-manipulation { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }

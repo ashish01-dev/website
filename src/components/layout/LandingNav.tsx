@@ -94,7 +94,7 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
                 style={{ cursor: 'pointer', border: '1px solid var(--c-border-card)' }}>
                 <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center" style={{ background: user.avatar ? 'transparent' : 'var(--c-tag)' }}>
                   {user.avatar ? (
-                    <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                    <img src={user.avatar} alt="" className="w-full h-full object-cover" loading="lazy" />
                   ) : (
                     <span className="text-[10px] font-bold" style={{ color: 'var(--c-muted)' }}>{user.name.charAt(0).toUpperCase()}</span>
                   )}

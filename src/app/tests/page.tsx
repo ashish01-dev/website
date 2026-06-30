@@ -38,6 +38,7 @@ export default function TestsPage() {
   const [formScore, setFormScore] = useState('')
   const [formTotal, setFormTotal] = useState('50')
   const [formTime, setFormTime] = useState('')
+  const [scoreError, setScoreError] = useState('')
 
   const activeSubjects = selectedSubjects.length > 0 ? selectedSubjects : ['physics' as Subject]
 
@@ -67,6 +68,10 @@ export default function TestsPage() {
 
   const addTest = async () => {
     if (!formScore || !formTotal || selectedChapters.length === 0) return
+    const s = parseInt(formScore, 10)
+    const t = parseInt(formTotal, 10)
+    if (s > t) { setScoreError(`Score (${s}) cannot exceed total marks (${t})`); return }
+    setScoreError('')
     const primary = selectedSubjects[0] || 'physics'
     const entry: TestEntry = {
       id: generateId(), date: formDate, subject: primary,
@@ -188,7 +193,7 @@ export default function TestsPage() {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--c-muted)' }}>SCORE</label>
-                  <input type="number" value={formScore} onChange={e => setFormScore(e.target.value)}
+                  <input type="number" min="0" value={formScore} onChange={e => { setFormScore(e.target.value); setScoreError('') }}
                     className="w-full px-3 py-2 text-sm outline-none rounded-[40px]"
                     style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
                     onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
@@ -211,6 +216,7 @@ export default function TestsPage() {
                   onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
                   onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
+              {scoreError && <p className="text-xs" style={{ color: 'var(--c-red)' }}>{scoreError}</p>}
               <button onClick={addTest} className="w-full flex items-center justify-center text-sm font-medium px-4 py-2 rounded-[40px] text-white" style={{ background: 'var(--c-btn-primary)' }}>Log Test</button>
             </div>
           </div>

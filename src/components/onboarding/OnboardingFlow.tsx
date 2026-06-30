@@ -105,7 +105,7 @@ export default function OnboardingFlow() {
   const [answers, setAnswers] = useState<Record<string, string>>({ class: '12', exam: 'both', study_hours: '6-8' })
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/settings']
+  const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings']
 
   useEffect(() => {
     const sb = getSupabase()

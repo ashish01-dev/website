@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { href: '/questions', label: 'Questions', icon: '❓' },
   { href: '/tests', label: 'Tests', icon: '📝' },
   { href: '/revision', label: 'Revision', icon: '🧠' },
+  { href: '/formula-vault', label: 'Formula Vault', icon: '📄' },
   { href: '/settings', label: 'Settings', icon: '⚙️' },
 ]
 
@@ -29,10 +30,6 @@ export default function Sidebar() {
   const { settings } = useSettingsStore()
   const [avatarUrl, setAvatarUrl] = useState('')
   const router = useRouter()
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--sidebar-w', `${SIDEBAR_WIDTH}px`)
-  }, [])
 
   useEffect(() => {
     if (settings.avatarUrl) { setAvatarUrl(settings.avatarUrl); return }
@@ -62,7 +59,7 @@ export default function Sidebar() {
             border: '1px solid var(--c-border)',
           }}>
             {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+              <img src={avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
             ) : (
               <span className="text-sm font-semibold" style={{ color: 'var(--c-muted)' }}>
                 {(settings.name || 'U').charAt(0).toUpperCase()}

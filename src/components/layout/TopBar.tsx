@@ -101,7 +101,7 @@ export default function TopBar() {
                 }}
               >
                 {displayAvatar ? (
-                  <img src={displayAvatar} alt="" className="w-full h-full object-cover" />
+                  <img src={displayAvatar} alt="" className="w-full h-full object-cover" loading="lazy" />
                 ) : (
                   <span className="text-sm font-semibold" style={{ color: 'var(--c-muted)' }}>{displayInitial}</span>
                 )}

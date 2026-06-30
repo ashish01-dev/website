@@ -6,7 +6,7 @@ import { useSettingsStore } from '@/store/settingsStore'
 
 const APP_VERSION = '1.0.0'
 
-const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/settings', '/ai', '/ai-policies']
+const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings', '/ai', '/ai-policies']
 
 interface ChangelogEntry {
   version: string
