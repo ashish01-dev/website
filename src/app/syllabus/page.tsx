@@ -6,6 +6,9 @@ import type { Subject, ChapterFilter, SortOption, Chapter } from '@/types'
 import syllabusData from '@/data/syllabus.json'
 import type { SyllabusData } from '@/types'
 import { db } from '@/lib/db'
+import Sidebar from '@/components/layout/Sidebar'
+import TopBar from '@/components/layout/TopBar'
+import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import ContextMenu from '@/components/shapes/ContextMenu'
 
 const syllabus = syllabusData as unknown as SyllabusData
@@ -70,7 +73,6 @@ function AddChapterModal({ subject, onClose }: { subject: Subject; onClose: () =
           value={weightage}
           onChange={e => setWeightage(e.target.value)}
           className="w-full px-3 py-2 text-sm rounded-[12px] mb-4 outline-none"
-          style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}
         >
           <option value="low">Low Weightage</option>
           <option value="medium">Medium Weightage</option>
@@ -166,6 +168,7 @@ export default function SyllabusPage() {
   const [renameTarget, setRenameTarget] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => { load(); loadCustomChapters() }, [load, loadCustomChapters])
 
@@ -307,9 +310,21 @@ export default function SyllabusPage() {
     else setChapterStatus(ch.id, 'done')
   }
 
+  const handleChapterClick = (chId: string, e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button, [draggable]')) return
+    setExpandedId(expandedId === chId ? null : chId)
+  }
+
+  const handleDragMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation()
+  }
+
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
-      <div className="max-w-[900px] mx-auto px-5 pt-12 pb-24">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
+      <Sidebar />
+      <TopBar />
+      <MobileBottomNav />
+      <div className="max-w-[900px] mx-auto px-5 pt-[17px] pb-24" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-[clamp(24px,3vw,36px)] font-medium tracking-[-1px]" style={{ color: 'var(--c-text)' }}>Syllabus</h1>
           <div className="flex items-center gap-3">
@@ -417,71 +432,120 @@ export default function SyllabusPage() {
               const isCustom = ch.id.startsWith('custom_')
 
               return (
-                <div
-                  key={ch.id}
-                  draggable
-                  onDragStart={() => handleDragStart(ch.id)}
-                  onDragOver={handleDragOver}
-                  onDrop={() => handleDrop(ch.id)}
-                  onContextMenu={e => handleContextMenu(e, ch.id, ch.name)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-[14px] transition-all cursor-default group"
-                  style={{
-                    background: 'var(--c-card)',
-                    border: '1px solid var(--c-border-card)',
-                    boxShadow: 'var(--c-shadow)',
-                    opacity: dragId === ch.id ? 0.4 : 1,
-                  }}
-                >
-                  {/* Drag Handle */}
-                  <span className="material-symbols-rounded text-[18px] cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-                    style={{ color: 'var(--c-caption)' }}>drag_indicator</span>
+                <div key={ch.id}>
+                  <div
+                    draggable
+                    onDragStart={() => handleDragStart(ch.id)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop(ch.id)}
+                    onClick={e => handleChapterClick(ch.id, e)}
+                    onContextMenu={e => handleContextMenu(e, ch.id, ch.name)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-[14px] transition-all cursor-pointer group"
+                    style={{
+                      background: expandedId === ch.id ? 'var(--c-card-alt)' : 'var(--c-card)',
+                      border: `1px solid ${expandedId === ch.id ? 'var(--c-blue)' : 'var(--c-border-card)'}`,
+                      boxShadow: expandedId === ch.id ? 'var(--c-shadow-hover)' : 'var(--c-shadow)',
+                      opacity: dragId === ch.id ? 0.4 : 1,
+                    }}
+                  >
+                    {/* Drag Handle */}
+                    <span className="material-symbols-rounded text-[18px] cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                      style={{ color: 'var(--c-caption)' }} onMouseDown={handleDragMouseDown}>drag_indicator</span>
 
-                  <ProgressDot status={chStatus} />
+                    <ProgressDot status={chStatus} />
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium truncate" style={{ color: 'var(--c-text)' }}>{ch.name}</span>
-                      <WeightageBadge weightage={ch.weightage} />
-                      {isCustom && <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: 'var(--c-orange)20', color: 'var(--c-orange)' }}>Custom</span>}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium truncate" style={{ color: 'var(--c-text)' }}>{ch.name}</span>
+                        <WeightageBadge weightage={ch.weightage} />
+                        {isCustom && <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: 'var(--c-orange)20', color: 'var(--c-orange)' }}>Custom</span>}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1">
+                        {totalTopics > 0 && (
+                          <div className="flex-1 max-w-[120px] h-1 rounded-full" style={{ background: 'var(--c-progress-bg)' }}>
+                            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: chStatus === 'done' ? 'var(--c-green)' : 'var(--c-blue)' }} />
+                          </div>
+                        )}
+                        <span className="text-[11px]" style={{ color: 'var(--c-caption)' }}>
+                          {totalTopics > 0 ? `${doneTopics}/${totalTopics}` : 'No topics'}
+                          {chStatus === 'done' && p?.completedOn && ` · ${p.completedOn}`}
+                          {chStatus === 'done' && (p?.revisionCount ?? 0) > 0 && ` · Rev ${p?.revisionCount}`}
+                        </span>
+                        <span className={`material-symbols-rounded text-[16px] transition-transform ${expandedId === ch.id ? 'rotate-180' : ''}`}
+                          style={{ color: 'var(--c-caption)' }}>expand_more</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 mt-1">
-                      {totalTopics > 0 && (
-                        <div className="flex-1 max-w-[120px] h-1 rounded-full" style={{ background: 'var(--c-progress-bg)' }}>
-                          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: chStatus === 'done' ? 'var(--c-green)' : 'var(--c-blue)' }} />
+
+                    {/* Quick actions */}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => handleChapterStatus(ch)}
+                        className="p-1.5 rounded-lg transition-colors hover:opacity-80"
+                        style={{ color: chStatus === 'done' ? 'var(--c-green)' : 'var(--c-caption)' }}
+                        title={chStatus === 'done' ? 'Mark incomplete' : 'Toggle progress'}>
+                        <span className="material-symbols-rounded text-[18px]">
+                          {chStatus === 'done' ? 'check_circle' : chStatus === 'in_progress' ? 'radio_button_partial' : 'radio_button_unchecked'}
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* Mobile quick status */}
+                    <button onClick={() => handleChapterStatus(ch)}
+                      className="sm:hidden p-1 rounded-lg"
+                      style={{ color: chStatus === 'done' ? 'var(--c-green)' : 'var(--c-blue)' }}>
+                      <span className="material-symbols-rounded text-[20px]">
+                        {chStatus === 'done' ? 'check_circle' : chStatus === 'in_progress' ? 'hourglass_top' : 'circle'}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Expanded Topics */}
+                  {expandedId === ch.id && (
+                    <div className="ml-10 mt-1 mb-2 p-3 rounded-[12px] animate-slide-up" style={{ background: 'var(--c-card-alt)', border: '1px solid var(--c-border-card)' }}>
+                      <div className="space-y-1">
+                        {chTopics.length > 0 ? chTopics.map(t => {
+                          const done = p?.topicStatus[t.id] ?? false
+                          return (
+                            <label key={t.id} className="flex items-center gap-2.5 px-2 py-1.5 rounded-[8px] cursor-pointer hover:opacity-80 transition-colors">
+                              <input
+                                type="checkbox"
+                                checked={done}
+                                onChange={e => setTopicDone(ch.id, t.id, e.target.checked)}
+                                className="w-3.5 h-3.5 rounded-[3px] accent-[var(--c-blue)]"
+                                style={{ accentColor: 'var(--c-blue)' }}
+                              />
+                              <span className={`text-[13px] ${done ? 'line-through' : ''}`}
+                                style={{ color: done ? 'var(--c-muted)' : 'var(--c-text)' }}>
+                                {t.name}
+                              </span>
+                              {t.id.startsWith('custom_') && (
+                                <span className="text-[9px] ml-auto px-1.5 py-0.5 rounded-full" style={{ background: 'var(--c-orange)20', color: 'var(--c-orange)' }}>Custom</span>
+                              )}
+                            </label>
+                          )
+                        }) : (
+                          <p className="text-xs text-center py-3" style={{ color: 'var(--c-caption)' }}>No topics. Add one from the context menu.</p>
+                        )}
+                      </div>
+                      {/* Mark all done / quick actions */}
+                      {chTopics.length > 0 && chStatus !== 'done' && (
+                        <div className="flex items-center gap-2 mt-2 pt-2" style={{ borderTop: '1px solid var(--c-border)' }}>
+                          <button onClick={() => markAllTopics(ch.id)}
+                            className="text-[11px] font-medium px-3 py-1.5 rounded-[40px] text-white"
+                            style={{ background: 'var(--c-btn-primary)' }}>
+                            Mark All Done
+                          </button>
+                          <button onClick={() => {
+                            const customName = prompt('Topic name:')
+                            if (customName?.trim()) addCustomTopic(ch.id, customName.trim())
+                          }}
+                            className="text-[11px] font-medium px-3 py-1.5 rounded-[40px]"
+                            style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}>
+                            + Add Topic
+                          </button>
                         </div>
                       )}
-                      <span className="text-[11px]" style={{ color: 'var(--c-caption)' }}>
-                        {totalTopics > 0 ? `${doneTopics}/${totalTopics}` : 'No topics'}
-                        {chStatus === 'done' && p?.completedOn && ` · ${p.completedOn}`}
-                        {chStatus === 'done' && (p?.revisionCount ?? 0) > 0 && ` · Rev ${p?.revisionCount}`}
-                      </span>
                     </div>
-                  </div>
-
-                  {/* Quick actions */}
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleChapterStatus(ch)}
-                      className="p-1.5 rounded-lg transition-colors hover:opacity-80"
-                      style={{ color: chStatus === 'done' ? 'var(--c-green)' : 'var(--c-caption)' }}
-                      title={chStatus === 'done' ? 'Mark incomplete' : 'Toggle progress'}>
-                      <span className="material-symbols-rounded text-[18px]">
-                        {chStatus === 'done' ? 'check_circle' : chStatus === 'in_progress' ? 'radio_button_partial' : 'radio_button_unchecked'}
-                      </span>
-                    </button>
-                    <button onClick={() => setShowAddModal(true)}
-                      className="p-1.5 rounded-lg" style={{ color: 'var(--c-caption)' }} title="Add topic">
-                      <span className="material-symbols-rounded text-[18px]">playlist_add</span>
-                    </button>
-                  </div>
-
-                  {/* Mobile quick status */}
-                  <button onClick={() => handleChapterStatus(ch)}
-                    className="sm:hidden p-1 rounded-lg"
-                    style={{ color: chStatus === 'done' ? 'var(--c-green)' : 'var(--c-blue)' }}>
-                    <span className="material-symbols-rounded text-[20px]">
-                      {chStatus === 'done' ? 'check_circle' : chStatus === 'in_progress' ? 'hourglass_top' : 'circle'}
-                    </span>
-                  </button>
+                  )}
                 </div>
               )
             })}

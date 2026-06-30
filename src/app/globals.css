@@ -84,6 +84,7 @@ body {
 
   .dark {
     color-scheme: dark;
+    --c-scheme: dark;
     --c-text: #e2e2e0;
     --c-text-secondary: #aaa;
     --c-muted: #9b9a97;
@@ -298,6 +299,17 @@ body {
   .dark .notion-card:hover {
     @apply shadow-none;
   }
+}
+
+/* Select / option dark mode */
+select {
+  background: var(--c-input);
+  color: var(--c-text);
+  border: 1px solid var(--c-border-input);
+}
+select option {
+  background: var(--c-card);
+  color: var(--c-text);
 }
 
 /* Touch optimisation */

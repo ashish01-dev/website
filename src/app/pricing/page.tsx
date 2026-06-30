@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
 import { createOrder, openCheckout } from '@/lib/razorpay'
 import LandingNav from '@/components/layout/LandingNav'
-import ProUpgradePopup from '@/components/ProUpgradePopup'
+import ProActivationPopup from '@/components/ProActivationPopup'
 import { useUser } from '@/lib/useUser'
 
 const MONTHLY_PLANS = [
@@ -225,7 +225,7 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <ProUpgradePopup show={showProUpgrade} onGoToDashboard={() => { setShowProUpgrade(false); router.push('/dashboard') }} />
+      <ProActivationPopup show={showProUpgrade} onGoToDashboard={() => { setShowProUpgrade(false); router.push('/dashboard') }} />
     </div>
   )
 }

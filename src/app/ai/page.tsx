@@ -7,6 +7,9 @@ import { useUser } from '@/lib/useUser'
 import { calculatePace } from '@/lib/pacing'
 import { generateId, formatDate, getDaysBetween } from '@/lib/utils'
 import Link from 'next/link'
+import Sidebar from '@/components/layout/Sidebar'
+import TopBar from '@/components/layout/TopBar'
+import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import syllabusData from '@/data/syllabus.json'
 import type { SyllabusData, Subject, Chapter } from '@/types'
 
@@ -77,13 +80,22 @@ export default function AIPage() {
     }
   }
 
-  const todayRecommendation = useMemo(() => {
-    const undone = allChapters.filter(({ chapter, subject }) => {
+  interface RecItem {
+    subject: Subject
+    chapter: Chapter
+    priorityScore: number
+    daysSinceStudy: number
+    reason: string
+    tasks: { label: string; duration: string }[]
+  }
+
+  const todayRecommendations = useMemo(() => {
+    const undone = allChapters.filter(({ chapter }) => {
       const p = progress[chapter.id]
       return !p || p.status !== 'done'
     })
 
-    if (undone.length === 0) return null
+    if (undone.length === 0) return []
 
     const scored = undone.map(({ subject, chapter }) => {
       const p = progress[chapter.id]
@@ -97,44 +109,36 @@ export default function AIPage() {
       return { subject, chapter, priorityScore, daysSinceStudy, weightageScore }
     })
 
-    scored.sort((a, b) => b.priorityScore - a.priorityScore)
-    const top = scored[0]
-    const estimatedHrs = estimateHours(top.chapter)
-    const isShortSession = availableHours <= 2
-    const isMediumSession = availableHours <= 4
-
-    let tasks: { label: string; duration: string }[] = []
-    if (isShortSession) {
-      tasks = [
-        { label: 'Theory revision', duration: '45 min' },
-      ]
-    } else if (isMediumSession) {
-      tasks = [
-        { label: 'Theory', duration: '45 min' },
-        { label: 'PYQs', duration: '1 hour' },
-        { label: 'Revision', duration: '20 min' },
-      ]
-    } else {
-      tasks = [
-        { label: 'Theory', duration: '45 min' },
-        { label: 'Practice questions', duration: '1 hour' },
-        { label: 'PYQs', duration: '1 hour' },
-        { label: 'Revision', duration: '20 min' },
-        { label: 'Mock questions', duration: '30 min' },
-        { label: 'Break', duration: '10 min' },
-      ]
+    // Pick best chapter per subject, then take top 2 subjects
+    const bySubject = new Map<Subject, typeof scored[0]>()
+    for (const s of scored) {
+      const existing = bySubject.get(s.subject)
+      if (!existing || s.priorityScore > existing.priorityScore) bySubject.set(s.subject, s)
     }
+    const perSubject = Array.from(bySubject.values()).sort((a, b) => b.priorityScore - a.priorityScore).slice(0, 2)
 
-    return {
-      subject: top.subject,
-      chapter: top.chapter,
-      estimatedHours: estimatedHrs,
-      daysSinceStudy: top.daysSinceStudy,
-      tasks,
-      reason: top.daysSinceStudy >= 7
-        ? `You have not studied this chapter for ${top.daysSinceStudy} days and it has ${top.chapter.weightage} JEE weightage.`
-        : `This chapter has ${top.chapter.weightage} weightage and your progress is ${getChapterProgress(top.chapter).pct}%.`,
-    }
+    if (perSubject.length === 0) return []
+
+    return perSubject.map((top): RecItem => {
+      const hoursPer = Math.ceil(estimateHours(top.chapter) / 2)
+      const isShort = availableHours <= 2 || perSubject.length > 1
+      const tasks: { label: string; duration: string }[] = isShort
+        ? [{ label: 'Theory revision', duration: `${Math.min(45, hoursPer * 30)} min` }]
+        : [
+            { label: 'Theory', duration: `${Math.min(45, hoursPer * 25)} min` },
+            { label: 'PYQs', duration: `${Math.min(30, hoursPer * 15)} min` },
+          ]
+      return {
+        subject: top.subject,
+        chapter: top.chapter,
+        priorityScore: top.priorityScore,
+        daysSinceStudy: top.daysSinceStudy,
+        tasks,
+        reason: top.daysSinceStudy >= 7
+          ? `Not studied for ${top.daysSinceStudy} days. ${top.chapter.weightage} weightage.`
+          : `${top.chapter.weightage} weightage · ${getChapterProgress(top.chapter).pct}% complete.`,
+      }
+    })
   }, [allChapters, progress, availableHours])
 
   const priorityChapters = useMemo(() => {
@@ -171,28 +175,31 @@ export default function AIPage() {
   }, [allChapters, progress])
 
   const dailyPlan = useMemo(() => {
-    if (!todayRecommendation) return null
+    if (todayRecommendations.length === 0) return null
     const plan: { time: string; label: string; duration: string }[] = []
     let currentHour = 9
-    const slots = [
-      { label: `${todayRecommendation.subject.charAt(0).toUpperCase() + todayRecommendation.subject.slice(1)} Theory`, duration: 75 },
-      { label: 'PYQs Practice', duration: 50 },
-      { label: 'Revision & Notes', duration: 40 },
-    ]
-    for (const slot of slots) {
-      const startH = Math.floor(currentHour)
-      const startM = Math.round((currentHour - startH) * 60)
-      const endH = Math.floor(currentHour + slot.duration / 60)
-      const endM = Math.round(((currentHour + slot.duration / 60) - endH) * 60)
-      plan.push({
-        time: `${startH.toString().padStart(2, '0')}:${startM.toString().padStart(2, '0')}–${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`,
-        label: slot.label,
-        duration: `${slot.duration}m`,
-      })
-      currentHour += slot.duration / 60 + 0.15
+    for (const rec of todayRecommendations) {
+      const hours = estimateHours(rec.chapter)
+      const slots = [
+        { label: `${rec.subject.charAt(0).toUpperCase() + rec.subject.slice(1)} — ${rec.chapter.name} Theory`, duration: Math.min(60, hours * 20) },
+        { label: `${rec.subject.charAt(0).toUpperCase() + rec.subject.slice(1)} PYQs`, duration: Math.min(45, hours * 15) },
+      ]
+      for (const slot of slots) {
+        const startH = Math.floor(currentHour)
+        const startM = Math.round((currentHour - startH) * 60)
+        const endH = Math.floor(currentHour + slot.duration / 60)
+        const endM = Math.round(((currentHour + slot.duration / 60) - endH) * 60)
+        plan.push({
+          time: `${startH.toString().padStart(2, '0')}:${startM.toString().padStart(2, '0')}–${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`,
+          label: slot.label,
+          duration: `${slot.duration}m`,
+        })
+        currentHour += slot.duration / 60 + 0.083
+      }
+      currentHour += 0.5 // break between subjects
     }
     return plan
-  }, [todayRecommendation])
+  }, [todayRecommendations])
 
   const mistakes = useMemo(() => {
     const entries = Array.from({ length: 3 }, (_, i) => ({
@@ -206,8 +213,11 @@ export default function AIPage() {
   }, [])
 
   return (
-    <div className="min-h-screen pb-24" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
-      <div className="max-w-[960px] mx-auto px-4 md:px-6 py-8 animate-page-in">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
+      <Sidebar />
+      <TopBar />
+      <MobileBottomNav />
+      <div className="max-w-[960px] mx-auto px-4 md:px-6 pt-[17px] pb-6 animate-page-in" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         {/* ─── Header ─── */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
           <div>
@@ -248,8 +258,7 @@ export default function AIPage() {
             <div className="flex items-center gap-2">
               <span className="text-[11px]" style={{ color: 'var(--c-caption)' }}>Available time:</span>
               <select value={availableHours} onChange={e => setAvailableHours(Number(e.target.value))}
-                className="text-xs px-2 py-1 rounded-[8px] outline-none"
-                style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}>
+                className="text-xs px-2 py-1 rounded-[8px] outline-none">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(h => (
                   <option key={h} value={h}>{h}h</option>
                 ))}
@@ -257,47 +266,51 @@ export default function AIPage() {
             </div>
           </div>
 
-          {todayRecommendation ? (
-            <div className="rounded-[18px] p-5" style={{
-              background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
-              boxShadow: 'var(--c-shadow-hover)', borderLeft: `4px solid ${getSubjectColor(todayRecommendation.subject)}`,
-            }}>
-              <div className="flex items-start gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg" style={{ background: 'var(--c-tag)' }}>
-                  {todayRecommendation.subject === 'physics' ? '⚡' : todayRecommendation.subject === 'chemistry' ? '🧪' : '📐'}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-sm font-semibold capitalize" style={{ color: 'var(--c-text)' }}>{todayRecommendation.subject}</span>
-                    <span className="text-[11px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: 'var(--c-tag)', color: 'var(--c-blue)' }}>
-                      {todayRecommendation.chapter.weightage} weightage
-                    </span>
+          {todayRecommendations.length > 0 ? (
+            <div className="space-y-3">
+              {todayRecommendations.map((rec, idx) => (
+                <div key={rec.chapter.id} className="rounded-[18px] p-5" style={{
+                  background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
+                  boxShadow: 'var(--c-shadow-hover)', borderLeft: `4px solid ${getSubjectColor(rec.subject)}`,
+                }}>
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg" style={{ background: 'var(--c-tag)' }}>
+                      {rec.subject === 'physics' ? '⚡' : rec.subject === 'chemistry' ? '🧪' : '📐'}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-sm font-semibold capitalize" style={{ color: 'var(--c-text)' }}>{rec.subject}</span>
+                        <span className="text-[11px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: 'var(--c-tag)', color: 'var(--c-blue)' }}>
+                          {rec.chapter.weightage} weightage
+                        </span>
+                        {idx === 0 && <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: 'rgba(224,62,62,0.1)', color: 'var(--c-red)' }}>Top Priority</span>}
+                      </div>
+                      <h3 className="text-lg font-bold" style={{ color: 'var(--c-text)' }}>{rec.chapter.name}</h3>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[11px] font-medium" style={{ color: 'var(--c-blue)' }}>
+                        {getChapterProgress(rec.chapter).pct}% done
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold" style={{ color: 'var(--c-text)' }}>{todayRecommendation.chapter.name}</h3>
-                </div>
-                <div className="text-right">
-                  <div className="text-[11px]" style={{ color: 'var(--c-caption)' }}>Est. {todayRecommendation.estimatedHours}h</div>
-                  <div className="text-[11px] font-medium" style={{ color: 'var(--c-blue)' }}>
-                    {getChapterProgress(todayRecommendation.chapter).pct}% done
-                  </div>
-                </div>
-              </div>
 
-              <div className="flex flex-wrap gap-2 mb-3">
-                {todayRecommendation.tasks.map((task, i) => (
-                  <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-medium" style={{
-                    background: 'var(--c-tag)', color: 'var(--c-text)',
-                  }}>
-                    <span>{task.label}</span>
-                    <span style={{ color: 'var(--c-caption)' }}>({task.duration})</span>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {rec.tasks.map((task, i) => (
+                      <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-medium" style={{
+                        background: 'var(--c-tag)', color: 'var(--c-text)',
+                      }}>
+                        <span>{task.label}</span>
+                        <span style={{ color: 'var(--c-caption)' }}>({task.duration})</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              <div className="flex items-start gap-2 p-3 rounded-[12px]" style={{ background: 'var(--c-card-alt)' }}>
-                <span className="material-symbols-rounded text-[16px] flex-shrink-0" style={{ color: 'var(--c-muted)' }}>lightbulb</span>
-                <p className="text-[12px]" style={{ color: 'var(--c-text-secondary)', lineHeight: 1.6 }}>{todayRecommendation.reason}</p>
-              </div>
+                  <div className="flex items-start gap-2 p-3 rounded-[12px]" style={{ background: 'var(--c-card-alt)' }}>
+                    <span className="material-symbols-rounded text-[16px] flex-shrink-0" style={{ color: 'var(--c-muted)' }}>lightbulb</span>
+                    <p className="text-[12px]" style={{ color: 'var(--c-text-secondary)', lineHeight: 1.6 }}>{rec.reason}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="rounded-[18px] p-8 text-center" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
@@ -450,38 +463,39 @@ export default function AIPage() {
           </div>
         </section>
 
-        {/* ─── Disclaimer Modal ─── */}
-        {showDisclaimer && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowDisclaimer(false)}>
-            <div className="max-w-md mx-4 rounded-[18px] p-6 animate-scale-in" style={{
-              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)',
-            }} onClick={e => e.stopPropagation()}>
-              <h3 className="text-base font-bold mb-3" style={{ color: 'var(--c-text)' }}>How AI Recommendations Work</h3>
-              <div className="space-y-3 text-[13px] leading-relaxed" style={{ color: 'var(--c-text-secondary)' }}>
-                <p>Our AI analyzes your study data to generate personalized recommendations. Here&apos;s what it considers:</p>
-                <ul className="space-y-1.5 pl-4" style={{ listStyle: 'disc' }}>
-                  <li>Your study history and chapter completion data</li>
-                  <li>Estimated chapter duration based on topic count and weightage</li>
-                  <li>Revision gaps — how long since you last studied each chapter</li>
-                  <li>Your exam date and remaining days</li>
-                  <li>Chapter weightage in JEE</li>
-                  <li>Your available study time today</li>
-                </ul>
-                <p>Recommendations may change as new data is collected. Future versions will become more accurate with additional data points including mock test performance and question-level analysis.</p>
-                <Link href="/ai-policies" className="inline-block text-sm font-medium underline" style={{ color: 'var(--c-blue)' }}
-                  onClick={() => setShowDisclaimer(false)}>
-                  View AI Policies →
-                </Link>
-              </div>
-              <button onClick={() => setShowDisclaimer(false)}
-                className="mt-5 w-full py-2.5 text-sm font-semibold rounded-[40px] text-white"
-                style={{ background: 'var(--c-btn-primary)' }}>
-                Got it
-              </button>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* ─── Disclaimer Modal (outside animate-page-in) ─── */}
+      {showDisclaimer && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowDisclaimer(false)}>
+          <div className="max-w-md mx-4 rounded-[18px] p-6 animate-scale-in" style={{
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)',
+          }} onClick={e => e.stopPropagation()}>
+            <h3 className="text-base font-bold mb-3" style={{ color: 'var(--c-text)' }}>How AI Recommendations Work</h3>
+            <div className="space-y-3 text-[13px] leading-relaxed" style={{ color: 'var(--c-text-secondary)' }}>
+              <p>Our AI analyzes your study data to generate personalized recommendations. Here&apos;s what it considers:</p>
+              <ul className="space-y-1.5 pl-4" style={{ listStyle: 'disc' }}>
+                <li>Your study history and chapter completion data</li>
+                <li>Estimated chapter duration based on topic count and weightage</li>
+                <li>Revision gaps — how long since you last studied each chapter</li>
+                <li>Your exam date and remaining days</li>
+                <li>Chapter weightage in JEE</li>
+                <li>Your available study time today</li>
+              </ul>
+              <p>Recommendations may change as new data is collected. Future versions will become more accurate with additional data points including mock test performance and question-level analysis.</p>
+              <Link href="/ai-policies" className="inline-block text-sm font-medium underline" style={{ color: 'var(--c-blue)' }}
+                onClick={() => setShowDisclaimer(false)}>
+                View AI Policies →
+              </Link>
+            </div>
+            <button onClick={() => setShowDisclaimer(false)}
+              className="mt-5 w-full py-2.5 text-sm font-semibold rounded-[40px] text-white"
+              style={{ background: 'var(--c-btn-primary)' }}>
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

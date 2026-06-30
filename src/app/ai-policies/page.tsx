@@ -1,11 +1,17 @@
 'use client'
 
 import Link from 'next/link'
+import Sidebar from '@/components/layout/Sidebar'
+import TopBar from '@/components/layout/TopBar'
+import MobileBottomNav from '@/components/layout/MobileBottomNav'
 
 export default function AIPoliciesPage() {
   return (
-    <div className="min-h-screen pb-24" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
-      <div className="max-w-[700px] mx-auto px-5 py-16 animate-page-in">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
+      <Sidebar />
+      <TopBar />
+      <MobileBottomNav />
+      <div className="max-w-[700px] mx-auto px-5 pt-[17px] pb-6 animate-page-in" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         <Link href="/ai" className="inline-flex items-center gap-1.5 text-sm mb-8" style={{ color: 'var(--c-muted)' }}>
           <span className="material-symbols-rounded text-[18px]">arrow_back</span>
           Back to AI Assistant

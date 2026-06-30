@@ -325,7 +325,7 @@ export default function ProgressPage() {
             <div>
               <label className="text-[11px] block mb-1" style={{ color: 'var(--c-muted)' }}>Rest Days/Week</label>
               <select value={restDays} onChange={e => setRestDays(Number(e.target.value))}
-                className="px-2 py-1 text-sm rounded-[8px] outline-none" style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}>
+                className="px-2 py-1 text-sm rounded-[8px] outline-none">
                 {[0, 1, 2].map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
