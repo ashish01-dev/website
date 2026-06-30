@@ -24,11 +24,14 @@ export async function POST(req: NextRequest) {
       messages: systemPrompt
         ? [{ role: 'system', content: systemPrompt }, ...messages]
         : messages,
-      max_tokens: Math.min(maxTokens, 8192),
+      max_tokens: Math.min(maxTokens, 512),
       temperature,
-      top_p: 0.95,
+      top_p: 0.9,
       stream: false,
     }
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15000)
 
     const response = await fetch(NVIDIA_API_URL, {
       method: 'POST',
@@ -38,7 +41,9 @@ export async function POST(req: NextRequest) {
         Accept: 'application/json',
       },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     })
+    clearTimeout(timeout)
 
     if (!response.ok) {
       const errText = await response.text()

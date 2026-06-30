@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
@@ -46,12 +46,20 @@ export default function ActivityPage() {
   const [pomodoroSessions, setPomodoroSessions] = useState<PomodoroSession[]>([])
   const [dailyLogs, setDailyLogs] = useState<DailyLog[]>([])
 
-  useEffect(() => {
-    db.progress.toArray().then(setProgressEntries)
-    db.questions.toArray().then(setQuestionEntries)
-    db.pomodoro.toArray().then(setPomodoroSessions)
-    db.dailyLogs.toArray().then(setDailyLogs)
+  const loadActivity = useCallback(async () => {
+    setProgressEntries(await db.progress.toArray())
+    setQuestionEntries(await db.questions.toArray())
+    setPomodoroSessions(await db.pomodoro.toArray())
+    setDailyLogs(await db.dailyLogs.toArray())
   }, [])
+
+  useEffect(() => { loadActivity() }, [loadActivity])
+
+  useEffect(() => {
+    const onFocus = () => loadActivity()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [loadActivity])
 
   const monthDays = useMemo(() => getMonthDays(viewYear, viewMonth), [viewYear, viewMonth])
 
@@ -128,7 +136,13 @@ export default function ActivityPage() {
       <MobileBottomNav />
 
       <div className="max-w-[800px] mx-auto px-4 md:px-6 py-8" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
-        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>Activity Journal</h1>
+        <div className="flex items-center justify-between mb-1">
+          <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px]" style={{ color: 'var(--c-text)' }}>Activity Journal</h1>
+          <button onClick={loadActivity} className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-[40px] transition-all hover:-translate-y-[0.5px]" style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}>
+            <span className="material-symbols-rounded text-[14px]">refresh</span>
+            Refresh
+          </button>
+        </div>
         <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>Daily breakdown of your study progress</p>
 
         <div className="rounded-[18px] p-4 mb-6" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>

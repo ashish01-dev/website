@@ -93,6 +93,9 @@ export default function AITutorPanel() {
     const modeContext = modeConfig?.label || 'general'
     const systemPrompt = `You are an expert JEE tutor. Answer ${modeContext} questions for JEE Main & Advanced (Physics, Chemistry, Maths). Provide step-by-step explanations with formulas. Use markdown formatting with **bold** for emphasis. Be concise but thorough.`
 
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 20000)
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -100,10 +103,12 @@ export default function AITutorPanel() {
         body: JSON.stringify({
           messages: [{ role: 'user', content: q }],
           systemPrompt,
-          maxTokens: 2048,
+          maxTokens: 512,
           temperature: 0.7,
         }),
+        signal: controller.signal,
       })
+      clearTimeout(timeout)
       const data = await res.json()
       const reply = data?.choices?.[0]?.message?.content || ''
       setIsTyping(false)
@@ -113,6 +118,7 @@ export default function AITutorPanel() {
         addMessage({ id: generateTutorId(), role: 'assistant', content: `I couldn't process that request. Please try rephrasing your question.`, mode: activeMode, timestamp: Date.now() })
       }
     } catch {
+      clearTimeout(timeout)
       setIsTyping(false)
       addMessage({ id: generateTutorId(), role: 'assistant', content: `Sorry, I'm having trouble connecting. Please try again in a moment.`, mode: activeMode, timestamp: Date.now() })
     }

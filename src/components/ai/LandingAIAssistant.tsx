@@ -129,7 +129,7 @@ export default function LandingAIAssistant() {
 
   const addMessage = (msg: Message) => setMessages(prev => [...prev, msg])
 
-  const handleSend = async (text: string) => {
+  const handleSend = (text: string) => {
     const q = text.trim()
     if (!q || isTyping) return
     setInput('')
@@ -138,13 +138,13 @@ export default function LandingAIAssistant() {
 
     const lower = q.toLowerCase()
 
-    // Quick match against curated suggestions (FAST)
+    // Match against curated suggestions
     const match = SUGGESTIONS_CURATED.find(s => q.toLowerCase().includes(s.q.toLowerCase().slice(0, 20)))
     if (match) {
       setTimeout(() => {
         setIsTyping(false)
         addMessage({ id: generateId(), role: 'assistant', content: match.a, timestamp: Date.now() })
-      }, 500)
+      }, 400)
       return
     }
 
@@ -154,34 +154,19 @@ export default function LandingAIAssistant() {
       setTimeout(() => {
         setIsTyping(false)
         addMessage({ id: generateId(), role: 'assistant', content: kbResult.answer, sources: kbResult.sources, timestamp: Date.now() })
-      }, 500)
+      }, 400)
       return
     }
 
-    // Use AI API for everything else
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: q }],
-          systemPrompt: 'You are J, a friendly JEEIFY guide. Help users with questions about the JEEIFY platform — features, pricing, how to get started, etc. Answer concisely with markdown formatting. For academic JEE questions, provide a helpful explanation.',
-          maxTokens: 1024,
-          temperature: 0.7,
-        }),
+    // Fallback — suggest using predefined questions
+    setTimeout(() => {
+      setIsTyping(false)
+      addMessage({
+        id: generateId(), role: 'assistant',
+        content: `I can help with questions about JEEIFY! Try one of the quick questions above, or ask about:\n\n• **Features** — What does JEEIFY offer?\n• **Pricing** — Compare Free vs Pro\n• **Getting started** — How to begin\n• **Support** — How to contact us`,
+        timestamp: Date.now(),
       })
-      const data = await res.json()
-      const reply = data?.choices?.[0]?.message?.content || ''
-      setIsTyping(false)
-      if (reply) {
-        addMessage({ id: generateId(), role: 'assistant', content: reply, timestamp: Date.now() })
-      } else {
-        addMessage({ id: generateId(), role: 'assistant', content: `Hmm, I couldn't find an answer for that. Try asking about features, pricing, or how to get started.`, timestamp: Date.now() })
-      }
-    } catch {
-      setIsTyping(false)
-      addMessage({ id: generateId(), role: 'assistant', content: `Sorry, I'm having trouble connecting right now. Try again in a moment.`, timestamp: Date.now() })
-    }
+    }, 400)
   }
 
   return (
