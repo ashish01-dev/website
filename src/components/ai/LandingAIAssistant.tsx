@@ -39,31 +39,20 @@ function ChatMessage({ message, animate }: { message: Message; animate?: boolean
       className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}
     >
       <div
-        className={`max-w-[88%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-          isUser ? 'text-white' : ''
-        }`}
+        className={`max-w-[88%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${isUser ? 'text-white' : ''}`}
         style={{
           background: isUser ? 'var(--c-blue)' : 'var(--c-tag)',
           color: isUser ? '#fff' : 'var(--c-text)',
         }}
       >
-        <div className="prose prose-sm max-w-none dark:prose-invert" style={{ color: 'inherit' }}>
-          <MarkdownContent content={message.content} />
-        </div>
+        <div style={{ color: 'inherit' }}><MarkdownContent content={message.content} /></div>
         {message.sources && message.sources.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
             {message.sources.map((s, i) => (
-              <a
-                key={i}
-                href={s.href}
+              <a key={i} href={s.href}
                 className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full transition-opacity hover:opacity-80"
-                style={{
-                  background: isUser ? 'rgba(255,255,255,0.15)' : 'var(--c-card)',
-                  color: isUser ? '#fff' : 'var(--c-blue)',
-                }}
-              >
-                {s.label} <ChevronRight size={10} />
-              </a>
+                style={{ background: isUser ? 'rgba(255,255,255,0.15)' : 'var(--c-card)', color: isUser ? '#fff' : 'var(--c-blue)' }}
+              >{s.label} <ChevronRight size={10} /></a>
             ))}
           </div>
         )}
@@ -80,58 +69,31 @@ function MarkdownContent({ content }: { content: string }) {
         if (line.startsWith('**') && line.endsWith('**')) {
           return <p key={i} className="text-sm font-semibold mb-2" style={{ color: 'var(--c-text)' }}>{line.slice(2, -2)}</p>
         }
-        const rendered = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-                            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:var(--c-blue);text-decoration:underline">$1</a>')
-        return (
-          <p key={i} className="mb-1.5 last:mb-0" dangerouslySetInnerHTML={{ __html: rendered }} />
-        )
+        const rendered = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:var(--c-blue);text-decoration:underline">$1</a>')
+        return <p key={i} className="mb-1.5 last:mb-0" dangerouslySetInnerHTML={{ __html: rendered }} />
       })}
     </>
   )
 }
 
+const SUGGESTIONS_CURATED = [
+  { q: 'What does this platform offer?', a: `JEEIFY is your all-in-one JEE prep command center. You get:\n\n• **Smart syllabus tracker** — real-time progress per chapter\n• **AI-powered tutoring** (Pro) — doubt-solving, concept teaching, strategy\n• **Timetable planner** — drag-and-drop weekly schedule\n• **Progress analytics** — pace tracking, mock test analysis\n• **Pomodoro timer** — built-in focus sessions\n• **Formula repository** — upload and organize sheets\n• **Cloud sync** — study across devices seamlessly\n\nEverything is built specifically for JEE Main & Advanced.` },
+  { q: 'Compare Free vs Pro', a: `**Free Plan** — ₹0/month\nFull syllabus tracker, timetable, Pomodoro, progress dashboard, cloud sync.\n\n**Pro Plan** — ₹50/month (less than a coffee ☕)\nEverything in Free + AI Tutor, advanced analytics, PYQ library, formula repository, revision tools, priority support.\n\n7-day money-back guarantee. No hidden fees. Cancel anytime.` },
+  { q: 'How does AI help me?', a: `The **AI Tutor** (Pro feature, ₹50/month) acts as your personal JEE mentor:\n\n• **Ask Doubts** — get step-by-step help on any problem\n• **Explain Concepts** — clear, structured teaching\n• **Solve Numericals** — worked solutions with formula breakdown\n• **Formula Revision** — instant formula sheets per chapter\n• **Quiz & Practice** — AI generates questions at your level\n• **Error Analysis** — the AI analyzes your mistakes\n\nThe AI adapts to your level and remembers your context.` },
+  { q: 'What exams are supported?', a: `JEEIFY is purpose-built for **JEE Main** and **JEE Advanced**.\n\nWe cover the complete Physics, Chemistry, and Maths syllabus as per NCERT and the latest JEE pattern.\n\nMore exams coming in the future — let us know what you need at support@jeeify.app.` },
+  { q: 'Show pricing', a: `**Free Plan** — ₹0/month\nFull syllabus tracker, timetable, Pomodoro, progress dashboard, cloud sync.\n\n**Pro Plan** — ₹50/month\nEverything in Free + AI Tutor, advanced analytics, PYQ library, formula repository, revision tools, priority support.\n\n7-day money-back guarantee. Cancel anytime.\n\n→ [View full pricing](/pricing)` },
+  { q: 'Is there a refund policy?', a: `Yes! We offer a **7-day money-back guarantee** on all Pro subscriptions.\n\nNot satisfied within 7 days? Full refund — no questions asked.\n\nAfter 7 days, cancellations take effect at the end of your current billing cycle.\n\nEmail support@jeeify.app for refunds or cancellations.` },
+  { q: 'Can I use on mobile?', a: `Yes! JEEIFY is fully **mobile-responsive**. Works great on phones and tablets through any browser.\n\nAdd to home screen:\n• **iOS**: Safari → Share → Add to Home Screen\n• **Android**: Chrome → Menu → Add to Home Screen\n\nNo native app download needed.` },
+  { q: 'How do I contact support?', a: `We're here to help!\n\n• **Email**: support@jeeify.app\n• **Contact Form**: Visit our [Contact page](/contact)\n\nWe respond within 24 hours. Pro subscribers get priority support.` },
+  { q: 'What makes JEEIFY different?', a: `What sets JEEIFY apart:\n\n• **AI-First** — AI isn't an add-on, it's woven into every feature\n• **Complete Ecosystem** — tracker, planner, analytics, tutor, all in one place\n• **Privacy-First** — encrypted cloud sync, no ads, no data sharing\n• **Built for JEE** — every feature calibrated for Main & Advanced\n• **Pro at ₹50/month** — less than a coffee for unlimited AI tutoring` },
+  { q: 'How to get started?', a: `Getting started takes 30 seconds:\n\n1. **Sign up** — Click "Get Started" or "Sign In"\n2. **Set your target** — Choose JEE and set your exam date\n3. **Track your syllabus** — Mark what you've studied\n4. **Study with AI** — On Pro, use the AI Tutor for doubts and strategy\n\nNo credit card required. Free plan includes full tracker, timetable, and dashboard.` },
+]
+
 const WELCOME_MESSAGE: Message = {
   id: 'welcome',
   role: 'assistant',
-  content: `👋 Hey! I'm **J**, your JEEIFY guide.
-
-Ask me anything about the platform — features, pricing, how to start, or what's available.
-
-What can I help you with?`,
+  content: `👋 Hey! I'm **J**, your JEEIFY guide.\n\nAsk me anything about the platform — features, pricing, how to start, or what's available.\n\nWhat can I help you with?`,
   timestamp: Date.now(),
-}
-
-const AUTO_REPLIES: Record<string, string> = {
-  'what does this platform offer': `JEEIFY is your all-in-one JEE prep command center. You get:
-
-• **Smart syllabus tracker** — real-time progress per chapter
-• **AI-powered tutoring** (Pro) — doubt-solving, concept teaching, strategy
-• **Timetable planner** — drag-and-drop weekly schedule
-• **Progress analytics** — pace tracking, mock test analysis
-• **Pomodoro timer** — built-in focus sessions
-• **Formula repository** — upload and organize sheets
-• **Cloud sync** — study across devices seamlessly
-
-Everything is built specifically for JEE Main & Advanced.`,
-  'how does ai help me': `The **AI Tutor** (Pro feature, ₹50/month) acts as your personal JEE mentor:
-
-• **Ask Doubts** — get step-by-step help on any problem
-• **Explain Concepts** — clear, structured teaching from basics to advanced
-• **Solve Numericals** — worked solutions with formula breakdown
-• **Formula Revision** — instant formula sheets per chapter
-• **Quiz & Practice** — AI generates questions at your level
-• **Error Analysis** — the AI analyzes your mistakes from mock tests
-
-The AI adapts to your level — beginner or advanced — and remembers your context across conversations.`,
-  'show pricing': `**Free Plan** — ₹0/month
-Full syllabus tracker, timetable, Pomodoro, progress dashboard, cloud sync.
-
-**Pro Plan** — ₹50/month (less than a coffee ☕)
-Everything in Free + AI Tutor, advanced analytics, PYQ library, formula repository, revision tools, priority support.
-
-7-day money-back guarantee on all plans. No hidden fees. Cancel anytime.
-
-→ [View full pricing](/pricing)`,
 }
 
 export default function LandingAIAssistant() {
@@ -143,76 +105,42 @@ export default function LandingAIAssistant() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 300)
-    }
+    if (isOpen) setTimeout(() => inputRef.current?.focus(), 300)
   }, [isOpen])
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages, isTyping])
 
-  const addMessage = (msg: Message) => {
-    setMessages(prev => [...prev, msg])
-  }
+  const addMessage = (msg: Message) => setMessages(prev => [...prev, msg])
 
   const handleSend = (text: string) => {
     const q = text.trim()
     if (!q || isTyping) return
     setInput('')
-
     addMessage({ id: generateId(), role: 'user', content: q, timestamp: Date.now() })
     setIsTyping(true)
 
     const lower = q.toLowerCase()
-    const jeeAcademicPatterns = [
-      /^(solve|explain|derive|calculate|find|what is|how to|prove|show that).*(physics|chemistry|maths?|mathematics|mechanic|kinematic|thermo|electro|magneti|optics|wave|sound|modern|atom|nuclear|organic|inorganic|physical|algebra|calculus|geometry|trigonometry|vector|matrix|differentiat|integrat|probability)/i,
-      /(numerical|problem|question|doubt|equation|formula|concept|chapter|topic|reaction|mechanism).*(class 11|class 12|ncert|jee|iit)/i,
-    ]
-    const isAcademic = jeeAcademicPatterns.some(p => p.test(lower))
+    const isAcademic = /^(solve|explain|derive|calculate|find|what is|how to|prove|show that).*(physics|chemistry|maths?|mathematics|mechanic|kinematic|thermo|electro|magneti|optics|wave|sound|modern|atom|nuclear|organic|inorganic|physical|algebra|calculus|geometry|trigonometry|vector|matrix|differentiat|integrat|probability)/i.test(lower) ||
+      /(numerical|problem|question|doubt|equation|formula|concept|chapter|topic|reaction|mechanism).*(class 11|class 12|ncert|jee|iit)/i.test(lower)
 
     setTimeout(() => {
       setIsTyping(false)
-
-      if (isAcademic && !lower.includes('what does') && !lower.includes('what is jeeify') && !lower.includes('how does')) {
-        addMessage({
-          id: generateId(),
-          role: 'assistant',
-          content: `I'm J — here to help with platform questions! For JEE academic help, **sign in and open the AI Tutor** on your dashboard. It's built specifically for Physics, Chemistry, and Mathematics and can help you ace your prep.`,
-          timestamp: Date.now(),
-        })
+      if (isAcademic && !lower.includes('platform') && !lower.includes('jeeify')) {
+        addMessage({ id: generateId(), role: 'assistant', content: `I'm J — here to help with platform questions! For JEE academic help, **sign in and open the AI Tutor** on your dashboard. It's built specifically for Physics, Chemistry, and Mathematics.`, timestamp: Date.now() })
         return
       }
-
-      const exactKey = Object.keys(AUTO_REPLIES).find(k => lower.includes(k))
-      if (exactKey) {
-        addMessage({
-          id: generateId(),
-          role: 'assistant',
-          content: AUTO_REPLIES[exactKey],
-          timestamp: Date.now(),
-        })
+      const match = SUGGESTIONS_CURATED.find(s => q.toLowerCase().includes(s.q.toLowerCase().slice(0, 20)))
+      if (match) {
+        addMessage({ id: generateId(), role: 'assistant', content: match.a, timestamp: Date.now() })
         return
       }
-
       const result = findAnswer(q)
       if (result) {
-        addMessage({
-          id: generateId(),
-          role: 'assistant',
-          content: result.answer,
-          sources: result.sources,
-          timestamp: Date.now(),
-        })
+        addMessage({ id: generateId(), role: 'assistant', content: result.answer, sources: result.sources, timestamp: Date.now() })
       } else {
-        addMessage({
-          id: generateId(),
-          role: 'assistant',
-          content: `Hmm, I don't have an answer for that yet. Try asking about features, pricing, or how to get started. You can also email **support@jeeify.app** for specific questions.`,
-          timestamp: Date.now(),
-        })
+        addMessage({ id: generateId(), role: 'assistant', content: `Hmm, I don't have an answer for that yet. Try asking about features, pricing, or how to get started. You can also email **support@jeeify.app** for specific questions.`, timestamp: Date.now() })
       }
     }, 800 + Math.random() * 700)
   }
@@ -222,7 +150,7 @@ export default function LandingAIAssistant() {
       {/* Floating trigger button */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-full shadow-lg transition-shadow duration-200 hover:shadow-xl"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full shadow-lg hover:shadow-xl"
         style={{
           background: 'linear-gradient(135deg, var(--c-blue), #6366f1)',
           padding: '12px 18px',
@@ -238,137 +166,96 @@ export default function LandingAIAssistant() {
         <span className="text-sm font-medium">Ask J</span>
       </motion.button>
 
-      {/* Chat panel */}
+      {/* Chat panel — anchored above button, animates from bubble */}
       <AnimatePresence>
         {isOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50"
-              style={{ background: 'rgba(0,0,0,0.25)' }}
-              onClick={() => setIsOpen(false)}
-            />
-
-            {/* Panel — half page */}
-            <motion.div
-              ref={scrollRef as any}
-              initial={{ opacity: 0, y: 24, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.96 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed z-50 flex flex-col overflow-hidden"
-              style={{
-                bottom: '50%',
-                right: '50%',
-                transform: 'translate(50%, 50%)',
-                width: 'min(92vw, 440px)',
-                height: 'min(85vh, 560px)',
-                background: 'var(--c-card)',
-                border: '1px solid var(--c-border)',
-                borderRadius: '20px',
-                boxShadow: '0 16px 64px rgba(0,0,0,0.18)',
-              }}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between px-5 py-3.5 shrink-0 border-b" style={{ borderColor: 'var(--c-border)' }}>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--c-blue), #6366f1)' }}>
-                    <Sparkles size={13} color="#fff" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>Ask J</div>
-                    <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>JEEIFY guide</div>
-                  </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.85, y: 20 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed flex flex-col overflow-hidden rounded-[20px] shadow-xl"
+            style={{
+              bottom: 80,
+              right: 24,
+              width: 'min(92vw, 420px)',
+              height: 'min(80vh, 520px)',
+              background: 'var(--c-card)',
+              border: '1px solid var(--c-border)',
+              transformOrigin: 'bottom right',
+              boxShadow: '0 16px 64px rgba(0,0,0,0.18)',
+              zIndex: 50,
+            }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 shrink-0 border-b" style={{ borderColor: 'var(--c-border)' }}>
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--c-blue), #6366f1)' }}>
+                  <Sparkles size={13} color="#fff" />
                 </div>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
-                >
-                  <X size={15} style={{ color: 'var(--c-muted)' }} />
-                </button>
+                <div>
+                  <div className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>Ask J</div>
+                  <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>JEEIFY guide</div>
+                </div>
               </div>
+              <button onClick={() => setIsOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors">
+                <X size={15} style={{ color: 'var(--c-muted)' }} />
+              </button>
+            </div>
 
-              {/* Messages */}
-              <ScrollArea className="flex-1 px-4 py-4" ref={scrollRef}>
-                {messages.map((msg, i) => (
-                  <ChatMessage key={msg.id} message={msg} animate={i > 0 || msg.id === 'welcome'} />
+            {/* Messages */}
+            <ScrollArea className="flex-1 px-4 py-4" ref={scrollRef}>
+              {messages.map((msg, i) => (
+                <ChatMessage key={msg.id} message={msg} animate={i > 1 || msg.id === 'welcome'} />
+              ))}
+              {isTyping && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start mb-3">
+                  <div className="rounded-2xl px-4 py-3" style={{ background: 'var(--c-tag)' }}>
+                    <TypingDots />
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Starter suggestions — always visible */}
+              <div className="mt-3 space-y-1.5">
+                <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Quick questions</p>
+                {SUGGESTIONS_CURATED.map((item, i) => (
+                  <motion.button
+                    key={item.q}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.02, duration: 0.2 }}
+                    onClick={() => handleSend(item.q)}
+                    className="flex items-center gap-2 w-full text-left text-sm px-4 py-2 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
+                    style={{ color: 'var(--c-text-secondary)' }}
+                  >
+                    <MessageSquare size={13} className="shrink-0" style={{ color: 'var(--c-muted)' }} />
+                    <span className="flex-1 truncate">{item.q}</span>
+                    <ChevronRight size={13} className="shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" style={{ color: 'var(--c-blue)' }} />
+                  </motion.button>
                 ))}
-                {isTyping && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex justify-start mb-3"
-                  >
-                    <div className="rounded-2xl px-4 py-3" style={{ background: 'var(--c-tag)' }}>
-                      <TypingDots />
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Starter suggestions */}
-                {messages.length === 1 && !isTyping && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4, duration: 0.3 }}
-                    className="mt-2 space-y-1.5"
-                  >
-                    {SUGGESTED_QUESTIONS.map((q, i) => (
-                      <motion.button
-                        key={q}
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.5 + i * 0.08, duration: 0.2 }}
-                        onClick={() => handleSend(q)}
-                        className="flex items-center gap-2 w-full text-left text-sm px-4 py-2.5 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
-                        style={{ color: 'var(--c-text-secondary)' }}
-                      >
-                        <MessageSquare size={14} className="shrink-0" style={{ color: 'var(--c-muted)' }} />
-                        <span className="flex-1">{q}</span>
-                        <ChevronRight size={14} className="shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" style={{ color: 'var(--c-blue)' }} />
-                      </motion.button>
-                    ))}
-                  </motion.div>
-                )}
-              </ScrollArea>
-
-              {/* Input */}
-              <div className="p-4 shrink-0 border-t" style={{ borderColor: 'var(--c-border)' }}>
-                <form
-                  onSubmit={e => { e.preventDefault(); handleSend(input) }}
-                  className="flex items-center gap-2"
-                >
-                  <input
-                    ref={inputRef}
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    placeholder="Ask J about JEEIFY..."
-                    disabled={isTyping}
-                    className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none transition-all duration-200"
-                    style={{
-                      background: 'var(--c-input)',
-                      border: '1px solid var(--c-border-input)',
-                      color: 'var(--c-text)',
-                    }}
-                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
-                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!input.trim() || isTyping}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-40"
-                    style={{ background: input.trim() ? 'var(--c-blue)' : 'var(--c-tag)' }}
-                  >
-                    <Send size={15} color={input.trim() ? '#fff' : 'var(--c-muted)'} />
-                  </button>
-                </form>
               </div>
-            </motion.div>
-          </>
+            </ScrollArea>
+
+            {/* Input */}
+            <div className="p-4 shrink-0 border-t" style={{ borderColor: 'var(--c-border)' }}>
+              <form onSubmit={e => { e.preventDefault(); handleSend(input) }} className="flex items-center gap-2">
+                <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)}
+                  placeholder="Ask J about JEEIFY..." disabled={isTyping}
+                  className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none transition-all duration-200"
+                  style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
+                />
+                <button type="submit" disabled={!input.trim() || isTyping}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-40"
+                  style={{ background: input.trim() ? 'var(--c-blue)' : 'var(--c-tag)' }}
+                >
+                  <Send size={15} color={input.trim() ? '#fff' : 'var(--c-muted)'} />
+                </button>
+              </form>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </>

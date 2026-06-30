@@ -113,8 +113,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </div>
           {!isAppPage && <Footer />}
-          {isAppPage ? <AITutorPanel /> : <LandingAIAssistant />}
         </div>
+        {isAppPage ? <AITutorPanel /> : <LandingAIAssistant />}
       </body>
     </html>
   )
