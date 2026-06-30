@@ -23,12 +23,13 @@ interface DailyPlanModalProps {
   onClose: () => void
   onSave: (plan: DailyPlan) => void
   presetSubjects?: Subject[]
+  isPro?: boolean
 }
 
 const SUBJECT_LABELS: Record<Subject, string> = { physics: 'Physics', chemistry: 'Chemistry', maths: 'Maths' }
 const SUBJECT_COLORS: Record<Subject, string> = { physics: 'var(--c-blue)', chemistry: 'var(--c-green)', maths: 'var(--c-orange)' }
 
-export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }: DailyPlanModalProps) {
+export default function DailyPlanModal({ open, onClose, onSave, presetSubjects, isPro }: DailyPlanModalProps) {
   const [hoursGoal, setHoursGoal] = useState(8)
   const [hoursInput, setHoursInput] = useState('8')
   const [subjects, setSubjects] = useState<DailyPlanSubject[]>([])
@@ -95,6 +96,28 @@ export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }
         border: '1px solid var(--c-border-card)',
         boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
       }}>
+        {isPro === false ? (
+          <>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(35,131,226,0.1)' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c-blue)" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              </div>
+              <div>
+                <h2 className="text-[15px] font-semibold" style={{ color: 'var(--c-text)' }}>Pro Feature</h2>
+                <p className="text-xs" style={{ color: 'var(--c-muted)' }}>Daily planning is available with Pro subscription.</p>
+              </div>
+            </div>
+            <button onClick={() => { onClose(); window.location.href = '/pricing' }}
+              className="w-full text-center text-xs font-medium py-2.5 rounded-[40px] text-white transition-all"
+              style={{ background: 'var(--c-btn-primary)' }}
+            >Upgrade to Pro</button>
+            <button onClick={onClose}
+              className="w-full text-center text-xs font-medium py-2 mt-2 rounded-[40px] transition-all"
+              style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}
+            >Maybe Later</button>
+          </>
+        ) : (
+        <>
         <h2 className="text-[18px] font-semibold tracking-[-0.3px] mb-1" style={{ color: 'var(--c-text)' }}>Plan Your Day</h2>
         <p className="text-[13px] mb-5" style={{ color: 'var(--c-muted)' }}>Set today&apos;s study targets</p>
 
@@ -204,6 +227,8 @@ export default function DailyPlanModal({ open, onClose, onSave, presetSubjects }
             style={{ background: 'var(--c-btn-primary)' }}
           >Save Plan</button>
         </div>
+        </>
+        )}
       </div>
     </div>
   )

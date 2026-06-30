@@ -188,4 +188,7 @@ export interface Settings {
   sidebarHover: boolean
   sidebarAutoHide: boolean
   onboarded: boolean
+  changelogSeenVersion: string
+  showChangelog: boolean
+  storageWarningShown: boolean
 }

@@ -11,6 +11,7 @@ import { downloadJSON } from '@/lib/utils'
 import { getSupabase } from '@/lib/supabase'
 import { setSyncUser, uploadAvatar } from '@/lib/supabase-sync'
 import { isProEmail } from '@/lib/useUser'
+import { estimateStorageUsage, formatBytes, getStorageLimit } from '@/lib/storage'
 import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 function resizeImage(file: File, maxSize: number): Promise<string> {
@@ -46,6 +47,7 @@ export default function SettingsPage() {
   const [user, setUser] = useState<User | null>(null)
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [storageUsage, setStorageUsage] = useState<{ syncDataBytes: number; storageBytes: number; totalBytes: number; limitBytes: number; percentUsed: number } | null>(null)
 
   useEffect(() => {
     const sb = getSupabase()
@@ -64,6 +66,10 @@ export default function SettingsPage() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    estimateStorageUsage(user ? isProEmail(user.email || '') : false).then(setStorageUsage)
+  }, [user])
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -291,6 +297,22 @@ export default function SettingsPage() {
                     {settings.sidebarAutoHide ? 'On' : 'Off'}
                   </button>
                 </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Changelog Popup</div>
+                    <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Show what&apos;s new after updates</div>
+                  </div>
+                  <button onClick={() => update({ showChangelog: !settings.showChangelog })}
+                    className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${settings.showChangelog ? 'text-white' : ''}`}
+                    style={{
+                      background: settings.showChangelog ? 'var(--c-blue)' : 'var(--c-input)',
+                      border: settings.showChangelog ? 'none' : '1px solid var(--c-border-input)',
+                      color: settings.showChangelog ? '#fff' : 'var(--c-text-secondary)',
+                    }}
+                  >
+                    {settings.showChangelog ? 'On' : 'Off'}
+                  </button>
+                </div>
             </div>
           </div>
 
@@ -324,6 +346,46 @@ export default function SettingsPage() {
                   Buy Pro
                 </button>
               </div>
+            )}
+          </div>
+
+          {/* Storage Usage */}
+          <div className="rounded-[18px] px-[22px] py-[24px]" style={{
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
+          }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Storage</h2>
+            {storageUsage ? (
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1.5" style={{ color: 'var(--c-muted)' }}>
+                  <span>{formatBytes(storageUsage.totalBytes)} used</span>
+                  <span className="font-medium" style={{ color: storageUsage.percentUsed >= 80 ? 'var(--c-orange)' : 'var(--c-text-secondary)' }}>
+                    {storageUsage.percentUsed.toFixed(0)}%
+                  </span>
+                </div>
+                <div className="w-full h-2 rounded-full overflow-hidden mb-3" style={{ background: 'var(--c-progress-bg)' }}>
+                  <div className="h-full rounded-full transition-all" style={{
+                    width: `${Math.min(storageUsage.percentUsed, 100)}%`,
+                    background: storageUsage.percentUsed >= 95 ? 'var(--c-red)' : storageUsage.percentUsed >= 80 ? 'var(--c-orange)' : 'var(--c-blue)',
+                  }} />
+                </div>
+                <div className="flex items-center justify-between text-[10px]" style={{ color: 'var(--c-caption)' }}>
+                  <span>Sync data: {formatBytes(storageUsage.syncDataBytes)}</span>
+                  <span>Files: {formatBytes(storageUsage.storageBytes)}</span>
+                </div>
+                <div className="text-[10px] mt-1" style={{ color: 'var(--c-caption)' }}>
+                  Limit: {formatBytes(storageUsage.limitBytes)}
+                  {user && isProEmail(user.email || '') ? (
+                    <span className="ml-2 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white" style={{ background: 'var(--c-blue)' }}>PRO</span>
+                  ) : (
+                    <button onClick={() => router.push('/pricing')}
+                      className="ml-2 text-[10px] font-medium underline transition-opacity hover:opacity-70"
+                      style={{ color: 'var(--c-blue)' }}
+                    >Upgrade to Pro for 5 GB</button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Calculating storage usage...</div>
             )}
           </div>
 

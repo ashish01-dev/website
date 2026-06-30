@@ -5,11 +5,14 @@ import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import DailyPlanModal from '@/components/dashboard/DailyPlanModal'
+import StoragePopup from '@/components/dashboard/StoragePopup'
+import ChangelogPopup from '@/components/dashboard/ChangelogPopup'
 import { useProgressStore } from '@/store/progressStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { calculatePace, selectDailyTargets } from '@/lib/pacing'
 import { db } from '@/lib/db'
 import { formatDate } from '@/lib/utils'
+import { useUser } from '@/lib/useUser'
 import syllabusData from '@/data/syllabus.json'
 import type { SyllabusData, Subject, DailyPlan, PomodoroSession } from '@/types'
 
@@ -26,6 +29,8 @@ const GREETINGS = ['Morning', 'Afternoon', 'Evening']
 export default function DashboardPage() {
   const { progress, getProgress, loaded } = useProgressStore()
   const { settings } = useSettingsStore()
+  const { user } = useUser()
+  const isPro = user?.isPro ?? false
   const [plan, setPlan] = useState<DailyPlan | null>(null)
   const [showPlanModal, setShowPlanModal] = useState(false)
   const [planLoaded, setPlanLoaded] = useState(false)
@@ -39,11 +44,11 @@ export default function DashboardPage() {
   useEffect(() => {
     db.dailyPlans.get(today).then(p => {
       setPlan(p || null)
-      if (!p) setShowPlanModal(true)
+      if (!p && isPro) setShowPlanModal(true)
       setPlanLoaded(true)
     })
     db.pomodoro.toArray().then(setSessions)
-  }, [today])
+  }, [today, isPro])
 
   const pace = useMemo(() => {
     if (!loaded) return null
@@ -118,7 +123,9 @@ export default function DashboardPage() {
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
-      <DailyPlanModal open={showPlanModal} onClose={() => setShowPlanModal(false)} onSave={handleSavePlan} presetSubjects={dailyTargetSubjects} />
+      <DailyPlanModal open={showPlanModal} onClose={() => setShowPlanModal(false)} onSave={handleSavePlan} presetSubjects={dailyTargetSubjects} isPro={isPro} />
+      <StoragePopup isPro={isPro} />
+      <ChangelogPopup />
 
       <div className="max-w-[1000px] mx-auto px-4 md:px-6 py-6 md:py-10" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
 
@@ -174,9 +181,16 @@ export default function DashboardPage() {
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[15px] font-semibold" style={{ color: 'var(--c-text)' }}>Today&apos;s Plan</h2>
-                <button onClick={() => setShowPlanModal(true)} className="text-[10px] font-semibold uppercase tracking-wider transition-colors" style={{ color: 'var(--c-blue)' }}>
-                  {plan ? 'Edit' : 'Plan'}
-                </button>
+                {isPro ? (
+                  <button onClick={() => setShowPlanModal(true)} className="text-[10px] font-semibold uppercase tracking-wider transition-colors" style={{ color: 'var(--c-blue)' }}>
+                    {plan ? 'Edit' : 'Plan'}
+                  </button>
+                ) : (
+                  <button onClick={() => setShowPlanModal(true)} className="text-[10px] font-semibold uppercase tracking-wider transition-all flex items-center gap-1" style={{ color: 'var(--c-muted)' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                    Pro
+                  </button>
+                )}
               </div>
               {plan && plan.subjects && plan.subjects.length > 0 ? (
                 <div className="space-y-2">
@@ -205,11 +219,20 @@ export default function DashboardPage() {
               ) : (
                 <div className="text-center py-4">
                   <div className="text-2xl mb-2">📋</div>
-                  <p className="text-sm mb-3" style={{ color: 'var(--c-muted)' }}>No plan set for today</p>
-                  <button onClick={() => setShowPlanModal(true)}
-                    className="inline-flex items-center gap-1.5 text-white text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200 hover:-translate-y-[0.5px]"
-                    style={{ background: 'var(--c-btn-primary)' }}
-                  >Plan Your Day</button>
+                  <p className="text-sm mb-3" style={{ color: 'var(--c-muted)' }}>
+                    {isPro ? 'No plan set for today' : 'Daily planning is a Pro feature'}
+                  </p>
+                  {isPro ? (
+                    <button onClick={() => setShowPlanModal(true)}
+                      className="inline-flex items-center gap-1.5 text-white text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200 hover:-translate-y-[0.5px]"
+                      style={{ background: 'var(--c-btn-primary)' }}
+                    >Plan Your Day</button>
+                  ) : (
+                    <button onClick={() => setShowPlanModal(true)}
+                      className="inline-flex items-center gap-1.5 text-white text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200 hover:-translate-y-[0.5px]"
+                      style={{ background: 'var(--c-btn-primary)' }}
+                    ><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> Upgrade to Plan</button>
+                  )}
                 </div>
               )}
               {stats && (

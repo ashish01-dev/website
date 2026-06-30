@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { Settings } from '@/types'
-import { db } from '@/lib/db'
+import { db, dexie } from '@/lib/db'
 
 interface SettingsState {
   settings: Settings
@@ -21,6 +21,9 @@ const DEFAULT_SETTINGS: Settings = {
   sidebarHover: false,
   sidebarAutoHide: true,
   onboarded: false,
+  changelogSeenVersion: '',
+  showChangelog: true,
+  storageWarningShown: false,
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -51,7 +54,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   reset: async () => {
     set({ settings: { ...DEFAULT_SETTINGS } })
     try {
-      await db.settings.delete('main')
+      await dexie.settings.delete('main')
       localStorage.removeItem('jee-theme')
     } catch (err) { console.error('settings.reset:', err) }
   },
