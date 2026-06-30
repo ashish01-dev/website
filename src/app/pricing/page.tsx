@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
-import { createOrder, openCheckout } from '@/lib/razorpay'
 import LandingNav from '@/components/layout/LandingNav'
 import ProActivationPopup from '@/components/ProActivationPopup'
 import { useUser } from '@/lib/useUser'
+import { useSettingsStore } from '@/store/settingsStore'
 
 const MONTHLY_PLANS = [
   {
@@ -67,19 +67,11 @@ export default function PricingPage() {
       return
     }
     if (user?.isPro) return
-    setLoading(true)
     if (!session?.user) {
       router.push('/auth?mode=signup')
-      setLoading(false)
       return
     }
-    const order = await createOrder(parseInt(price))
-    if (!order) { setLoading(false); return }
-    await openCheckout(
-      order,
-      () => { setLoading(false); setShowProUpgrade(true) },
-      () => setLoading(false),
-    )
+    setShowProUpgrade(true)
   }
 
   return (

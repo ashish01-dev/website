@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useSettingsStore } from '@/store/settingsStore'
 import ConfettiOverlay from './ConfettiOverlay'
 
 interface ProActivationPopupProps {
@@ -11,16 +12,18 @@ interface ProActivationPopupProps {
 export default function ProActivationPopup({ show, onGoToDashboard }: ProActivationPopupProps) {
   const [phase, setPhase] = useState<'activating' | 'success' | null>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
+  const update = useSettingsStore(s => s.update)
 
   useEffect(() => {
     if (!show) { setPhase(null); return }
     setPhase('activating')
+    update({ isPro: true })
     const t = setTimeout(() => {
       setPhase('success')
       btnRef.current?.focus()
     }, 2200)
     return () => clearTimeout(t)
-  }, [show])
+  }, [show, update])
 
   if (!show || !phase) return null
 
@@ -78,7 +81,7 @@ export default function ProActivationPopup({ show, onGoToDashboard }: ProActivat
                     You&apos;re now PRO!
                   </h3>
                   <p className="text-sm mb-6" style={{ color: 'var(--c-text-secondary)', lineHeight: 1.6 }}>
-                    Get ready to accelerate your JEE preparation.
+                    Thank you for purchase. You are now a pro member.
                   </p>
                   <button
                     ref={btnRef}

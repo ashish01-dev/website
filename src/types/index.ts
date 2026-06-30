@@ -207,6 +207,7 @@ export interface Settings {
   showChangelog: boolean
   storageWarningShown: boolean
   autoPlanPopup: boolean
+  isPro: boolean
 }
 
 export type ChapterFilter = 'all' | 'not_started' | 'in_progress' | 'done' | 'revision_pending' | 'high_weightage' | 'weak' | 'high_priority'

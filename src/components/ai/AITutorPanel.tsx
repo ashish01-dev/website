@@ -73,7 +73,12 @@ export default function AITutorPanel() {
   const activeModeConfig = TUTOR_MODES.find(m => m.id === activeMode)
 
   useEffect(() => { if (isOpen) setTimeout(() => inputRef.current?.focus(), 300) }, [isOpen])
-  useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight }, [messages, isTyping])
+  useEffect(() => {
+    if (scrollRef.current) {
+      const viewport = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
+      if (viewport) viewport.scrollTop = viewport.scrollHeight
+    }
+  }, [messages, isTyping])
 
   const addMessage = useCallback((msg: TutorMessage) => setMessages(prev => [...prev, msg]), [])
 
@@ -221,9 +226,9 @@ export default function AITutorPanel() {
               )}
             </ScrollArea>
 
-            {/* Persistent suggested questions for Pro users — always visible below scroll area */}
-            {isPro && (
-              <div className="px-4 pb-2 shrink-0 overflow-y-auto space-y-1" style={{ maxHeight: 120 }}>
+            {/* Suggested questions inside scroll area when no user messages */}
+            {isPro && messages.length <= 1 && (
+              <div className="space-y-1 mt-4 pt-3" style={{ borderTop: '1px solid var(--c-border)' }}>
                 <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Try asking</p>
                 {SUGGESTED_TUTOR_QUESTIONS.map((q, i) => (
                   <motion.button key={q} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.015, duration: 0.15 }}

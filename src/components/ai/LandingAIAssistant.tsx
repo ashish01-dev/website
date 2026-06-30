@@ -108,9 +108,24 @@ export default function LandingAIAssistant() {
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 300)
   }, [isOpen])
 
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      const viewport = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
+      if (viewport) viewport.scrollTop = viewport.scrollHeight
+    }
+  }
+
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    scrollToBottom()
   }, [messages, isTyping])
+
+  useEffect(() => {
+    if (!scrollRef.current) return
+    const viewport = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
+    if (!viewport) return
+  }, [])
+
+  const hasUserMessages = messages.some(m => m.role === 'user')
 
   const addMessage = (msg: Message) => setMessages(prev => [...prev, msg])
 
@@ -166,7 +181,7 @@ export default function LandingAIAssistant() {
         <span className="text-sm font-medium">Ask J</span>
       </motion.button>
 
-      {/* Chat panel — anchored above button, animates from bubble */}
+      {/* Chat panel */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -203,7 +218,7 @@ export default function LandingAIAssistant() {
               </button>
             </div>
 
-              {/* Messages */}
+            {/* Messages */}
             <ScrollArea className="flex-1 px-4 py-4" ref={scrollRef}>
               {messages.map((msg, i) => (
                 <ChatMessage key={msg.id} message={msg} animate={i > 1 || msg.id === 'welcome'} />
@@ -215,27 +230,24 @@ export default function LandingAIAssistant() {
                   </div>
                 </motion.div>
               )}
+              {/* Suggested questions inside scroll area, shown only when user hasn't started chatting */}
+              {!hasUserMessages && (
+                <div className="space-y-1 mt-4 pt-3" style={{ borderTop: '1px solid var(--c-border)' }}>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Quick questions</p>
+                  {SUGGESTIONS_CURATED.map((item, i) => (
+                    <motion.button key={item.q} initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02, duration: 0.2 }}
+                      onClick={() => handleSend(item.q)}
+                      className="flex items-center gap-2 w-full text-left text-sm px-4 py-2 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
+                      style={{ color: 'var(--c-text-secondary)' }}>
+                      <MessageSquare size={13} className="shrink-0" style={{ color: 'var(--c-muted)' }} />
+                      <span className="flex-1 truncate">{item.q}</span>
+                      <ChevronRight size={13} className="shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" style={{ color: 'var(--c-blue)' }} />
+                    </motion.button>
+                  ))}
+                </div>
+              )}
             </ScrollArea>
-
-            {/* Starter suggestions — always visible below scroll area */}
-            <div className="px-4 pb-2 shrink-0 overflow-y-auto space-y-1" style={{ maxHeight: 120 }}>
-              <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Quick questions</p>
-              {SUGGESTIONS_CURATED.map((item, i) => (
-                <motion.button
-                  key={item.q}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.02, duration: 0.2 }}
-                  onClick={() => handleSend(item.q)}
-                  className="flex items-center gap-2 w-full text-left text-sm px-4 py-2 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
-                  style={{ color: 'var(--c-text-secondary)' }}
-                >
-                  <MessageSquare size={13} className="shrink-0" style={{ color: 'var(--c-muted)' }} />
-                  <span className="flex-1 truncate">{item.q}</span>
-                  <ChevronRight size={13} className="shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" style={{ color: 'var(--c-blue)' }} />
-                </motion.button>
-              ))}
-            </div>
 
             {/* Input */}
             <div className="p-4 shrink-0 border-t" style={{ borderColor: 'var(--c-border)' }}>

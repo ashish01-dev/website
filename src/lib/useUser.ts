@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getSupabase } from './supabase'
+import { useSettingsStore } from '@/store/settingsStore'
 
 export const PRO_EMAILS = ['akash.social03@gmail.com']
 
@@ -17,6 +18,7 @@ export interface UserInfo {
 export function useUser(): { user: UserInfo | null; loading: boolean } {
   const [user, setUser] = useState<UserInfo | null>(null)
   const [loading, setLoading] = useState(true)
+  const settingsPro = useSettingsStore(s => s.settings.isPro)
 
   useEffect(() => {
     const sb = getSupabase()
@@ -25,11 +27,12 @@ export function useUser(): { user: UserInfo | null; loading: boolean } {
       if (u) {
         const meta = u.user_metadata || {}
         const email = u.email || ''
+        const settingsIsPro = useSettingsStore.getState().settings.isPro
         setUser({
           name: meta.full_name || meta.name || meta.given_name || email.split('@')[0] || 'User',
           avatar: meta.avatar_url || meta.picture || '',
           email,
-          isPro: isProEmail(email),
+          isPro: isProEmail(email) || settingsIsPro,
         })
       } else {
         setUser(null)
@@ -39,6 +42,10 @@ export function useUser(): { user: UserInfo | null; loading: boolean } {
     const { data: { subscription } } = sb.auth.onAuthStateChange((_e: string, session: any) => { updateUser(session?.user); if (!session) setLoading(false) })
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    setUser(prev => prev ? { ...prev, isPro: prev.isPro || settingsPro } : null)
+  }, [settingsPro])
 
   return { user, loading }
 }

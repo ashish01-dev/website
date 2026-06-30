@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS: Settings = {
   showChangelog: true,
   storageWarningShown: false,
   autoPlanPopup: true,
+  isPro: false,
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
