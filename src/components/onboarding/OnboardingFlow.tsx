@@ -117,8 +117,12 @@ export default function OnboardingFlow() {
     return () => subscription?.unsubscribe()
   }, [])
 
-  if (!loaded || signedIn === null) return null
   if (!APP_PATHS.some(p => pathname.startsWith(p))) return null
+  if (!loaded || signedIn === null) {
+    return (
+      <div className="fixed inset-0 z-[100]" style={{ background: 'var(--c-bg-gradient)' }} />
+    )
+  }
   if (settings.onboarded || !signedIn) return null
 
   const currentQuestion = QUESTIONS[step]

@@ -137,13 +137,20 @@ export default function AIPage() {
   const router = useRouter()
   const isPro = user?.isPro ?? false
   const [showBeta, setShowBeta] = useState(false)
+  const [aiLoading, setAiLoading] = useState(true)
   const [quote] = useState(() => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)])
   const [availableHours, setAvailableHours] = useState(settings.dailyStudyHours || 6)
   const [showDisclaimer, setShowDisclaimer] = useState(false)
 
   useEffect(() => {
-    if (isPro && !localStorage.getItem('ai_beta_acknowledged')) setShowBeta(true)
-  }, [isPro])
+    if (!localStorage.getItem('ai_beta_acknowledged')) setShowBeta(true)
+  }, [])
+
+  useEffect(() => {
+    if (!loaded) return
+    const t = setTimeout(() => setAiLoading(false), 1200)
+    return () => clearTimeout(t)
+  }, [loaded])
 
   const pace = useMemo(() => calculatePace(syllabus, progress, examDate, today, settings.freezeDays), [progress, settings])
 
@@ -355,7 +362,30 @@ export default function AIPage() {
             </div>
           </div>
 
-          {todayRecommendations.length > 0 ? (
+          {aiLoading ? (
+            <div className="space-y-3">
+              {[1, 2].map(i => (
+                <div key={i} className="rounded-[18px] p-5 animate-pulse" style={{
+                  background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
+                  boxShadow: 'var(--c-shadow-hover)',
+                }}>
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full" style={{ background: 'var(--c-progress-bg)' }} />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-20 rounded" style={{ background: 'var(--c-progress-bg)' }} />
+                      <div className="h-4 w-48 rounded" style={{ background: 'var(--c-progress-bg)' }} />
+                    </div>
+                    <div className="h-3 w-14 rounded" style={{ background: 'var(--c-progress-bg)' }} />
+                  </div>
+                  <div className="flex gap-2 mb-3">
+                    <div className="h-7 w-24 rounded-[10px]" style={{ background: 'var(--c-progress-bg)' }} />
+                    <div className="h-7 w-20 rounded-[10px]" style={{ background: 'var(--c-progress-bg)' }} />
+                  </div>
+                  <div className="h-12 rounded-[12px]" style={{ background: 'var(--c-progress-bg)' }} />
+                </div>
+              ))}
+            </div>
+          ) : todayRecommendations.length > 0 ? (
             <div className="space-y-3">
               {todayRecommendations.map((rec, idx) => (
                 <div key={rec.chapter.id} className="rounded-[18px] p-5" style={{

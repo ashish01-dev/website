@@ -54,19 +54,20 @@ export default function PricingPage() {
   const plans = isYearly ? YEARLY_PLANS : MONTHLY_PLANS
 
   const handleSubscribe = async (price: string) => {
+    setLoading(true)
     const sb = getSupabase()
-    if (!sb) return
+    if (!sb) { setLoading(false); return }
     const { data: { session } } = await sb.auth.getSession()
     if (price === '0') {
       if (session?.user) {
-        if (user?.isPro) return
+        if (user?.isPro) { setLoading(false); return }
         router.push('/dashboard')
       } else {
         router.push('/auth?mode=signup')
       }
       return
     }
-    if (user?.isPro) return
+    if (user?.isPro) { setLoading(false); return }
     if (!session?.user) {
       router.push('/auth?mode=signup')
       return
@@ -217,7 +218,7 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <ProActivationPopup show={showProUpgrade} onGoToDashboard={() => { setShowProUpgrade(false); router.push('/dashboard') }} />
+      <ProActivationPopup show={showProUpgrade} onGoToDashboard={() => { setLoading(false); setShowProUpgrade(false); router.push('/dashboard') }} />
     </div>
   )
 }
