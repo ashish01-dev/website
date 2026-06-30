@@ -7,14 +7,14 @@ import { calculatePace } from '@/lib/pacing'
 import { formatDate, getDaysBetween } from '@/lib/utils'
 import { db } from '@/lib/db'
 import syllabusData from '@/data/syllabus.json'
-import type { SyllabusData, Subject, Chapter, DailyPlan, RoadmapStage } from '@/types'
+import type { SyllabusData, Subject, Chapter, DailyPlan, DailyPlanSubject, RoadmapStage } from '@/types'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
 
 const syllabus = syllabusData as unknown as SyllabusData
 
-type ViewType = 'journey' | 'daily' | 'monthly'
+type ViewType = 'journey' | 'daily'
 
 const SUBJECT_STYLES: Record<Subject, { color: string; emoji: string }> = {
   physics: { color: 'var(--c-blue)', emoji: '⚡' },
@@ -36,20 +36,30 @@ function getNextUndone(chapters: Chapter[], progress: Record<string, { status: s
 
 export default function RoadmapPage() {
   const [view, setView] = useState<ViewType>('journey')
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null)
+  const [planDate, setPlanDate] = useState<string>(formatDate(new Date()))
   const [todaysPlan, setTodaysPlan] = useState<DailyPlan | null>(null)
-  const [selSubject1, setSelSubject1] = useState<Subject | null>(null)
-  const [selDivision1, setSelDivision1] = useState<string | null>(null)
-  const [selChapter1, setSelChapter1] = useState<string | null>(null)
-  const [selSubject2, setSelSubject2] = useState<Subject | null>(null)
-  const [selDivision2, setSelDivision2] = useState<string | null>(null)
-  const [selChapter2, setSelChapter2] = useState<string | null>(null)
+  const [editPlan, setEditPlan] = useState<DailyPlan | null>(null)
+  const [editHours, setEditHours] = useState(8)
+  const [editSubjects, setEditSubjects] = useState<DailyPlanSubject[]>([])
+  const [selSubject, setSelSubject] = useState<Subject | null>(null)
+  const [selDivision, setSelDivision] = useState<string | null>(null)
+  const [selChapter, setSelChapter] = useState<string | null>(null)
   const { progress, setTopicDone, setChapterStatus, loaded } = useProgressStore()
   const { settings } = useSettingsStore()
   const today = new Date()
   const todayStr = formatDate(today)
 
   useEffect(() => { db.dailyPlans.get(todayStr).then(p => setTodaysPlan(p || null)) }, [todayStr])
+
+  useEffect(() => {
+    if (view !== 'daily') return
+    db.dailyPlans.get(planDate).then(p => {
+      const plan = p || { date: planDate, hoursGoal: 8, subjects: [] }
+      setEditPlan(plan)
+      setEditHours(plan.hoursGoal || 8)
+      setEditSubjects(plan.subjects || [])
+    })
+  }, [view, planDate])
 
   const pace = useMemo(() => calculatePace(syllabus, progress, new Date(settings.examDate), today, settings.freezeDays), [progress, settings])
   const examDate = new Date(settings.examDate)
@@ -143,15 +153,6 @@ export default function RoadmapPage() {
     return dates
   }, [])
 
-  const monthDays = useMemo(() => {
-    const days: (Date | null)[] = []
-    const first = new Date(today.getFullYear(), today.getMonth(), 1)
-    const last = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-    for (let i = 0; i < first.getDay(); i++) days.push(null)
-    for (let d = 1; d <= last.getDate(); d++) days.push(new Date(today.getFullYear(), today.getMonth(), d))
-    return days
-  }, [])
-
   const planChapters = useMemo(() => {
     if (!todaysPlan?.subjects) return null
     return todaysPlan.subjects.flatMap(ps =>
@@ -176,20 +177,41 @@ export default function RoadmapPage() {
     )
   }, [todaysPlan, progress])
 
-  const divisions1 = useMemo(() => selSubject1 ? getDivisions(selSubject1) : [], [selSubject1])
-  const divisions2 = useMemo(() => selSubject2 ? getDivisions(selSubject2) : [], [selSubject2])
-  const currentDiv1 = divisions1.find(d => d.id === selDivision1)
-  const currentDiv2 = divisions2.find(d => d.id === selDivision2)
+  const divisions = useMemo(() => selSubject ? getDivisions(selSubject) : [], [selSubject])
+  const currentDiv = divisions.find(d => d.id === selDivision)
 
   const chStatus = useCallback((chId: string) => progress[chId]?.status || 'not_started', [progress])
 
-  const monthDetailChapters = useMemo(() => {
-    if (!selectedDay) return []
-    return (['physics', 'chemistry', 'maths'] as Subject[])
-      .sort((a, b) => (pace.behindByDays[b] || 0) - (pace.behindByDays[a] || 0))
-      .map(s => ({ subject: s, chapters: getNextUndone(getDivisions(s).flatMap(d => d.chapters), progress) }))
-      .filter(({ chapters }) => chapters.length > 0)
-  }, [selectedDay, progress, pace])
+  const addChapterToPlan = (subject: Subject, chapterName: string) => {
+    setEditSubjects(prev => {
+      const existing = prev.find(s => s.subject === subject)
+      if (existing) {
+        if (existing.chapters.includes(chapterName)) return prev
+        return prev.map(s => s.subject === subject ? { ...s, chapters: [...s.chapters, chapterName] } : s)
+      }
+      return [...prev, { subject, chapters: [chapterName], questions: 0 }]
+    })
+  }
+
+  const removeChapterFromPlan = (subject: Subject, chapterName: string) => {
+    setEditSubjects(prev => prev.map(s => {
+      if (s.subject !== subject) return s
+      const chs = s.chapters.filter(c => c !== chapterName)
+      return { ...s, chapters: chs }
+    }).filter(s => s.chapters.length > 0))
+  }
+
+  const setSubjectQuestions = (subject: Subject, q: number) => {
+    setEditSubjects(prev => prev.map(s => s.subject === subject ? { ...s, questions: q } : s))
+  }
+
+  const savePlan = async () => {
+    if (!editPlan) return
+    const plan: DailyPlan = { date: planDate, hoursGoal: editHours, subjects: editSubjects }
+    await db.dailyPlans.put(plan)
+    setEditPlan(plan)
+    if (planDate === todayStr) setTodaysPlan(plan)
+  }
 
   return (
     <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
@@ -216,7 +238,6 @@ export default function RoadmapPage() {
           {([
             { value: 'journey' as ViewType, label: 'Overall Journey' },
             { value: 'daily' as ViewType, label: 'Daily Plan' },
-            { value: 'monthly' as ViewType, label: 'Monthly View' },
           ]).map(v => (
             <button key={v.value} onClick={() => setView(v.value)}
               className="flex-1 px-3 py-2 text-sm font-medium rounded-[12px] transition-all"
@@ -303,105 +324,113 @@ export default function RoadmapPage() {
         {/* ─── DAILY PLAN ─── */}
         {view === 'daily' && (
           <div className="space-y-3">
+            {/* Date picker */}
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] font-semibold" style={{ color: 'var(--c-text)' }}>
-                {today.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                Plan for
               </h2>
-              <span className="text-xs" style={{ color: 'var(--c-muted)' }}>
-                Day {Math.floor((today.getTime() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000)}
-              </span>
+              <input type="date" value={planDate} onChange={e => setPlanDate(e.target.value)}
+                className="text-sm px-3 py-1.5 rounded-[40px] outline-none"
+                style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-card)' }} />
             </div>
 
-            {planChapters && planChapters.length > 0 && (
-              <div className="space-y-3 mb-4">
-                <h3 className="text-xs uppercase tracking-wider font-medium" style={{ color: 'var(--c-muted)' }}>Today&apos;s Plan</h3>
-                {planChapters.map(({ subject, chapter, topics }) => (
-                  <div key={chapter.id} className="rounded-[18px] p-4" style={{
+            {/* Hours Goal */}
+            <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="material-symbols-rounded text-[18px]" style={{ color: 'var(--c-blue)' }}>schedule</span>
+                <span className="text-[13px] font-medium" style={{ color: 'var(--c-muted)' }}>Hours Goal</span>
+                <input type="number" min={1} max={16} value={editHours} onChange={e => setEditHours(Math.min(16, Math.max(1, Number(e.target.value) || 1)))}
+                  className="w-16 px-2 py-1 text-sm outline-none rounded-[40px] ml-auto text-center"
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }} />
+              </div>
+            </div>
+
+            {/* Planned subjects */}
+            {editSubjects.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-xs uppercase tracking-wider font-medium" style={{ color: 'var(--c-muted)' }}>Subjects</h3>
+                {editSubjects.map(s => (
+                  <div key={s.subject} className="rounded-[18px] p-4" style={{
                     background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
-                    borderLeft: `3px solid ${SUBJECT_STYLES[subject].color}`,
+                    borderLeft: `3px solid ${SUBJECT_STYLES[s.subject].color}`,
                     boxShadow: 'var(--c-shadow)',
                   }}>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm">{SUBJECT_STYLES[subject].emoji}</span>
-                      <span className="text-xs font-medium capitalize" style={{ color: 'var(--c-text)' }}>{subject}</span>
-                      <span className="text-xs" style={{ color: 'var(--c-muted)' }}>· {chapter.name}</span>
-                      <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded" style={{
-                        color: chStatus(chapter.id) === 'done' ? 'var(--c-green)' : chStatus(chapter.id) === 'in_progress' ? 'var(--c-blue)' : 'var(--c-muted)',
-                        background: chStatus(chapter.id) === 'done' ? 'rgba(15,138,94,0.1)' : chStatus(chapter.id) === 'in_progress' ? 'rgba(35,131,226,0.1)' : 'var(--c-progress-bg)',
-                      }}>
-                        {chStatus(chapter.id) === 'done' ? '✓ Done' : chStatus(chapter.id) === 'in_progress' ? 'In Progress' : 'Not Started'}
-                      </span>
-                    </div>
-                    {topics.length > 0 && (
-                      <div className="space-y-1 ml-4 mb-3">
-                        {topics.map(t => (
-                          <label key={t.id} className="flex items-center gap-2 cursor-pointer px-1 py-0.5 rounded hover:bg-black/[0.02]">
-                            <input type="checkbox" checked={t.done}
-                              onChange={e => setTopicDone(chapter.id, t.id, e.target.checked)}
-                              className="w-3 h-3 rounded-sm text-[var(--c-blue)]" />
-                            <span className={`text-xs ${t.done ? 'line-through' : ''}`} style={{ color: t.done ? 'var(--c-muted)' : 'var(--c-text)' }}>{t.name}</span>
-                          </label>
-                        ))}
+                      <span className="text-sm">{SUBJECT_STYLES[s.subject].emoji}</span>
+                      <span className="text-xs font-medium capitalize" style={{ color: 'var(--c-text)' }}>{s.subject}</span>
+                      <div className="ml-auto flex items-center gap-2">
+                        <label className="text-[10px]" style={{ color: 'var(--c-muted)' }}>Qs:</label>
+                        <input type="number" min={0} value={s.questions} onChange={e => setSubjectQuestions(s.subject, parseInt(e.target.value, 10) || 0)}
+                          className="w-14 px-2 py-0.5 text-xs outline-none rounded-[40px] text-center"
+                          style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }} />
                       </div>
-                    )}
-                    <div className="flex gap-2 ml-4">
-                      {chStatus(chapter.id) !== 'done' && (
-                        <button onClick={() => setChapterStatus(chapter.id, 'done')} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-green)' }}>Mark Complete ✓</button>
-                      )}
-                      {chStatus(chapter.id) === 'done' && (
-                        <button onClick={() => setChapterStatus(chapter.id, 'not_started')} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-muted)' }}>Undo</button>
-                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {s.chapters.map(ch => (
+                        <span key={ch} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full"
+                          style={{ background: `${SUBJECT_STYLES[s.subject].color}15`, color: SUBJECT_STYLES[s.subject].color }}>
+                          {ch}
+                          <button onClick={() => removeChapterFromPlan(s.subject, ch)} className="hover:opacity-60">&times;</button>
+                        </span>
+                      ))}
                     </div>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* Chapter Selector 1 */}
+            {/* Chapter selector */}
             <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2 h-2 rounded-full bg-[var(--c-blue)]" />
-                <div className="flex gap-1 flex-1 flex-wrap">
+                <span className="text-xs font-medium" style={{ color: 'var(--c-muted)' }}>Add Chapters</span>
+                <div className="flex gap-1 flex-1 justify-end flex-wrap">
                   {(['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
-                    <button key={s} onClick={() => { setSelSubject1(s); setSelDivision1(null); setSelChapter1(null) }}
+                    <button key={s} onClick={() => { setSelSubject(s); setSelDivision(null); setSelChapter(null) }}
                       className="text-xs px-2 py-0.5 rounded-full border transition-colors" style={{
-                        color: selSubject1 === s ? '#fff' : 'var(--c-muted)',
-                        borderColor: selSubject1 === s ? 'transparent' : 'var(--c-border-input)',
-                        background: selSubject1 === s ? SUBJECT_STYLES[s].color : 'transparent',
+                        color: selSubject === s ? '#fff' : 'var(--c-muted)',
+                        borderColor: selSubject === s ? 'transparent' : 'var(--c-border-input)',
+                        background: selSubject === s ? SUBJECT_STYLES[s].color : 'transparent',
                       }}>
                       {SUBJECT_STYLES[s].emoji} {s.charAt(0).toUpperCase() + s.slice(1)}
                     </button>
                   ))}
                 </div>
               </div>
-              {selSubject1 && (
+              {selSubject && (
                 <div className="flex flex-wrap gap-1 mb-3 ml-1">
-                  {divisions1.map(d => (
-                    <button key={d.id} onClick={() => { setSelDivision1(d.id); setSelChapter1(null) }}
+                  {divisions.map(d => (
+                    <button key={d.id} onClick={() => { setSelDivision(d.id); setSelChapter(null) }}
                       className="text-[10px] px-2 py-0.5 rounded-full transition-colors" style={{
-                        color: selDivision1 === d.id ? 'var(--c-text)' : 'var(--c-muted)',
-                        background: selDivision1 === d.id ? 'var(--c-progress-bg)' : 'transparent',
+                        color: selDivision === d.id ? 'var(--c-text)' : 'var(--c-muted)',
+                        background: selDivision === d.id ? 'var(--c-progress-bg)' : 'transparent',
                       }}>
                       {d.name}
                     </button>
                   ))}
                 </div>
               )}
-              {currentDiv1 && (
+              {currentDiv && (
                 <div className="space-y-1 mb-2 ml-1">
-                  {currentDiv1.chapters.map(ch => {
+                  {currentDiv.chapters.map(ch => {
                     const st = chStatus(ch.id)
-                    const isSel = selChapter1 === ch.id
+                    const inPlan = editSubjects.some(s => s.subject === selSubject && s.chapters.includes(ch.name))
                     return (
-                      <div key={ch.id} onClick={() => setSelChapter1(isSel ? null : ch.id)}
+                      <div key={ch.id} onClick={() => {
+                        if (inPlan) removeChapterFromPlan(selSubject!, ch.name)
+                        else addChapterToPlan(selSubject!, ch.name)
+                      }}
                         className="flex items-center gap-2 px-2 py-1 rounded cursor-pointer" style={{
-                          background: isSel ? 'var(--c-tag)' : 'transparent',
-                          borderLeft: isSel ? '2px solid var(--c-blue)' : '2px solid transparent',
+                          background: inPlan ? 'var(--c-tag)' : 'transparent',
+                          borderLeft: inPlan ? '2px solid var(--c-blue)' : '2px solid transparent',
                         }}>
-                        <span className="text-xs" style={{ color: st === 'done' ? 'var(--c-green)' : 'var(--c-muted)' }}>
-                          {st === 'done' ? '✓' : st === 'in_progress' ? '🔄' : '○'}
+                        <span className="text-xs" style={{ color: inPlan ? 'var(--c-blue)' : st === 'done' ? 'var(--c-green)' : 'var(--c-muted)' }}>
+                          {inPlan ? '✓' : st === 'done' ? '✓' : st === 'in_progress' ? '🔄' : '○'}
                         </span>
-                        <span className="text-xs flex-1" style={{ color: st === 'done' ? 'var(--c-muted)' : 'var(--c-text)', textDecoration: st === 'done' ? 'line-through' : 'none' }}>
+                        <span className="text-xs flex-1" style={{
+                          color: st === 'done' ? 'var(--c-muted)' : 'var(--c-text)',
+                          textDecoration: st === 'done' ? 'line-through' : 'none',
+                        }}>
                           {ch.name}
                         </span>
                         <span className="text-[10px]" style={{ color: 'var(--c-muted)' }}>{ch.topics.filter(t => !t.deleted).length} topics</span>
@@ -412,107 +441,44 @@ export default function RoadmapPage() {
               )}
             </div>
 
-            {/* Chapter Selector 2 */}
-            <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="w-2 h-2 rounded-full bg-[var(--c-green)]" />
-                <div className="flex gap-1 flex-1 flex-wrap">
-                  {(['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
-                    <button key={s} onClick={() => { setSelSubject2(s); setSelDivision2(null); setSelChapter2(null) }}
-                      className="text-xs px-2 py-0.5 rounded-full border transition-colors" style={{
-                        color: selSubject2 === s ? '#fff' : 'var(--c-muted)',
-                        borderColor: selSubject2 === s ? 'transparent' : 'var(--c-border-input)',
-                        background: selSubject2 === s ? SUBJECT_STYLES[s].color : 'transparent',
-                      }}>
-                      {SUBJECT_STYLES[s].emoji} {s.charAt(0).toUpperCase() + s.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {selSubject2 && (
-                <div className="flex flex-wrap gap-1 mb-3 ml-1">
-                  {divisions2.map(d => (
-                    <button key={d.id} onClick={() => { setSelDivision2(d.id); setSelChapter2(null) }}
-                      className="text-[10px] px-2 py-0.5 rounded-full transition-colors" style={{
-                        color: selDivision2 === d.id ? 'var(--c-text)' : 'var(--c-muted)',
-                        background: selDivision2 === d.id ? 'var(--c-progress-bg)' : 'transparent',
-                      }}>
-                      {d.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {currentDiv2 && (
-                <div className="space-y-1 mb-2 ml-1">
-                  {currentDiv2.chapters.map(ch => {
-                    const st = chStatus(ch.id)
-                    const isSel = selChapter2 === ch.id
-                    return (
-                      <div key={ch.id} onClick={() => setSelChapter2(isSel ? null : ch.id)}
-                        className="flex items-center gap-2 px-2 py-1 rounded cursor-pointer" style={{
-                          background: isSel ? 'var(--c-tag)' : 'transparent',
-                          borderLeft: isSel ? '2px solid var(--c-green)' : '2px solid transparent',
-                        }}>
-                        <span className="text-xs" style={{ color: st === 'done' ? 'var(--c-green)' : 'var(--c-muted)' }}>
-                          {st === 'done' ? '✓' : st === 'in_progress' ? '🔄' : '○'}
-                        </span>
-                        <span className="text-xs flex-1" style={{ color: st === 'done' ? 'var(--c-muted)' : 'var(--c-text)', textDecoration: st === 'done' ? 'line-through' : 'none' }}>
-                          {ch.name}
-                        </span>
-                        <span className="text-[10px]" style={{ color: 'var(--c-muted)' }}>{ch.topics.filter(t => !t.deleted).length} topics</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
+            {/* Save / Reset */}
+            <div className="flex gap-2 justify-end pt-2">
+              <button onClick={() => {
+                setEditSubjects([])
+                setEditHours(8)
+              }} className="text-xs font-medium px-4 py-2 rounded-[40px] transition-all"
+                style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}>
+                Reset
+              </button>
+              <button onClick={savePlan} disabled={!editPlan}
+                className="text-xs font-medium px-5 py-2 rounded-[40px] text-white transition-all disabled:opacity-40"
+                style={{ background: 'var(--c-btn-primary)' }}>
+                Save Plan
+              </button>
             </div>
-          </div>
-        )}
 
-        {/* ─── MONTHLY VIEW ─── */}
-        {view === 'monthly' && (
-          <div>
-            <h2 className="text-[15px] font-semibold mb-3" style={{ color: 'var(--c-text)' }}>
-              {today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-            </h2>
-            <div className="rounded-[18px] p-4 mb-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
-              <div className="grid grid-cols-7 gap-0.5">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                  <div key={d} className="text-[10px] font-semibold uppercase tracking-wider text-center py-1" style={{ color: 'var(--c-muted)' }}>{d}</div>
-                ))}
-                {monthDays.map((day, i) => (
-                  <div key={i} onClick={() => day && setSelectedDay(selectedDay?.toDateString() === day.toDateString() ? null : day)}
-                    className="text-sm text-center py-1.5 rounded-[10px] cursor-pointer transition-colors" style={{
-                      color: day?.toDateString() === today.toDateString() ? '#fff' : day && selectedDay && day.toDateString() === selectedDay.toDateString() ? 'var(--c-blue)' : day ? 'var(--c-text)' : undefined,
-                      background: day?.toDateString() === today.toDateString() ? 'var(--c-blue)' : day && selectedDay && day.toDateString() === selectedDay.toDateString() ? 'rgba(35,131,226,0.15)' : undefined,
-                    }}>
-                    {day?.getDate() || ''}
-                  </div>
-                ))}
+            {/* Weekly overview */}
+            <div className="rounded-[18px] p-4 mt-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+              <h3 className="text-xs font-semibold mb-3" style={{ color: 'var(--c-text)' }}>This Week</h3>
+              <div className="flex gap-1.5 overflow-x-auto pb-1">
+                {weekDates.map(d => {
+                  const ds = formatDate(d)
+                  const isToday = ds === todayStr
+                  const isSelected = ds === planDate
+                  return (
+                    <button key={ds} onClick={() => setPlanDate(ds)}
+                      className="flex flex-col items-center gap-1 px-3 py-2 rounded-[12px] transition-all min-w-[56px] flex-shrink-0"
+                      style={{
+                        background: isSelected ? 'var(--c-blue)' : isToday ? 'var(--c-tag)' : 'var(--c-card-alt)',
+                        color: isSelected ? '#fff' : 'var(--c-text)',
+                      }}>
+                      <span className="text-[10px] font-medium">{d.toLocaleDateString('en', { weekday: 'short' })}</span>
+                      <span className="text-sm font-bold">{d.getDate()}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
-            {selectedDay && (
-              <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
-                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--c-text)' }}>
-                  Targets for {selectedDay.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-                </h3>
-                {monthDetailChapters.length > 0 ? (
-                  <div className="space-y-2">
-                    {monthDetailChapters.map(({ subject, chapters }) => (
-                      <div key={subject} className="flex items-start gap-2">
-                        <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: SUBJECT_STYLES[subject].color }} />
-                        <div className="flex-1 min-w-0">
-                          <span className="text-xs font-medium capitalize" style={{ color: 'var(--c-text)' }}>{subject}</span>
-                          <div className="text-xs" style={{ color: 'var(--c-muted)' }}>{chapters.map(ch => ch.name).join(', ') || 'All done'}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs italic" style={{ color: 'var(--c-muted)' }}>All caught up! No pending chapters.</p>
-                )}
-              </div>
-            )}
           </div>
         )}
       </div>

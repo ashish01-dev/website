@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useProgressStore } from '@/store/progressStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { useUser } from '@/lib/useUser'
 import { calculatePace } from '@/lib/pacing'
 import { db } from '@/lib/db'
 import { formatDate } from '@/lib/utils'
@@ -60,6 +61,8 @@ function MiniProgressBar({ value, max, color }: { value: number; max: number; co
 export default function ProgressPage() {
   const { progress, getSubjectChapters, getProgress, loaded } = useProgressStore()
   const { settings } = useSettingsStore()
+  const { user } = useUser()
+  const isPro = user?.isPro ?? false
   const [tests, setTests] = useState<TestEntry[]>([])
   const [sessions, setSessions] = useState<PomodoroSession[]>([])
   const [questionEntries, setQuestionEntries] = useState<{ count: number }[]>([])
@@ -309,6 +312,69 @@ export default function ProgressPage() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* ─── Batches ─── */}
+        <div className="rounded-[18px] p-5 mb-8" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+          <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--c-text)' }}>
+            <span className="material-symbols-rounded text-[18px] align-text-bottom mr-1.5" style={{ color: 'var(--c-orange)' }}>military_tech</span>
+            Batches
+            {!isPro && <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: 'rgba(35,131,226,0.15)', color: 'var(--c-blue)' }}>Pro</span>}
+          </h2>
+          {!isPro ? (
+            <div className="text-center py-6">
+              <div className="text-3xl mb-3">🔒</div>
+              <p className="text-sm mb-3" style={{ color: 'var(--c-muted)' }}>Batch tracking is a Pro feature. Track your progress through ranked milestones.</p>
+              <button onClick={() => window.location.href = '/pricing'}
+                className="inline-flex items-center gap-1.5 text-white text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200"
+                style={{ background: 'var(--c-btn-primary)' }}>Upgrade to Pro</button>
+            </div>
+          ) : (() => {
+            const totalDone = subjectsMeta.reduce((a, s) => a + s.chapters.done, 0)
+            const BATCHES = [
+              { name: 'Beginner', icon: '🌱', chapters: 5, color: 'var(--c-green)' },
+              { name: 'Intermediate', icon: '📘', chapters: 15, color: 'var(--c-blue)' },
+              { name: 'Advanced', icon: '⚡', chapters: 30, color: 'var(--c-orange)' },
+              { name: 'Expert', icon: '🏆', chapters: 50, color: 'var(--c-purple)' },
+              { name: 'Master', icon: '👑', chapters: 75, color: 'var(--c-red)' },
+            ]
+            return (
+              <div className="space-y-2">
+                {BATCHES.map((b, i) => {
+                  const unlocked = totalDone >= b.chapters
+                  const prevThreshold = i === 0 ? 0 : BATCHES[i - 1].chapters
+                  const progressInBatch = Math.min(100, ((totalDone - prevThreshold) / (b.chapters - prevThreshold)) * 100)
+                  const isActive = !unlocked && totalDone >= prevThreshold
+                  return (
+                    <div key={b.name} className="flex items-center gap-3 p-3 rounded-[14px] transition-all" style={{
+                      background: unlocked ? 'var(--c-card-alt)' : 'var(--c-card-alt)',
+                      border: `1px solid ${unlocked ? b.color : 'var(--c-border-card)'}`,
+                      opacity: unlocked || isActive ? 1 : 0.5,
+                      borderLeft: `3px solid ${unlocked ? b.color : isActive ? b.color : 'var(--c-border)'}`,
+                    }}>
+                      <span className="text-xl">{b.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-sm font-semibold" style={{ color: unlocked ? b.color : 'var(--c-text)' }}>
+                            {unlocked ? '✓ ' : ''}{b.name}
+                          </span>
+                          {unlocked && <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: `${b.color}15`, color: b.color }}>Unlocked</span>}
+                          {isActive && <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: 'rgba(35,131,226,0.15)', color: 'var(--c-blue)' }}>{totalDone}/{b.chapters} ch.</span>}
+                        </div>
+                        <div className="text-[10px] mb-1.5" style={{ color: 'var(--c-muted)' }}>Complete {b.chapters} chapters</div>
+                        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
+                          <div className="h-full rounded-full transition-all duration-700" style={{
+                            width: `${unlocked ? 100 : isActive ? progressInBatch : 0}%`,
+                            background: unlocked ? b.color : isActive ? b.color : 'var(--c-caption)',
+                          }} />
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
         </div>
 
         {/* ─── Daily Study Hour Calculator ─── */}

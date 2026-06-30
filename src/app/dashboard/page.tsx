@@ -165,6 +165,22 @@ export default function DashboardPage() {
             </div>
           </div>
           <p className="text-[12px] italic mt-2" style={{ color: 'var(--c-muted)' }}>{quote}</p>
+          {plan && plan.subjects && plan.subjects.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-3 items-center">
+              <span className="text-[11px] font-medium" style={{ color: 'var(--c-blue)' }}>
+                <span className="material-symbols-rounded text-[14px] align-text-bottom">checklist</span> Today&apos;s Plan
+              </span>
+              {plan.hoursGoal ? <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'var(--c-tag)', color: 'var(--c-caption)' }}>🎯 {plan.hoursGoal}h goal</span> : null}
+              {plan.subjects.map(s => (
+                <span key={s.subject} className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{
+                  background: s.subject === 'physics' ? 'rgba(35,131,226,0.12)' : s.subject === 'chemistry' ? 'rgba(15,138,94,0.12)' : 'rgba(217,115,13,0.12)',
+                  color: s.subject === 'physics' ? 'var(--c-blue)' : s.subject === 'chemistry' ? 'var(--c-green)' : 'var(--c-orange)',
+                }}>
+                  {s.subject === 'physics' ? '⚡' : s.subject === 'chemistry' ? '🧪' : '📐'} {s.subject} {s.questions > 0 ? `· ${s.questions}q` : ''} {s.chapters.length > 0 ? `· ${s.chapters.length}ch` : ''}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Days left + Subject progress cards */}
