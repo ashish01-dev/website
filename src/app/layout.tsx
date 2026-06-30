@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation'
 import Script from 'next/script'
 import './globals.css'
 import Footer from '@/components/layout/Footer'
+import LandingAIAssistant from '@/components/ai/LandingAIAssistant'
+import AITutorPanel from '@/components/ai/AITutorPanel'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useProgressStore } from '@/store/progressStore'
 import { useTimetableStore } from '@/store/timetableStore'
@@ -110,6 +112,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </div>
           {!isAppPage && <Footer />}
+          {isAppPage ? <AITutorPanel /> : <LandingAIAssistant />}
         </div>
       </body>
     </html>
