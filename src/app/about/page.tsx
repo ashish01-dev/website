@@ -11,7 +11,13 @@ const MILESTONES = [
 ]
 
 const TEAM = [
-  { name: 'Ashish Singh', role: 'GGSIPU Student', text: 'A passionate JEE mentor and self-taught developer who built JEEIFY from his own preparation experience. Believes that the right system can turn any aspirant into a top performer.' },
+  { name: 'Ashish Singh', role: 'Student', text: 'As a JEE aspirant myself, I faced the exact same struggles — scattered notes, no clear way to track progress, hours of study with no direction. That frustration turned into determination. I decided to build the system I wished I had: a single command center that brings clarity, structure, and momentum to JEE preparation. JEEIFY is the result of that vision.' },
+]
+
+const TESTIMONIALS = [
+  { quote: 'The daily plan modal + pace tracking combo is a game changer. I know exactly what to study every day.', author: 'Arjun S.', location: 'Delhi' },
+  { quote: 'Finally a tool that understands the JEE syllabus. The chapter-level tracking is incredibly detailed.', author: 'Priya M.', location: 'Delhi' },
+  { quote: 'The Pomodoro timer + activity journal helped me stay consistent for 6+ hours daily.', author: 'Rahul K.', location: 'Delhi' },
 ]
 
 export default function AboutPage() {
@@ -67,66 +73,6 @@ export default function AboutPage() {
                 <circle cx="240" cy="160" r="2.5" fill="#2383e2" opacity="0.2" />
                 <circle cx="170" cy="140" r="2" fill="#2383e2" opacity="0.15" />
                 <circle cx="210" cy="140" r="2" fill="#2383e2" opacity="0.15" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* NGO Donation Banner */}
-      <div className="max-w-[1100px] mx-auto px-5 pb-20">
-        <div className="rounded-[20px] px-8 py-10 md:py-12 md:px-12 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden" style={{
-          background: 'linear-gradient(135deg, var(--c-card) 0%, rgba(35,131,226,0.06) 100%)',
-          border: '1px solid rgba(35,131,226,0.15)',
-        }}>
-          {/* Decorative bg glow */}
-          <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] opacity-20 pointer-events-none" style={{ background: 'var(--c-blue)' }} />
-          <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full blur-[60px] opacity-15 pointer-events-none" style={{ background: 'var(--c-blue)' }} />
-
-          <div className="flex-1 text-center md:text-left relative z-10">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider mb-5" style={{ background: 'rgba(35,131,226,0.1)', color: 'var(--c-blue)' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-              Social Impact
-            </div>
-            <h2 className="text-[clamp(28px,3.5vw,42px)] font-bold tracking-[-1.5px] leading-[1.1]" style={{ color: 'var(--c-text)' }}>
-              20% of our earnings<br />
-              <span className="text-[var(--c-blue)]">goes to NGOs</span>
-            </h2>
-            <p className="text-[14px] mt-4 max-w-md leading-relaxed" style={{ color: 'var(--c-muted)', lineHeight: 1.8 }}>
-              Every subscription directly supports education nonprofits across India. We donate to organizations that provide free coaching, study materials, and scholarships to underprivileged JEE aspirants.
-            </p>
-            <p className="text-[13px] mt-3 max-w-md leading-relaxed" style={{ color: 'var(--c-caption)', lineHeight: 1.7 }}>
-              When you upgrade to Pro, you&apos;re not just investing in yourself — you&apos;re helping someone else get a fair shot at their dream too.
-            </p>
-          </div>
-
-          <div className="flex-shrink-0 relative z-10">
-            {/* Money with heart graphic */}
-            <div className="w-[180px] h-[180px] md:w-[220px] md:h-[220px]">
-              <svg viewBox="0 0 220 220" className="w-full h-full">
-                <defs>
-                  <radialGradient id="moneyGlow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#2383e2" stopOpacity="0.12" />
-                    <stop offset="100%" stopColor="#2383e2" stopOpacity="0" />
-                  </radialGradient>
-                </defs>
-                <circle cx="110" cy="110" r="90" fill="url(#moneyGlow)" />
-                {/* Bag / money symbol */}
-                <rect x="65" y="80" width="90" height="90" rx="12" fill="none" stroke="#2383e2" strokeWidth="2" strokeOpacity="0.3" />
-                <path d="M65 100 L155 100" stroke="#2383e2" strokeWidth="2" strokeOpacity="0.3" />
-                <path d="M85 80 L85 65 Q85 55 95 55 L125 55 Q135 55 135 65 L135 80" fill="none" stroke="#2383e2" strokeWidth="2" strokeOpacity="0.3" />
-                {/* Rupee symbol */}
-                <text x="110" y="130" textAnchor="middle" fontSize="36" fontWeight="bold" fill="#2383e2" opacity="0.5">₹</text>
-                {/* Heart */}
-                <path d="M110 155 C110 155 90 140 80 130 C70 120 70 105 80 95 C90 85 100 90 110 100 C120 90 130 85 140 95 C150 105 150 120 140 130 C130 140 110 155 110 155 Z"
-                  fill="#2383e2" opacity="0.25" />
-                {/* Small hearts floating around */}
-                <path d="M35 60 C35 60 28 52 24 47 C20 42 20 34 24 30 C28 26 33 28 35 33 C37 28 42 26 46 30 C50 34 50 42 46 47 C42 52 35 60 35 60 Z"
-                  fill="#2383e2" opacity="0.18" />
-                <path d="M175 50 C175 50 169 44 166 40 C163 36 163 30 166 27 C169 24 173 26 175 30 C177 26 181 24 184 27 C187 30 187 36 184 40 C181 44 175 50 175 50 Z"
-                  fill="#2383e2" opacity="0.15" />
-                <path d="M185 150 C185 150 180 145 178 142 C176 139 176 134 178 132 C180 130 183 131 185 134 C187 131 190 130 192 132 C194 134 194 139 192 142 C190 145 185 150 185 150 Z"
-                  fill="#2383e2" opacity="0.12" />
               </svg>
             </div>
           </div>
@@ -197,9 +143,9 @@ export default function AboutPage() {
       {/* Journey timeline */}
       <div className="max-w-[800px] mx-auto px-5 pb-20" style={{ contentVisibility: 'auto' }}>
         <div className="text-center mb-14">
-          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Our Journey</p>
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Our Aim</p>
           <h2 className="text-[clamp(24px,3vw,36px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
-            From a side project to<span className="text-[#888]"> a movement</span>
+            A clear target,<span className="text-[#888]"> a clear path</span>
           </h2>
         </div>
         <div className="relative">
@@ -239,7 +185,55 @@ export default function AboutPage() {
               </div>
               <div className="text-[16px] font-semibold mb-1" style={{ color: 'var(--c-text)' }}>{t.name}</div>
               <div className="text-[12px] mb-3" style={{ color: 'var(--c-caption)' }}>{t.role}</div>
-              <p className="text-[13px] leading-relaxed" style={{ color: 'var(--c-muted)' }}>{t.text}</p>
+              <p className="text-[13px] leading-relaxed mb-5" style={{ color: 'var(--c-muted)' }}>{t.text}</p>
+              <div className="flex items-center justify-center gap-3">
+                <a href="https://www.linkedin.com/in/ashish-kumar0406/" target="_blank" rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:-translate-y-[1px]"
+                  style={{ background: 'var(--c-tag)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--c-blue)"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <a href="https://github.com/ashish01-dev" target="_blank" rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:-translate-y-[1px]"
+                  style={{ background: 'var(--c-tag)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--c-text)"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+                <a href="https://x.com/TechMaster54321" target="_blank" rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:-translate-y-[1px]"
+                  style={{ background: 'var(--c-tag)' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--c-text)"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+                <a href="mailto:ashish.jayshreeram@gmail.com"
+                  className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:-translate-y-[1px]"
+                  style={{ background: 'var(--c-tag)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Testimonials */}
+      <div className="max-w-[1100px] mx-auto px-5 pb-20" style={{ contentVisibility: 'auto' }}>
+        <div className="text-center mb-14">
+          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Stories</p>
+          <h2 className="text-[clamp(24px,3vw,36px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
+            What our users say
+          </h2>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          {TESTIMONIALS.map(t => (
+            <div key={t.author} className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]" style={{
+              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow-hover)' }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow)' }}>
+              <div className="text-[var(--c-blue)] text-2xl font-serif mb-3 leading-none">&ldquo;</div>
+              <p className="text-[14px] mb-6 leading-relaxed" style={{ color: 'var(--c-text-secondary)' }}>{t.quote}</p>
+              <div className="border-t border-[var(--c-border)] pt-4">
+                <div className="text-[14px] font-semibold" style={{ color: 'var(--c-text)' }}>{t.author}</div>
+                <div className="text-[12px]" style={{ color: 'var(--c-muted)' }}>{t.location}</div>
+              </div>
             </div>
           ))}
         </div>

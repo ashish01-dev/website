@@ -6,7 +6,7 @@ interface TimetableState {
   timetable: TimetableData
   loaded: boolean
   load: () => Promise<void>
-  setCell: (day: keyof TimetableData, hour: string, activity: Activity | '') => Promise<void>
+  setCell: (day: keyof TimetableData, hour: string, activity: string) => Promise<void>
   clearAll: () => Promise<void>
   applyTemplate: (template: 'gym' | 'full_study' | 'test_day') => Promise<void>
 }

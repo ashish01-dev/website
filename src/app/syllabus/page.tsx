@@ -368,16 +368,18 @@ export default function SyllabusPage() {
               <span className="hidden sm:inline text-[13px]">{FILTERS.find(f => f.value === filter)?.label ?? 'Filter'}</span>
             </button>
             {showFilter && (
-              <div className="absolute right-0 top-full mt-1 z-50 min-w-[190px] rounded-[12px] py-1.5 border shadow-xl animate-scale-in"
+              <div className="absolute right-0 top-full mt-1 z-50 min-w-[190px] rounded-[12px] py-1.5 border shadow-xl"
                 style={{ background: 'var(--c-card)', borderColor: 'var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)' }}>
-                {FILTERS.map(f => (
-                  <button key={f.value} onClick={() => { setFilter(f.value); setShowFilter(false) }}
-                    className="w-full flex items-center gap-2.5 px-3 py-1.5 text-sm text-left transition-colors"
-                    style={{ color: filter === f.value ? 'var(--c-blue)' : 'var(--c-text)', background: filter === f.value ? 'var(--c-sidebar-hover)' : 'transparent' }}>
-                    <span className="material-symbols-rounded text-[16px]" style={{ color: 'var(--c-muted)' }}>{f.icon}</span>
-                    {f.label}
-                  </button>
-                ))}
+                <div className="max-h-[60vh] overflow-y-auto animate-slide-up">
+                  {FILTERS.map(f => (
+                    <button key={f.value} onClick={() => { setFilter(f.value); setShowFilter(false) }}
+                      className="w-full flex items-center gap-2.5 px-3 py-1.5 text-sm text-left transition-colors hover:opacity-80"
+                      style={{ color: filter === f.value ? 'var(--c-blue)' : 'var(--c-text)', background: filter === f.value ? 'var(--c-sidebar-hover)' : 'transparent' }}>
+                      <span className="material-symbols-rounded text-[16px]" style={{ color: 'var(--c-muted)' }}>{f.icon}</span>
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -389,11 +391,11 @@ export default function SyllabusPage() {
               <span className="hidden sm:inline text-[13px]">{SORTS.find(s => s.value === sort)?.label}</span>
             </button>
             {showSort && (
-              <div className="absolute right-0 top-full mt-1 z-50 min-w-[160px] rounded-[12px] py-1.5 border shadow-xl animate-scale-in"
+              <div className="absolute right-0 top-full mt-1 z-50 min-w-[160px] rounded-[12px] py-1.5 border shadow-xl animate-slide-up"
                 style={{ background: 'var(--c-card)', borderColor: 'var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)' }}>
                 {SORTS.map(s => (
                   <button key={s.value} onClick={() => { setSort(s.value); setShowSort(false) }}
-                    className="w-full flex items-center gap-2.5 px-3 py-1.5 text-sm text-left transition-colors"
+                    className="w-full flex items-center gap-2.5 px-3 py-1.5 text-sm text-left transition-colors hover:opacity-80"
                     style={{ color: sort === s.value ? 'var(--c-blue)' : 'var(--c-text)', background: sort === s.value ? 'var(--c-sidebar-hover)' : 'transparent' }}>
                     {s.label}
                   </button>

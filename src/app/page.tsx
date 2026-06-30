@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import LandingNav from '@/components/layout/LandingNav'
@@ -38,57 +38,7 @@ const TOPPERS = [
   { name: 'Priya Patel', rank: 'AIR 15', score: '341/360', year: '2026', quote: 'I planned every hour of my day using the timetable. Absolute game changer.' },
 ]
 
-const STATS = [
-  { value: '50,000+', label: 'Hours Tracked' },
-  { value: '10,000+', label: 'Active Students' },
-  { value: '98.6%', label: 'Avg. Score Improvement' },
-  { value: '250+', label: 'AIR Rankers Mentored' },
-]
 
-function useCountUp(ref: React.RefObject<HTMLDivElement | null>, target: number, duration = 2000) {
-  const [count, setCount] = useState(0)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          const start = performance.now()
-          const animate = (now: number) => {
-            const elapsed = now - start
-            const progress = Math.min(elapsed / duration, 1)
-            const eased = 1 - Math.pow(1 - progress, 3)
-            setCount(Math.floor(eased * target))
-            if (progress < 1) requestAnimationFrame(animate)
-          }
-          requestAnimationFrame(animate)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.3 }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [ref, target, duration])
-
-  return count
-}
-
-function CountUp({ value, label }: { value: string; label: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const num = parseInt(value.replace(/,/g, ''))
-  const count = useCountUp(ref, num)
-
-  return (
-    <div ref={ref} className="text-center">
-      <div className="text-[clamp(28px,3.5vw,42px)] font-bold tracking-[-1px]" style={{ color: 'var(--c-text)' }}>
-        {value.includes('+') ? `${count.toLocaleString()}+` : `${count}%`}
-      </div>
-      <div className="text-[13px] mt-1" style={{ color: 'var(--c-muted)' }}>{label}</div>
-    </div>
-  )
-}
 
 export default function LandingPage() {
   const { user } = useUser()
@@ -134,15 +84,6 @@ export default function LandingPage() {
             style={{ color: 'var(--c-text-secondary)', border: '1px solid var(--c-border-input)' }}>Explore</a>
         </div>
       </motion.section>
-
-      {/* Stats Strip */}
-      <motion.div {...fadeUp} className="max-w-[900px] mx-auto px-5 pb-12">
-        <div className="rounded-[18px] px-[28px] py-[32px] grid grid-cols-2 md:grid-cols-4 gap-8" style={{
-          background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
-        }}>
-          {STATS.map(s => (<CountUp key={s.label} value={s.value} label={s.label} />))}
-        </div>
-      </motion.div>
 
       {/* Features */}
       <motion.section {...fadeUp} id="features" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
@@ -198,7 +139,7 @@ export default function LandingPage() {
         <div className="text-center mb-16">
           <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Results</p>
           <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
-            Built by toppers.<span className="text-[#888]"> For toppers.</span>
+            Built by <span className="text-[var(--c-blue)]">Student</span>.<span className="text-[#888]"> For Students.</span>
           </h2>
           <p className="text-[14px] mt-4 max-w-md mx-auto" style={{ color: 'var(--c-muted)', lineHeight: 1.7 }}>
             Our platform has helped hundreds of students achieve top ranks. Here are some of our standout performers.
@@ -225,34 +166,6 @@ export default function LandingPage() {
               </div>
               <div className="border-t border-[var(--c-border)] pt-3">
                 <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--c-muted)' }}>&ldquo;{t.quote}&rdquo;</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </motion.section>
-
-      {/* Testimonials */}
-      <motion.section {...fadeUp} id="about" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Stories</p>
-          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>What our users say</h2>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          {[
-            { quote: 'The daily plan modal + pace tracking combo is a game changer. I know exactly what to study every day.', author: 'Arjun S.', role: 'JEE 2026 Aspirant' },
-            { quote: 'Finally a tool that understands the JEE syllabus. The chapter-level tracking is incredibly detailed.', author: 'Priya M.', role: 'JEE 2027 Aspirant' },
-            { quote: 'The Pomodoro timer + activity journal helped me stay consistent for 6+ hours daily.', author: 'Rahul K.', role: 'JEE 2026 Aspirant' },
-          ].map(t => (
-            <div key={t.author} className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200 hover:-translate-y-[3px]" style={{
-              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow-hover)' }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--c-shadow)' }}>
-              <div className="text-[var(--c-blue)] text-2xl font-serif mb-3 leading-none">&ldquo;</div>
-              <p className="text-[14px] mb-6 leading-relaxed" style={{ color: 'var(--c-text-secondary)' }}>{t.quote}</p>
-              <div className="border-t border-[var(--c-border)] pt-4">
-                <div className="text-[14px] font-semibold" style={{ color: 'var(--c-text)' }}>{t.author}</div>
-                <div className="text-[12px]" style={{ color: 'var(--c-muted)' }}>{t.role}</div>
               </div>
             </div>
           ))}

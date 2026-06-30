@@ -10,7 +10,7 @@ export const SIDEBAR_WIDTH = 260
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: '📊' },
-  { href: '/ai', label: 'AI Assistant', icon: '🤖' },
+  { href: '/ai', label: 'AI Assistant', icon: '🤖', badge: 'BETA' },
   { href: '/syllabus', label: 'Syllabus', icon: '📚' },
   { href: '/roadmap', label: 'Roadmap', icon: '🗺️' },
   { href: '/timetable', label: 'Timetable', icon: '📅' },
@@ -84,7 +84,14 @@ export default function Sidebar() {
               }}>
               <span className="text-[18px]">{item.icon}</span>
               <span>{item.label}</span>
-              {active && <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: 'var(--c-blue)' }} />}
+              <span className="ml-auto flex items-center gap-1.5">
+                {(item as any).badge && (
+                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide" style={{ background: 'rgba(35,131,226,0.15)', color: 'var(--c-blue)' }}>
+                    {(item as any).badge}
+                  </span>
+                )}
+                {active && <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--c-blue)' }} />}
+              </span>
             </Link>
           )
         })}

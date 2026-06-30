@@ -125,8 +125,6 @@ export default function LandingAIAssistant() {
     if (!viewport) return
   }, [])
 
-  const hasUserMessages = messages.some(m => m.role === 'user')
-
   const addMessage = (msg: Message) => setMessages(prev => [...prev, msg])
 
   const handleSend = (text: string) => {
@@ -239,23 +237,21 @@ export default function LandingAIAssistant() {
                   </div>
                 </motion.div>
               )}
-              {/* Suggested questions inside scroll area, shown only when user hasn't started chatting */}
-              {!hasUserMessages && (
-                <div className="space-y-1 mt-4 pt-3" style={{ borderTop: '1px solid var(--c-border)' }}>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Quick questions</p>
-                  {SUGGESTIONS_CURATED.map((item, i) => (
-                    <motion.button key={item.q} initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02, duration: 0.2 }}
-                      onClick={() => handleSend(item.q)}
-                      className="flex items-center gap-2 w-full text-left text-sm px-4 py-2 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
-                      style={{ color: 'var(--c-text-secondary)' }}>
-                      <MessageSquare size={13} className="shrink-0" style={{ color: 'var(--c-muted)' }} />
-                      <span className="flex-1 truncate">{item.q}</span>
-                      <ChevronRight size={13} className="shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" style={{ color: 'var(--c-blue)' }} />
-                    </motion.button>
-                  ))}
-                </div>
-              )}
+              {/* Suggested questions always visible so users can scroll and select more */}
+              <div className="space-y-1 mt-4 pt-3" style={{ borderTop: '1px solid var(--c-border)' }}>
+                <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Quick questions</p>
+                {SUGGESTIONS_CURATED.map((item, i) => (
+                  <motion.button key={item.q} initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02, duration: 0.2 }}
+                    onClick={() => handleSend(item.q)}
+                    className="flex items-center gap-2 w-full text-left text-sm px-4 py-2 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
+                    style={{ color: 'var(--c-text-secondary)' }}>
+                    <MessageSquare size={13} className="shrink-0" style={{ color: 'var(--c-muted)' }} />
+                    <span className="flex-1 truncate">{item.q}</span>
+                    <ChevronRight size={13} className="shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" style={{ color: 'var(--c-blue)' }} />
+                  </motion.button>
+                ))}
+              </div>
             </ScrollArea>
 
             {/* Input */}

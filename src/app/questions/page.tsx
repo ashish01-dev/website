@@ -30,6 +30,7 @@ export default function QuestionsPage() {
   const [expandedSubj, setExpandedSubj] = useState<Subject | null>(null)
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null)
   const [showSubjectDropdown, setShowSubjectDropdown] = useState(false)
+  const [questionWarning, setQuestionWarning] = useState('')
   const subjectRef = useRef<HTMLDivElement>(null)
 
   const chapters = useMemo(() => getChapters(subject), [subject])
@@ -46,7 +47,8 @@ export default function QuestionsPage() {
   }, [])
 
   const addEntry = async () => {
-    if (!chapter || count <= 0) return
+    if (!chapter || count <= 0) { setQuestionWarning('Please select a chapter and enter the number of questions.'); return }
+    setQuestionWarning('')
     const entry: QuestionsEntry = {
       id: generateId(),
       date: formatDate(new Date()),
@@ -154,8 +156,9 @@ export default function QuestionsPage() {
                   onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
                   onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }} />
               </div>
-              <button onClick={addEntry} disabled={!chapter || count <= 0}
-                className="w-full flex items-center justify-center text-sm font-medium px-4 py-2 rounded-[40px] text-white disabled:opacity-40"
+              {questionWarning && <p className="text-xs" style={{ color: 'var(--c-red)' }}>{questionWarning}</p>}
+              <button onClick={addEntry}
+                className="w-full flex items-center justify-center text-sm font-medium px-4 py-2 rounded-[40px] text-white"
                 style={{ background: 'var(--c-btn-primary)' }}>Log</button>
             </div>
           </div>

@@ -30,6 +30,7 @@ export default function RevisionPage() {
   const [errorEntries, setErrorEntries] = useState<ErrorEntry[]>([])
   const [showSubjectDropdown, setShowSubjectDropdown] = useState(false)
   const [showChapterDropdown, setShowChapterDropdown] = useState(false)
+  const [errorWarning, setErrorWarning] = useState('')
   const subjectRef = useRef<HTMLDivElement>(null)
   const chapterRef = useRef<HTMLDivElement>(null)
 
@@ -125,8 +126,10 @@ export default function RevisionPage() {
                   style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
                   placeholder="Formula mistake? Silly error?" />
               </div>
+              {errorWarning && <p className="text-xs" style={{ color: 'var(--c-red)' }}>{errorWarning}</p>}
               <button onClick={async () => {
-                if (!errorChapter || !errorQuestion) return
+                if (!errorChapter || !errorQuestion) { setErrorWarning('Please select a chapter and describe the question.'); return }
+                setErrorWarning('')
                 const entry: ErrorEntry = { id: generateId(), date: formatDate(new Date()), subject: errorSubject, chapter: errorChapter, question: errorQuestion, reason: errorReason }
                 await db.errors.add(entry)
                 setErrorEntries(prev => [...prev, entry])

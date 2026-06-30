@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useProgressStore } from '@/store/progressStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useUser } from '@/lib/useUser'
@@ -28,6 +29,86 @@ const MOTIVATIONAL_QUOTES = [
   '"Great things never come from comfort zones."',
 ]
 
+function ProGate({ onBuy, onDashboard }: { onBuy: () => void; onDashboard: () => void }) {
+  return (
+    <div className="relative min-h-[70vh]">
+      <div className="max-w-[960px] mx-auto px-4 md:px-6 pt-[17px] pb-6" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any }}>
+        <div className="flex items-center gap-1.5 text-sm mb-8" style={{ color: 'var(--c-muted)' }}>
+          <span className="material-symbols-rounded text-[18px]">arrow_back</span>
+          Back to AI Assistant
+        </div>
+        <div className="rounded-[18px] p-5 mb-6" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+          <div className="h-5 w-48 rounded bg-[var(--c-progress-bg)] animate-pulse mb-3" />
+          <div className="h-4 w-64 rounded bg-[var(--c-progress-bg)] animate-pulse mb-2" />
+          <div className="h-4 w-40 rounded bg-[var(--c-progress-bg)] animate-pulse" />
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-[18px] p-5" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+              <div className="h-4 w-20 rounded bg-[var(--c-progress-bg)] animate-pulse mb-2" />
+              <div className="h-5 w-36 rounded bg-[var(--c-progress-bg)] animate-pulse mb-3" />
+              <div className="h-8 rounded-[10px] bg-[var(--c-progress-bg)] animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="absolute inset-0 flex items-center justify-center" style={{
+        background: 'rgba(0,0,0,0.5)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        zIndex: 10,
+      }}>
+        <div className="text-center px-6">
+          <div className="text-3xl mb-3">🤖</div>
+          <h2 className="text-lg font-semibold mb-1" style={{ color: '#fff' }}>Pro Feature</h2>
+          <p className="text-sm mb-5 max-w-[280px] mx-auto" style={{ color: 'rgba(255,255,255,0.65)' }}>
+            Upgrade to Pro for personalized study recommendations, AI-powered priority lists, daily study schedules, and more.
+          </p>
+          <div className="flex flex-col items-center gap-2.5">
+            <button onClick={onBuy}
+              className="w-full max-w-[200px] flex items-center justify-center gap-1.5 text-sm font-medium px-5 py-2.5 rounded-[40px] text-white transition-opacity hover:opacity-90"
+              style={{ background: 'var(--c-blue)' }}>
+              Buy Pro
+            </button>
+            <button onClick={onDashboard}
+              className="text-xs font-medium transition-opacity hover:opacity-80"
+              style={{ color: 'rgba(255,255,255,0.7)' }}>
+              Go to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function BetaPopup({ onAcknowledge }: { onAcknowledge: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40" style={{ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
+      <div className="max-w-sm mx-4 rounded-[18px] p-6 animate-scale-in" style={{
+        background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)',
+      }}>
+        <h3 className="text-base font-bold mb-3" style={{ color: 'var(--c-text)' }}>AI Assistant is still in Beta</h3>
+        <div className="space-y-2.5 text-[13px] leading-relaxed" style={{ color: 'var(--c-text-secondary)' }}>
+          <p>Thanks for being an early adopter! Here are a few things to keep in mind:</p>
+          <ul className="space-y-1.5 pl-4" style={{ listStyle: 'disc' }}>
+            <li>Recommendations are based on your study data and may not always be perfect.</li>
+            <li>AI responses use third-party models and may occasionally be inaccurate.</li>
+            <li>New features and improvements are being added regularly.</li>
+            <li>Your feedback helps us make the AI better — share it anytime.</li>
+            <li>Data from your AI interactions is used only to improve your experience.</li>
+          </ul>
+        </div>
+        <button onClick={onAcknowledge}
+          className="mt-5 w-full py-2.5 text-sm font-semibold rounded-[40px] text-white transition-opacity hover:opacity-90"
+          style={{ background: 'var(--c-btn-primary)' }}>
+          I Understand
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function getGreeting(): string {
   const h = new Date().getHours()
   if (h < 12) return 'Good Morning'
@@ -48,14 +129,21 @@ function estimateHours(chapter: Chapter): number {
 export default function AIPage() {
   const { progress, loaded, incrementRevision } = useProgressStore()
   const { settings } = useSettingsStore()
-  const { user } = useUser()
+  const { user, loading } = useUser()
 
   const today = new Date()
   const examDate = new Date(settings.examDate)
   const daysRemaining = Math.max(0, Math.ceil((examDate.getTime() - today.getTime()) / 86400000))
+  const router = useRouter()
+  const isPro = user?.isPro ?? false
+  const [showBeta, setShowBeta] = useState(false)
   const [quote] = useState(() => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)])
   const [availableHours, setAvailableHours] = useState(settings.dailyStudyHours || 6)
   const [showDisclaimer, setShowDisclaimer] = useState(false)
+
+  useEffect(() => {
+    if (isPro && !localStorage.getItem('ai_beta_acknowledged')) setShowBeta(true)
+  }, [isPro])
 
   const pace = useMemo(() => calculatePace(syllabus, progress, examDate, today, settings.freezeDays), [progress, settings])
 
@@ -212,11 +300,12 @@ export default function AIPage() {
     return entries
   }, [])
 
-  return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
-      <Sidebar />
-      <TopBar />
-      <MobileBottomNav />
+  if (loading) return null
+
+  const content = !isPro ? (
+    <ProGate onBuy={() => router.push('/pricing')} onDashboard={() => router.push('/dashboard')} />
+  ) : (
+    <>
       <div className="max-w-[960px] mx-auto px-4 md:px-6 pt-[17px] pb-6" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         {/* ─── Header ─── */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
@@ -496,6 +585,16 @@ export default function AIPage() {
           </div>
         </div>
       )}
+      {showBeta && <BetaPopup onAcknowledge={() => { localStorage.setItem('ai_beta_acknowledged', '1'); setShowBeta(false) }} />}
+    </>
+  )
+
+  return (
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
+      <Sidebar />
+      <TopBar />
+      <MobileBottomNav />
+      {content}
     </div>
   )
 }
