@@ -56,7 +56,7 @@ const WELCOME_PRO: TutorMessage = {
 }
 
 export default function AITutorPanel() {
-  const user = useUser()
+  const { user } = useUser()
   const isPro = user?.isPro ?? false
 
   const [isOpen, setIsOpen] = useState(false)
@@ -219,23 +219,23 @@ export default function AITutorPanel() {
                   <div className="rounded-2xl px-4 py-3" style={{ background: 'var(--c-tag)' }}><TypingDots /></div>
                 </motion.div>
               )}
-
-              {/* Persistent suggested questions for Pro users */}
-              {isPro && (
-                <div className="mt-4 space-y-1.5">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Try asking</p>
-                  {SUGGESTED_TUTOR_QUESTIONS.map((q, i) => (
-                    <motion.button key={q} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.015, duration: 0.15 }}
-                      onClick={() => handleSend(q)}
-                      className="flex items-center gap-2 w-full text-left text-sm px-4 py-2 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
-                      style={{ color: 'var(--c-text-secondary)' }}>
-                      <Sparkles size={13} className="shrink-0" style={{ color: 'var(--c-blue)' }} />
-                      <span className="flex-1 truncate">{q}</span>
-                    </motion.button>
-                  ))}
-                </div>
-              )}
             </ScrollArea>
+
+            {/* Persistent suggested questions for Pro users — always visible below scroll area */}
+            {isPro && (
+              <div className="px-4 pb-2 shrink-0 space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Try asking</p>
+                {SUGGESTED_TUTOR_QUESTIONS.map((q, i) => (
+                  <motion.button key={q} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.015, duration: 0.15 }}
+                    onClick={() => handleSend(q)}
+                    className="flex items-center gap-2 w-full text-left text-sm px-4 py-2 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
+                    style={{ color: 'var(--c-text-secondary)' }}>
+                    <Sparkles size={13} className="shrink-0" style={{ color: 'var(--c-blue)' }} />
+                    <span className="flex-1 truncate">{q}</span>
+                  </motion.button>
+                ))}
+              </div>
+            )}
 
             {/* Input */}
             <div className="p-4 shrink-0 border-t" style={{ borderColor: 'var(--c-border)' }}>

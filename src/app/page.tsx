@@ -91,7 +91,7 @@ function CountUp({ value, label }: { value: string; label: string }) {
 }
 
 export default function LandingPage() {
-  const user = useUser()
+  const { user } = useUser()
   const [topHovered, setTopHovered] = useState<number | null>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 

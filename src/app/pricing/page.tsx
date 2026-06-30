@@ -44,7 +44,7 @@ const TESTIMONIALS = [
 
 export default function PricingPage() {
   const router = useRouter()
-  const user = useUser()
+  const { user } = useUser()
   const [isYearly, setIsYearly] = useState(false)
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)

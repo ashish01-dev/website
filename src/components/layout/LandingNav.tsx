@@ -8,7 +8,7 @@ import { getSupabase } from '@/lib/supabase'
 
 export default function LandingNav({ active }: { active?: 'pricing' | 'about' }) {
   const router = useRouter()
-  const user = useUser()
+  const { user, loading } = useUser()
   const [menuOpen, setMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
@@ -73,6 +73,8 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
         </div>
 
         <div className="flex items-center gap-2">
+          {loading ? null : (
+          <>
           <button onClick={toggleTheme} className="hidden md:flex w-7 h-7 rounded-full items-center justify-center transition-all hover:bg-black/[0.04]" style={{ cursor: 'pointer', color: 'var(--c-text)' }}>
             {isDark ? (
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -151,11 +153,15 @@ export default function LandingNav({ active }: { active?: 'pricing' | 'about' })
               </Link>
             </>
           )}
+          </>
+          )}
+          {loading ? null : (
           <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden flex flex-col items-center justify-center w-6 h-6 gap-[4px]" style={{ cursor: 'pointer' }}>
             <span style={{ backgroundColor: 'var(--c-text)' }} className={`block h-[1.5px] w-5 rounded transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-[2.5px]' : ''}`} />
             <span style={{ backgroundColor: 'var(--c-text)' }} className={`block h-[1.5px] w-5 rounded transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
             <span style={{ backgroundColor: 'var(--c-text)' }} className={`block h-[1.5px] w-5 rounded transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-[2.5px]' : ''}`} />
           </button>
+          )}
         </div>
       </div>
 

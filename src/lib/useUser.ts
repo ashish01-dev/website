@@ -14,12 +14,13 @@ export interface UserInfo {
   isPro: boolean
 }
 
-export function useUser() {
+export function useUser(): { user: UserInfo | null; loading: boolean } {
   const [user, setUser] = useState<UserInfo | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const sb = getSupabase()
-    if (!sb) return
+    if (!sb) { setLoading(false); return }
     const updateUser = (u: any) => {
       if (u) {
         const meta = u.user_metadata || {}
@@ -34,10 +35,10 @@ export function useUser() {
         setUser(null)
       }
     }
-    sb.auth.getUser().then((res: { data: { user: any } }) => updateUser(res.data.user))
-    const { data: { subscription } } = sb.auth.onAuthStateChange((_e: string, session: any) => updateUser(session?.user))
+    sb.auth.getUser().then((res: { data: { user: any } }) => { updateUser(res.data.user); setLoading(false) })
+    const { data: { subscription } } = sb.auth.onAuthStateChange((_e: string, session: any) => { updateUser(session?.user); if (!session) setLoading(false) })
     return () => subscription.unsubscribe()
   }, [])
 
-  return user
+  return { user, loading }
 }

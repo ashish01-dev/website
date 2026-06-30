@@ -13,7 +13,7 @@ export default function TopBar() {
   const { settings, update } = useSettingsStore()
   const sidebarOpen = useSidebarStore(s => s.open)
   const setSidebarOpen = useSidebarStore(s => s.setOpen)
-  const user = useUser()
+  const { user } = useUser()
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 })
   const [liveTime, setLiveTime] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -74,7 +74,7 @@ export default function TopBar() {
     router.push('/')
   }
 
-  const displayName = settings.name || user?.name || 'User'
+  const displayName = user?.name || settings.name || 'User'
   const displayAvatar = avatarUrl || user?.avatar || ''
   const displayInitial = displayName.charAt(0).toUpperCase()
 

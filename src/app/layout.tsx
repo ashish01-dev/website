@@ -13,7 +13,7 @@ import { useProgressStore } from '@/store/progressStore'
 import { useTimetableStore } from '@/store/timetableStore'
 import { getSupabase } from '@/lib/supabase'
 import { setSyncUser, syncPullAll } from '@/lib/supabase-sync'
-import { db } from '@/lib/db'
+import { db, dexie } from '@/lib/db'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 const TABLE_KEYS: Record<string, string> = {
@@ -39,6 +39,21 @@ async function fillLocalFromCloud() {
   }
 }
 
+async function clearAllLocalData() {
+  try {
+    await dexie.progress.clear()
+    await dexie.timetable.clear()
+    await dexie.tests.clear()
+    await dexie.errors.clear()
+    await dexie.formulas.clear()
+    await dexie.dailyLogs.clear()
+    await dexie.settings.clear()
+    await dexie.pomodoro.clear()
+    await dexie.dailyPlans.clear()
+    await dexie.questions.clear()
+  } catch (err) { console.error('clearAllLocalData:', err) }
+}
+
 async function initSync() {
   const sb = getSupabase()
   if (!sb) return
@@ -49,6 +64,14 @@ async function initSync() {
     await useSettingsStore.getState().load()
     await useProgressStore.getState().load()
     await useTimetableStore.getState().load()
+    const meta = user.user_metadata
+    const googleName = meta?.full_name || meta?.name || meta?.given_name || ''
+    if (googleName) {
+      const s = useSettingsStore.getState().settings
+      if (s.name !== googleName) {
+        await useSettingsStore.getState().update({ name: googleName })
+      }
+    }
   }
   sb.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
     const uid = session?.user?.id ?? null
@@ -59,6 +82,22 @@ async function initSync() {
         useProgressStore.getState().load()
         useTimetableStore.getState().load()
       })
+      if (session?.user?.user_metadata) {
+        const meta = session.user.user_metadata
+        const googleName = meta.full_name || meta.name || meta.given_name || ''
+        if (googleName) {
+          const s = useSettingsStore.getState().settings
+          if (s.name !== googleName) {
+            useSettingsStore.getState().update({ name: googleName })
+          }
+        }
+      }
+    }
+    if (event === 'SIGNED_OUT') {
+      clearAllLocalData()
+      useSettingsStore.getState().reset()
+      useProgressStore.getState().load()
+      useTimetableStore.getState().load()
     }
   })
 }
@@ -85,6 +124,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         const meta = res.data.user.user_metadata
         const name = meta?.full_name || meta?.name || meta?.given_name || res.data.user.email?.split('@')[0] || null
         setUserName(name)
+      } else {
+        setUserName(null)
       }
     })
   }, [pathname])
@@ -115,6 +156,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {!isAppPage && <Footer />}
         </div>
         {isAppPage ? <AITutorPanel /> : <LandingAIAssistant />}
+        <OnboardingFlow />
       </body>
     </html>
   )

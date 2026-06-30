@@ -7,6 +7,7 @@ interface SettingsState {
   loaded: boolean
   load: () => Promise<void>
   update: (partial: Partial<Settings>) => Promise<void>
+  reset: () => Promise<void>
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -46,5 +47,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       document.documentElement.classList.toggle('dark', updated.theme === 'dark')
       document.documentElement.classList.toggle('light', updated.theme === 'light')
     }
+  },
+  reset: async () => {
+    set({ settings: { ...DEFAULT_SETTINGS } })
+    try {
+      await db.settings.delete('main')
+      localStorage.removeItem('jee-theme')
+    } catch (err) { console.error('settings.reset:', err) }
   },
 }))
