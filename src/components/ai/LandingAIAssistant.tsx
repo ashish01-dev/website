@@ -129,7 +129,7 @@ export default function LandingAIAssistant() {
 
   const addMessage = (msg: Message) => setMessages(prev => [...prev, msg])
 
-  const handleSend = (text: string) => {
+  const handleSend = async (text: string) => {
     const q = text.trim()
     if (!q || isTyping) return
     setInput('')
@@ -137,27 +137,51 @@ export default function LandingAIAssistant() {
     setIsTyping(true)
 
     const lower = q.toLowerCase()
-    const isAcademic = /^(solve|explain|derive|calculate|find|what is|how to|prove|show that).*(physics|chemistry|maths?|mathematics|mechanic|kinematic|thermo|electro|magneti|optics|wave|sound|modern|atom|nuclear|organic|inorganic|physical|algebra|calculus|geometry|trigonometry|vector|matrix|differentiat|integrat|probability)/i.test(lower) ||
-      /(numerical|problem|question|doubt|equation|formula|concept|chapter|topic|reaction|mechanism).*(class 11|class 12|ncert|jee|iit)/i.test(lower)
 
-    setTimeout(() => {
-      setIsTyping(false)
-      if (isAcademic && !lower.includes('platform') && !lower.includes('jeeify')) {
-        addMessage({ id: generateId(), role: 'assistant', content: `I'm J — here to help with platform questions! For JEE academic help, **sign in and open the AI Tutor** on your dashboard. It's built specifically for Physics, Chemistry, and Mathematics.`, timestamp: Date.now() })
-        return
-      }
-      const match = SUGGESTIONS_CURATED.find(s => q.toLowerCase().includes(s.q.toLowerCase().slice(0, 20)))
-      if (match) {
+    // Quick match against curated suggestions (FAST)
+    const match = SUGGESTIONS_CURATED.find(s => q.toLowerCase().includes(s.q.toLowerCase().slice(0, 20)))
+    if (match) {
+      setTimeout(() => {
+        setIsTyping(false)
         addMessage({ id: generateId(), role: 'assistant', content: match.a, timestamp: Date.now() })
-        return
-      }
-      const result = findAnswer(q)
-      if (result) {
-        addMessage({ id: generateId(), role: 'assistant', content: result.answer, sources: result.sources, timestamp: Date.now() })
+      }, 500)
+      return
+    }
+
+    // Check knowledge base
+    const kbResult = findAnswer(q)
+    if (kbResult) {
+      setTimeout(() => {
+        setIsTyping(false)
+        addMessage({ id: generateId(), role: 'assistant', content: kbResult.answer, sources: kbResult.sources, timestamp: Date.now() })
+      }, 500)
+      return
+    }
+
+    // Use AI API for everything else
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: q }],
+          systemPrompt: 'You are J, a friendly JEEIFY guide. Help users with questions about the JEEIFY platform — features, pricing, how to get started, etc. Answer concisely with markdown formatting. For academic JEE questions, provide a helpful explanation.',
+          maxTokens: 1024,
+          temperature: 0.7,
+        }),
+      })
+      const data = await res.json()
+      const reply = data?.choices?.[0]?.message?.content || ''
+      setIsTyping(false)
+      if (reply) {
+        addMessage({ id: generateId(), role: 'assistant', content: reply, timestamp: Date.now() })
       } else {
-        addMessage({ id: generateId(), role: 'assistant', content: `Hmm, I don't have an answer for that yet. Try asking about features, pricing, or how to get started. You can also email **support@jeeify.app** for specific questions.`, timestamp: Date.now() })
+        addMessage({ id: generateId(), role: 'assistant', content: `Hmm, I couldn't find an answer for that. Try asking about features, pricing, or how to get started.`, timestamp: Date.now() })
       }
-    }, 800 + Math.random() * 700)
+    } catch {
+      setIsTyping(false)
+      addMessage({ id: generateId(), role: 'assistant', content: `Sorry, I'm having trouble connecting right now. Try again in a moment.`, timestamp: Date.now() })
+    }
   }
 
   return (

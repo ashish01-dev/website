@@ -67,9 +67,11 @@ export default function SettingsPage() {
     return () => subscription.unsubscribe()
   }, [])
 
+  const computedIsPro = user ? isProEmail(user.email || '') || settings.isPro : false
+
   useEffect(() => {
-    estimateStorageUsage(user ? isProEmail(user.email || '') : false).then(setStorageUsage)
-  }, [user])
+    estimateStorageUsage(computedIsPro).then(setStorageUsage)
+  }, [computedIsPro])
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -303,7 +305,7 @@ export default function SettingsPage() {
                     View full release notes →
                   </a>
                 )}
-                {user && isProEmail(user.email || '') && (
+                {computedIsPro && (
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Auto Plan Popup</div>
@@ -329,7 +331,7 @@ export default function SettingsPage() {
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Pro Subscription</h2>
-            {user && isProEmail(user.email || '') ? (
+                  {computedIsPro ? (
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(35,131,226,0.1)' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c-blue)" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -382,7 +384,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="text-[10px] mt-1" style={{ color: 'var(--c-caption)' }}>
                   Limit: {formatBytes(storageUsage.limitBytes)}
-                  {user && isProEmail(user.email || '') ? (
+            {computedIsPro ? (
                     <span className="ml-2 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white" style={{ background: 'var(--c-blue)' }}>PRO</span>
                   ) : (
                     <button onClick={() => router.push('/pricing')}

@@ -82,20 +82,40 @@ export default function AITutorPanel() {
 
   const addMessage = useCallback((msg: TutorMessage) => setMessages(prev => [...prev, msg]), [])
 
-  const handleSend = useCallback((text: string) => {
+  const handleSend = useCallback(async (text: string) => {
     const q = text.trim()
     if (!q || isTyping || !isPro) return
     setInput('')
     addMessage({ id: generateTutorId(), role: 'user', content: q, mode: activeMode, timestamp: Date.now() })
     setIsTyping(true)
-    setTimeout(() => {
-      setIsTyping(false)
-      addMessage({
-        id: generateTutorId(), role: 'assistant',
-        content: `Great question! Here's help with **${q.slice(0, 80)}${q.length > 80 ? '...' : ''}**:\n\n• Retrieving relevant NCERT and JEE content\n• Breaking it down step by step\n• Providing clear explanations with formulas\n• Ready to test your understanding with practice questions\n\n*The full AI pipeline connects to our knowledge base for contextual responses.*`,
-        mode: activeMode, timestamp: Date.now(),
+
+    const modeConfig = TUTOR_MODES.find(m => m.id === activeMode)
+    const modeContext = modeConfig?.label || 'general'
+    const systemPrompt = `You are an expert JEE tutor. Answer ${modeContext} questions for JEE Main & Advanced (Physics, Chemistry, Maths). Provide step-by-step explanations with formulas. Use markdown formatting with **bold** for emphasis. Be concise but thorough.`
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: q }],
+          systemPrompt,
+          maxTokens: 2048,
+          temperature: 0.7,
+        }),
       })
-    }, 1000 + Math.random() * 500)
+      const data = await res.json()
+      const reply = data?.choices?.[0]?.message?.content || ''
+      setIsTyping(false)
+      if (reply) {
+        addMessage({ id: generateTutorId(), role: 'assistant', content: reply, mode: activeMode, timestamp: Date.now() })
+      } else {
+        addMessage({ id: generateTutorId(), role: 'assistant', content: `I couldn't process that request. Please try rephrasing your question.`, mode: activeMode, timestamp: Date.now() })
+      }
+    } catch {
+      setIsTyping(false)
+      addMessage({ id: generateTutorId(), role: 'assistant', content: `Sorry, I'm having trouble connecting. Please try again in a moment.`, mode: activeMode, timestamp: Date.now() })
+    }
   }, [isTyping, isPro, activeMode, addMessage])
 
   const switchMode = useCallback((mode: TutorMode) => {
