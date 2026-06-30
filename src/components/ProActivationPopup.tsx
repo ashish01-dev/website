@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSettingsStore } from '@/store/settingsStore'
+import { getSupabase } from '@/lib/supabase'
 import ConfettiOverlay from './ConfettiOverlay'
 
 interface ProActivationPopupProps {
@@ -18,6 +19,8 @@ export default function ProActivationPopup({ show, onGoToDashboard }: ProActivat
     if (!show) { setPhase(null); return }
     setPhase('activating')
     update({ isPro: true })
+    const sb = getSupabase()
+    if (sb) { sb.auth.updateUser({ data: { isPro: true } }).catch(() => {}) }
     const t = setTimeout(() => {
       setPhase('success')
       btnRef.current?.focus()

@@ -32,7 +32,7 @@ export function useUser(): { user: UserInfo | null; loading: boolean } {
           name: meta.full_name || meta.name || meta.given_name || email.split('@')[0] || 'User',
           avatar: meta.avatar_url || meta.picture || '',
           email,
-          isPro: isProEmail(email) || settingsIsPro,
+          isPro: isProEmail(email) || settingsIsPro || meta.isPro === true,
         })
       } else {
         setUser(null)

@@ -112,14 +112,6 @@ export default function OnboardingFlow() {
 
   const onboardingKey = (email: string | null) => email ? `jee_onboarded_${btoa(email).slice(0, 20)}` : null
 
-  const checkAndSyncOnboarded = (email: string | null) => {
-    if (!email || settings.onboarded) return
-    const key = onboardingKey(email)
-    if (key && localStorage.getItem(key) === '1') {
-      update({ onboarded: true })
-    }
-  }
-
   useEffect(() => {
     const sb = getSupabase()
     if (!sb) { setSignedIn(false); setCheckingOnboarded(false); return }
@@ -128,10 +120,12 @@ export default function OnboardingFlow() {
       const email = user?.email || null
       setUserEmail(email)
       setSignedIn(!!user)
-      const alreadyOnboarded = settings.onboarded
-          || (email ? localStorage.getItem(onboardingKey(email)!) === '1' : false)
-          || user?.user_metadata?.onboarded === true
-      if (alreadyOnboarded && !settings.onboarded) {
+      const currentState = useSettingsStore.getState()
+      if (currentState.settings.onboarded) { setCheckingOnboarded(false); return }
+      const key = email ? onboardingKey(email) : null
+      const lsOnboarded = key ? localStorage.getItem(key) === '1' : false
+      const metaOnboarded = user?.user_metadata?.onboarded === true
+      if (lsOnboarded || metaOnboarded) {
         update({ onboarded: true })
       }
       setCheckingOnboarded(false)
@@ -141,9 +135,12 @@ export default function OnboardingFlow() {
       const email = u?.email || null
       setUserEmail(email)
       setSignedIn(!!u)
-      const alreadyOnboarded = u?.user_metadata?.onboarded === true
-          || (email ? localStorage.getItem(onboardingKey(email)!) === '1' : false)
-      if (alreadyOnboarded && !useSettingsStore.getState().settings.onboarded) {
+      const currentState = useSettingsStore.getState()
+      if (currentState.settings.onboarded) return
+      const key = email ? onboardingKey(email) : null
+      const lsOnboarded = key ? localStorage.getItem(key) === '1' : false
+      const metaOnboarded = u?.user_metadata?.onboarded === true
+      if (lsOnboarded || metaOnboarded) {
         update({ onboarded: true })
       }
     })
