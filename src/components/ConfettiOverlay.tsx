@@ -17,10 +17,11 @@ interface Particle {
 interface ConfettiOverlayProps {
   fire: boolean
   message?: string
+  messageContent?: React.ReactNode
   onDone?: () => void
 }
 
-export default function ConfettiOverlay({ fire, message, onDone }: ConfettiOverlayProps) {
+export default function ConfettiOverlay({ fire, message, messageContent, onDone }: ConfettiOverlayProps) {
   const [particles, setParticles] = useState<Particle[]>([])
   const [visible, setVisible] = useState(false)
 
@@ -70,7 +71,8 @@ export default function ConfettiOverlay({ fire, message, onDone }: ConfettiOverl
           } as React.CSSProperties}
         />
       ))}
-      {message && (
+      {messageContent}
+      {message && !messageContent && (
         <div className="pointer-events-auto animate-confetti-message bg-notion-bg-dark/80 backdrop-blur-sm border border-notion-border-dark rounded-notion px-6 py-4 shadow-2xl text-center">
           <p className="text-lg font-bold text-notion-text-dark">{message}</p>
         </div>

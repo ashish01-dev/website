@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
 import { createOrder, openCheckout } from '@/lib/razorpay'
 import LandingNav from '@/components/layout/LandingNav'
+import ProUpgradePopup from '@/components/ProUpgradePopup'
 import { useUser } from '@/lib/useUser'
 
 const MONTHLY_PLANS = [
@@ -48,6 +49,7 @@ export default function PricingPage() {
   const [isYearly, setIsYearly] = useState(false)
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
+  const [showProUpgrade, setShowProUpgrade] = useState(false)
 
   const plans = isYearly ? YEARLY_PLANS : MONTHLY_PLANS
 
@@ -75,7 +77,7 @@ export default function PricingPage() {
     if (!order) { setLoading(false); return }
     await openCheckout(
       order,
-      () => { setLoading(false); router.push('/dashboard') },
+      () => { setLoading(false); setShowProUpgrade(true) },
       () => setLoading(false),
     )
   }
@@ -223,6 +225,7 @@ export default function PricingPage() {
         </div>
       </div>
 
+      <ProUpgradePopup show={showProUpgrade} onGoToDashboard={() => { setShowProUpgrade(false); router.push('/dashboard') }} />
     </div>
   )
 }
