@@ -120,7 +120,7 @@ export default function DashboardPage() {
       <MobileBottomNav />
       <DailyPlanModal open={showPlanModal} onClose={() => setShowPlanModal(false)} onSave={handleSavePlan} presetSubjects={dailyTargetSubjects} />
 
-      <div className="max-w-[1000px] mx-auto px-4 md:px-6 py-6 md:py-10" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any }}>
+      <div className="max-w-[1000px] mx-auto px-4 md:px-6 py-6 md:py-10" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
 
         {/* Greeting + date */}
         <div className="mb-8">
@@ -278,13 +278,12 @@ export default function DashboardPage() {
             <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(30, 1fr)' }}>
               {heatmapData.map((d, i) => {
                 const level = getHeatLevel(d.hours)
-                const colors = ['#f5f5f5', '#e0e7ff', '#bed9ff', '#2383e2/40', '#2383e2/80']
                 return (
                   <div
                     key={i}
-                    className="aspect-square rounded-[4px] hover:ring-1 hover:ring-black/20 transition-all cursor-default"
+                    className="aspect-square rounded-[4px] hover:ring-1 hover:ring-black/20 dark:hover:ring-white/20 transition-all cursor-default"
                     style={{
-                      backgroundColor: level === 0 ? '#f5f5f5' : level === 1 ? '#dbeafe' : level === 2 ? '#93c5fd' : level === 3 ? '#60a5fa' : 'var(--c-blue)',
+                      backgroundColor: `var(--heat-${level})`,
                     }}
                     title={`${d.date}: ${d.hours.toFixed(1)}h`}
                   />
@@ -293,11 +292,11 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center gap-2 mt-3 text-[10px]" style={{ color: 'var(--c-caption)' }}>
               <span>Less</span>
-              <div className="w-3 h-3 rounded-[3px]" style={{ background: '#f5f5f5' }} />
-              <div className="w-3 h-3 rounded-[3px]" style={{ background: '#dbeafe' }} />
-              <div className="w-3 h-3 rounded-[3px]" style={{ background: '#93c5fd' }} />
-              <div className="w-3 h-3 rounded-[3px]" style={{ background: '#60a5fa' }} />
-              <div className="w-3 h-3 rounded-[3px]" style={{ background: 'var(--c-blue)' }} />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: 'var(--heat-0)' }} />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: 'var(--heat-1)' }} />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: 'var(--heat-2)' }} />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: 'var(--heat-3)' }} />
+              <div className="w-3 h-3 rounded-[3px]" style={{ background: 'var(--heat-4)' }} />
               <span>More</span>
             </div>
           </div>

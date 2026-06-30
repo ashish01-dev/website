@@ -160,7 +160,7 @@ export default function Sidebar() {
           </button>
         )}
       </div>
-      <div className="px-3 py-3 space-y-0.5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div className="px-3 py-3 space-y-0.5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 68px)' }}>
         {NAV_ITEMS.map(item => {
           const active = isActive(item.href)
           return (

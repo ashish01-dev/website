@@ -61,8 +61,9 @@ export default function TopBar() {
       WebkitBackdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--c-border-card)',
       paddingLeft: 'var(--sidebar-w, 0px)',
+      transition: 'padding-left 0.3s ease',
     }}>
-      <div className="max-w-[1100px] mx-auto flex items-center justify-between h-12 px-4 md:px-6">
+      <div className="max-w-[1000px] mx-auto flex items-center justify-between h-12 px-4 md:px-6">
         {/* Left: hamburger + live time + days left + clickable date */}
         <div className="flex items-center gap-1.5">
           <button
