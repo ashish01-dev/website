@@ -58,6 +58,9 @@ export default function LandingPage() {
         <p className="text-[15px] mt-5 max-w-lg" style={{ color: 'var(--c-muted)', lineHeight: 1.7 }}>
           Track syllabus progress, optimize your timetable, analyze tests — a command center built for the systematic mind.
         </p>
+        <p className="text-[clamp(15px,2vw,20px)] mt-6 font-medium" style={{ color: 'var(--c-text)' }}>
+          Built by a <span className="text-[var(--c-blue)]">Student</span><span className="text-[#888]">, for Students</span>
+        </p>
         <div className="flex items-center gap-4 mt-8 flex-wrap justify-center">
           <Link href="/auth?mode=signup"
             className="flex items-center gap-2 text-white text-[14px] font-medium rounded-[40px] px-[22px] py-[8px] transition-all duration-200 hover:-translate-y-[1px] hover:brightness-110"

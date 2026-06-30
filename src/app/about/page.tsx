@@ -81,9 +81,9 @@ export default function AboutPage() {
 
       {/* Mission */}
       <div className="max-w-[1100px] mx-auto px-5 pb-20" style={{ contentVisibility: 'auto' }}>
-        <div className="flex flex-col md:flex-row items-center gap-16">
-          <div className="flex-1">
-            <div className="rounded-[18px] px-[28px] py-[32px]" style={{
+        <div className="flex flex-col md:flex-row items-stretch gap-6">
+          <div className="flex-1 flex">
+            <div className="rounded-[18px] px-[28px] py-[32px] w-full" style={{
               background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
             }}>
               <h3 className="text-[20px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Our Mission</h3>
@@ -98,8 +98,8 @@ export default function AboutPage() {
               </p>
             </div>
           </div>
-          <div className="flex-1">
-            <div className="rounded-[18px] px-[28px] py-[32px]" style={{
+          <div className="flex-1 flex">
+            <div className="rounded-[18px] px-[28px] py-[32px] w-full" style={{
               background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
             }}>
               <h3 className="text-[20px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Our Values</h3>
