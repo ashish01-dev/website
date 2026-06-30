@@ -1,99 +1,519 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import Sidebar from '@/components/layout/Sidebar'
-import TopBar from '@/components/layout/TopBar'
-import MobileBottomNav from '@/components/layout/MobileBottomNav'
-import ChapterCard from '@/components/syllabus/ChapterCard'
-import type { Subject, SyllabusData } from '@/types'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useProgressStore } from '@/store/progressStore'
+import type { Subject, ChapterFilter, SortOption, Chapter } from '@/types'
 import syllabusData from '@/data/syllabus.json'
+import type { SyllabusData } from '@/types'
+import { db } from '@/lib/db'
+import ContextMenu from '@/components/shapes/ContextMenu'
 
 const syllabus = syllabusData as unknown as SyllabusData
-const SUBJECTS: { id: Subject; label: string }[] = [
-  { id: 'physics', label: 'Physics' },
-  { id: 'chemistry', label: 'Chemistry' },
-  { id: 'maths', label: 'Maths' },
+
+const SUBJECTS: Subject[] = ['physics', 'chemistry', 'maths']
+
+const FILTERS: { value: ChapterFilter; label: string; icon: string }[] = [
+  { value: 'all', label: 'All Chapters', icon: 'list' },
+  { value: 'not_started', label: 'Not Started', icon: 'radio_button_unchecked' },
+  { value: 'in_progress', label: 'In Progress', icon: 'progress_activity' },
+  { value: 'done', label: 'Completed', icon: 'check_circle' },
+  { value: 'revision_pending', label: 'Revision Pending', icon: 'refresh' },
+  { value: 'high_weightage', label: 'High Weightage', icon: 'whatshot' },
+  { value: 'weak', label: 'Weak Chapters', icon: 'sentiment_dissatisfied' },
+  { value: 'high_priority', label: 'High Priority', icon: 'priority_high' },
 ]
 
-export default function SyllabusPage() {
-  const [activeSubject, setActiveSubject] = useState<Subject>('physics')
-  const [search, setSearch] = useState('')
+const SORTS: { value: SortOption; label: string }[] = [
+  { value: 'default', label: 'Default' },
+  { value: 'name', label: 'Name' },
+  { value: 'progress', label: 'Progress' },
+  { value: 'weightage', label: 'Weightage' },
+  { value: 'revision_gap', label: 'Revision Gap' },
+]
 
-  const subjectData = syllabus[activeSubject]
+function AddChapterModal({ subject, onClose }: { subject: Subject; onClose: () => void }) {
+  const addChapter = useProgressStore(s => s.addChapter)
+  const [name, setName] = useState('')
+  const [weightage, setWeightage] = useState('medium')
 
-  const filteredDivisions = useMemo(() =>
-    subjectData.divisions.map(div => ({
-      ...div,
-      chapters: div.chapters.filter(ch =>
-        !search || ch.name.toLowerCase().includes(search.toLowerCase())
-      ),
-    })).filter(div => div.chapters.length > 0),
-    [subjectData, search]
-  )
+  const handleSubmit = async () => {
+    if (!name.trim()) return
+    const id = `custom_${Date.now()}`
+    await addChapter({
+      id,
+      name: name.trim(),
+      class: 12,
+      weightage,
+      topics: [],
+    })
+    onClose()
+  }
 
   return (
-    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
-      <Sidebar />
-      <TopBar />
-      <MobileBottomNav />
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="rounded-[18px] p-6 w-full max-w-sm mx-4 animate-scale-in"
+        style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--c-text)' }}>Add Chapter</h3>
+        <input
+          autoFocus
+          placeholder="Chapter name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+          className="w-full px-3 py-2 text-sm rounded-[12px] mb-3 outline-none"
+          style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}
+        />
+        <select
+          value={weightage}
+          onChange={e => setWeightage(e.target.value)}
+          className="w-full px-3 py-2 text-sm rounded-[12px] mb-4 outline-none"
+          style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}
+        >
+          <option value="low">Low Weightage</option>
+          <option value="medium">Medium Weightage</option>
+          <option value="high">High Weightage</option>
+        </select>
+        <div className="flex gap-2 justify-end">
+          <button onClick={onClose} className="px-4 py-2 text-sm rounded-[40px]" style={{ color: 'var(--c-muted)' }}>Cancel</button>
+          <button onClick={handleSubmit} disabled={!name.trim()}
+            className="px-5 py-2 text-sm font-semibold rounded-[40px] text-white disabled:opacity-40"
+            style={{ background: 'var(--c-btn-primary)' }}>
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
-      <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
-        <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>Syllabus Tracker</h1>
-        <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>Track your JEE 2027 syllabus progress</p>
+function RenameModal({ currentName, onSave, onClose }: { currentName: string; onSave: (name: string) => void; onClose: () => void }) {
+  const [name, setName] = useState(currentName)
+  return (
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
+      <div className="rounded-[18px] p-6 w-full max-w-sm mx-4 animate-scale-in"
+        style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)' }}
+        onClick={e => e.stopPropagation()}>
+        <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--c-text)' }}>Rename Chapter</h3>
+        <input autoFocus placeholder="Chapter name" value={name} onChange={e => setName(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && name.trim() && (onSave(name.trim()), onClose())}
+          className="w-full px-3 py-2 text-sm rounded-[12px] mb-4 outline-none"
+          style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }} />
+        <div className="flex gap-2 justify-end">
+          <button onClick={onClose} className="px-4 py-2 text-sm rounded-[40px]" style={{ color: 'var(--c-muted)' }}>Cancel</button>
+          <button onClick={() => name.trim() && (onSave(name.trim()), onClose())}
+            className="px-5 py-2 text-sm font-semibold rounded-[40px] text-white" style={{ background: 'var(--c-btn-primary)' }}>Save</button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
-        <div className="flex items-center gap-1 mb-6 border-b border-[rgba(0,0,0,0.06)] pb-0">
+function ConfirmModal({ message, onConfirm, onClose }: { message: string; onConfirm: () => void; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
+      <div className="rounded-[18px] p-6 w-full max-w-sm mx-4 animate-scale-in"
+        style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)' }}
+        onClick={e => e.stopPropagation()}>
+        <p className="text-sm mb-5" style={{ color: 'var(--c-text)' }}>{message}</p>
+        <div className="flex gap-2 justify-end">
+          <button onClick={onClose} className="px-4 py-2 text-sm rounded-[40px]" style={{ color: 'var(--c-muted)' }}>Cancel</button>
+          <button onClick={() => { onConfirm(); onClose() }}
+            className="px-5 py-2 text-sm font-semibold rounded-[40px] text-white" style={{ background: 'var(--c-red)' }}>Delete</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProgressDot({ status }: { status?: string }) {
+  const colors: Record<string, string> = {
+    done: 'var(--c-green)',
+    in_progress: 'var(--c-blue)',
+    not_started: 'var(--c-caption)',
+  }
+  return (
+    <span className="w-2 h-2 rounded-full inline-block flex-shrink-0" style={{ background: colors[status || 'not_started'] || 'var(--c-caption)' }} />
+  )
+}
+
+function WeightageBadge({ weightage }: { weightage: string }) {
+  const colors: Record<string, string> = {
+    high: 'var(--c-red)',
+    medium: 'var(--c-orange)',
+    low: 'var(--c-caption)',
+  }
+  return (
+    <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded-full" style={{ background: colors[weightage] + '20', color: colors[weightage] || 'var(--c-caption)' }}>
+      {weightage}
+    </span>
+  )
+}
+
+export default function SyllabusPage() {
+  const { progress, loaded, setTopicDone, setChapterStatus, markAllTopics, addCustomTopic, incrementRevision, deleteChapter, load, loadCustomChapters, customChapters, getTotalChapters } = useProgressStore()
+
+  const [subject, setSubject] = useState<Subject>('physics')
+  const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState<ChapterFilter>('all')
+  const [sort, setSort] = useState<SortOption>('default')
+  const [showFilter, setShowFilter] = useState(false)
+  const [showSort, setShowSort] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chapterId: string; chapterName: string } | null>(null)
+  const [renameTarget, setRenameTarget] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [dragId, setDragId] = useState<string | null>(null)
+
+  useEffect(() => { load(); loadCustomChapters() }, [load, loadCustomChapters])
+
+  const allChapters = useMemo(() => {
+    const data = syllabus[subject]
+    const builtIn: Chapter[] = []
+    for (const div of data.divisions) {
+      for (const ch of div.chapters) {
+        if (!ch.deleted) builtIn.push({ ...ch })
+      }
+    }
+    for (const cc of customChapters) {
+      if (!cc.deleted) builtIn.push(cc)
+    }
+    return builtIn
+  }, [subject, customChapters])
+
+  const filteredChapters = useMemo(() => {
+    let chs = [...allChapters]
+    if (search) {
+      const q = search.toLowerCase()
+      chs = chs.filter(ch => ch.name.toLowerCase().includes(q))
+    }
+    switch (filter) {
+      case 'not_started':
+        chs = chs.filter(ch => (progress[ch.id]?.status ?? 'not_started') === 'not_started'); break
+      case 'in_progress':
+        chs = chs.filter(ch => progress[ch.id]?.status === 'in_progress'); break
+      case 'done':
+        chs = chs.filter(ch => progress[ch.id]?.status === 'done'); break
+      case 'revision_pending': {
+        const thirtyDays = Date.now() - 30 * 86400000
+        chs = chs.filter(ch => {
+          const p = progress[ch.id]
+          if (!p || p.status !== 'done') return false
+          return p.lastRevised ? new Date(p.lastRevised).getTime() < thirtyDays : true
+        })
+        break
+      }
+      case 'high_weightage':
+        chs = chs.filter(ch => ch.weightage === 'high'); break
+      case 'weak':
+        chs = chs.filter(ch => {
+          const p = progress[ch.id]
+          if (!p || p.status !== 'in_progress') return false
+          const chTopics = ch.topics.filter(t => !t.deleted)
+          if (!chTopics.length) return false
+          return chTopics.filter(t => p.topicStatus[t.id]).length / chTopics.length < 0.4
+        })
+        break
+      case 'high_priority':
+        chs.sort((a, b) => {
+          const pA = progress[a.id], pB = progress[b.id]
+          const w = { high: 3, medium: 2, low: 1 }
+          const gapA = pA?.lastRevised ? (Date.now() - new Date(pA.lastRevised).getTime()) / 86400000 : 30
+          const gapB = pB?.lastRevised ? (Date.now() - new Date(pB.lastRevised).getTime()) / 86400000 : 30
+          return (w[b.weightage as keyof typeof w] * gapB) - (w[a.weightage as keyof typeof w] * gapA)
+        })
+        break
+    }
+    switch (sort) {
+      case 'name':
+        chs.sort((a, b) => a.name.localeCompare(b.name)); break
+      case 'progress':
+        chs.sort((a, b) => {
+          const dA = progress[a.id] ? Object.values(progress[a.id].topicStatus).filter(Boolean).length : 0
+          const dB = progress[b.id] ? Object.values(progress[b.id].topicStatus).filter(Boolean).length : 0
+          return dB - dA
+        })
+        break
+      case 'weightage': {
+        const wO = { high: 0, medium: 1, low: 2 }
+        chs.sort((a, b) => (wO[a.weightage as keyof typeof wO] ?? 3) - (wO[b.weightage as keyof typeof wO] ?? 3))
+        break
+      }
+      case 'revision_gap':
+        chs.sort((a, b) => {
+          const gA = progress[a.id]?.lastRevised ? Date.now() - new Date(progress[a.id].lastRevised!).getTime() : Infinity
+          const gB = progress[b.id]?.lastRevised ? Date.now() - new Date(progress[b.id].lastRevised!).getTime() : Infinity
+          return gB - gA
+        })
+        break
+    }
+    return chs
+  }, [allChapters, search, filter, sort, progress])
+
+  const { total, done } = getTotalChapters()
+
+  const handleContextMenu = useCallback((e: React.MouseEvent, chapterId: string, chapterName: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setContextMenu({ x: e.clientX, y: e.clientY, chapterId, chapterName })
+  }, [])
+
+  const handleDragStart = useCallback((chapterId: string) => setDragId(chapterId), [])
+  const handleDragOver = useCallback((e: React.DragEvent) => e.preventDefault(), [])
+  const handleDrop = useCallback(async (targetId: string) => {
+    if (!dragId || dragId === targetId) return
+    const ids = filteredChapters.map(ch => ch.id)
+    const from = ids.indexOf(dragId)
+    const to = ids.indexOf(targetId)
+    if (from === -1 || to === -1) return
+    ids.splice(from, 1)
+    ids.splice(to, 0, dragId)
+    setDragId(null)
+    const subjectData = syllabus[subject]
+    const userOrder = [...ids]
+    localStorage.setItem(`syllabus_order_${subject}`, JSON.stringify(userOrder))
+  }, [dragId, filteredChapters, subject])
+
+  const handleRename = async (newName: string) => {
+    if (!renameTarget) return
+    const ch = await db.customChapters.get(renameTarget)
+    if (ch) { ch.name = newName; await db.customChapters.put(ch) }
+    setRenameTarget(null)
+  }
+
+  const subjectInfo = syllabus[subject]
+  const subjectProgress = useMemo(() => {
+    const s = subjectInfo
+    let d = 0, t = 0
+    for (const div of s.divisions) {
+      for (const ch of div.chapters) {
+        if (ch.deleted) continue
+        t++
+        if (progress[ch.id]?.status === 'done') d++
+      }
+    }
+    for (const cc of customChapters) {
+      if (!cc.deleted) { t++; if (progress[cc.id]?.status === 'done') d++ }
+    }
+    return t > 0 ? Math.round((d / t) * 100) : 0
+  }, [subject, subjectInfo, progress, customChapters])
+
+  const handleChapterStatus = (ch: Chapter) => {
+    const current = progress[ch.id]?.status ?? 'not_started'
+    if (current === 'done') setChapterStatus(ch.id, 'not_started')
+    else if (current === 'not_started') setChapterStatus(ch.id, 'in_progress')
+    else setChapterStatus(ch.id, 'done')
+  }
+
+  return (
+    <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="max-w-[900px] mx-auto px-5 pt-12 pb-24">
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-[clamp(24px,3vw,36px)] font-medium tracking-[-1px]" style={{ color: 'var(--c-text)' }}>Syllabus</h1>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium rounded-[40px] text-white transition-all hover:-translate-y-[0.5px]"
+              style={{ background: 'var(--c-btn-primary)' }}>
+              <span className="material-symbols-rounded text-[18px]">add</span>
+              <span className="hidden sm:inline">Add Chapter</span>
+            </button>
+          </div>
+        </div>
+        <p className="text-[13px] mb-8" style={{ color: 'var(--c-muted)' }}>
+          <span style={{ color: 'var(--c-green)' }}>{done} / {total}</span> chapters completed across all subjects
+        </p>
+
+        {/* Subject Tabs */}
+        <div className="flex gap-1.5 mb-6 p-1 rounded-[14px]" style={{ background: 'var(--c-card-alt)', border: '1px solid var(--c-border-card)' }}>
           {SUBJECTS.map(s => (
-            <button
-              key={s.id}
-              onClick={() => setActiveSubject(s.id)}
-              className={`px-3 py-2 text-sm transition-colors border-b-2 -mb-[1px] ${
-                activeSubject === s.id ? 'border-[var(--c-blue)] text-[var(--c-blue)] font-medium' : 'border-transparent hover:text-[var(--c-text)]' 
-              }`}
-              style={{ color: activeSubject === s.id ? undefined : 'var(--c-muted)' }}
-            >
-              {s.label}
+            <button key={s} onClick={() => { setSubject(s); setSearch(''); setFilter('all'); setSort('default') }}
+              className="flex-1 py-2 text-sm font-medium rounded-[12px] capitalize transition-all"
+              style={{ background: subject === s ? 'var(--c-card)' : 'transparent', color: subject === s ? 'var(--c-text)' : 'var(--c-muted)', boxShadow: subject === s ? 'var(--c-shadow)' : 'none' }}>
+              <span className="hidden sm:inline">{s}</span>
+              <span className="sm:hidden">{s[0].toUpperCase() + s.slice(1, 4)}</span>
             </button>
           ))}
-          <div className="flex-1" />
+        </div>
+
+        {/* Search + Filters */}
+        <div className="flex items-center gap-2 mb-5">
+          <div className="relative flex-1">
+            <span className="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-[18px]" style={{ color: 'var(--c-caption)' }}>search</span>
+            <input placeholder="Search chapters..." value={search} onChange={e => setSearch(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-sm rounded-[12px] outline-none transition-all"
+              style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }} />
+          </div>
           <div className="relative">
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search chapters..."
-              className="w-full px-3 py-2 text-xs outline-none rounded-[40px]"
-              style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text)', background: 'var(--c-input)' }}
-              onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
-              onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
-            />
+            <button onClick={() => { setShowFilter(!showFilter); setShowSort(false) }}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-[12px] transition-all"
+              style={{ background: filter !== 'all' ? 'var(--c-tag)' : 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}>
+              <span className="material-symbols-rounded text-[18px]">filter_list</span>
+              <span className="hidden sm:inline text-[13px]">{FILTERS.find(f => f.value === filter)?.label ?? 'Filter'}</span>
+            </button>
+            {showFilter && (
+              <div className="absolute right-0 top-full mt-1 z-50 min-w-[190px] rounded-[12px] py-1.5 border shadow-xl animate-scale-in"
+                style={{ background: 'var(--c-card)', borderColor: 'var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)' }}>
+                {FILTERS.map(f => (
+                  <button key={f.value} onClick={() => { setFilter(f.value); setShowFilter(false) }}
+                    className="w-full flex items-center gap-2.5 px-3 py-1.5 text-sm text-left transition-colors"
+                    style={{ color: filter === f.value ? 'var(--c-blue)' : 'var(--c-text)', background: filter === f.value ? 'var(--c-sidebar-hover)' : 'transparent' }}>
+                    <span className="material-symbols-rounded text-[16px]" style={{ color: 'var(--c-muted)' }}>{f.icon}</span>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="relative">
+            <button onClick={() => { setShowSort(!showSort); setShowFilter(false) }}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-[12px]"
+              style={{ background: sort !== 'default' ? 'var(--c-tag)' : 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}>
+              <span className="material-symbols-rounded text-[18px]">sort</span>
+              <span className="hidden sm:inline text-[13px]">{SORTS.find(s => s.value === sort)?.label}</span>
+            </button>
+            {showSort && (
+              <div className="absolute right-0 top-full mt-1 z-50 min-w-[160px] rounded-[12px] py-1.5 border shadow-xl animate-scale-in"
+                style={{ background: 'var(--c-card)', borderColor: 'var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)' }}>
+                {SORTS.map(s => (
+                  <button key={s.value} onClick={() => { setSort(s.value); setShowSort(false) }}
+                    className="w-full flex items-center gap-2.5 px-3 py-1.5 text-sm text-left transition-colors"
+                    style={{ color: sort === s.value ? 'var(--c-blue)' : 'var(--c-text)', background: sort === s.value ? 'var(--c-sidebar-hover)' : 'transparent' }}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="space-y-6">
-          {filteredDivisions.map(div => (
-            <div key={div.id}>
-              <h2 className="text-[15px] font-semibold mb-2" style={{ color: 'var(--c-text)' }}>{div.name}</h2>
-              <div className="space-y-1">
-                {div.chapters.map(ch => (
-                  <ChapterCard key={ch.id} chapter={ch} />
-                ))}
-              </div>
-            </div>
-          ))}
-
-          {subjectData.deletedChapters.length > 0 && (
-            <div>
-              <h2 className="text-[15px] font-semibold mb-2 line-through" style={{ color: 'var(--c-muted)' }}>Removed Chapters</h2>
-              <div className="space-y-1">
-                {subjectData.deletedChapters.map((dc, i) => (
-                  <div key={i} className="rounded-[18px] p-3 opacity-40" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
-                    <span className="text-sm line-through" style={{ color: 'var(--c-muted)' }}>{dc.name}</span>
-                    <span className="text-xs ml-2" style={{ color: 'var(--c-muted)' }}>({dc.reason})</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+        {/* Subject Progress Bar */}
+        <div className="mb-6">
+          <div className="flex justify-between text-xs mb-1.5" style={{ color: 'var(--c-muted)' }}>
+            <span className="capitalize">{subject} Progress</span>
+            <span>{subjectProgress}%</span>
+          </div>
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
+            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${subjectProgress}%`, background: 'var(--c-blue)' }} />
+          </div>
         </div>
+
+        {/* Chapter List */}
+        {filteredChapters.length === 0 ? (
+          <div className="text-center py-16">
+            <span className="material-symbols-rounded text-[48px]" style={{ color: 'var(--c-caption)' }}>search_off</span>
+            <p className="text-sm mt-2" style={{ color: 'var(--c-muted)' }}>No chapters match your filters</p>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {filteredChapters.map(ch => {
+              const p = progress[ch.id]
+              const chTopics = ch.topics.filter(t => !t.deleted)
+              const doneTopics = chTopics.filter(t => p?.topicStatus[t.id]).length
+              const totalTopics = chTopics.length
+              const pct = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0
+              const chStatus = p?.status ?? 'not_started'
+              const isCustom = ch.id.startsWith('custom_')
+
+              return (
+                <div
+                  key={ch.id}
+                  draggable
+                  onDragStart={() => handleDragStart(ch.id)}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop(ch.id)}
+                  onContextMenu={e => handleContextMenu(e, ch.id, ch.name)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-[14px] transition-all cursor-default group"
+                  style={{
+                    background: 'var(--c-card)',
+                    border: '1px solid var(--c-border-card)',
+                    boxShadow: 'var(--c-shadow)',
+                    opacity: dragId === ch.id ? 0.4 : 1,
+                  }}
+                >
+                  {/* Drag Handle */}
+                  <span className="material-symbols-rounded text-[18px] cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                    style={{ color: 'var(--c-caption)' }}>drag_indicator</span>
+
+                  <ProgressDot status={chStatus} />
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium truncate" style={{ color: 'var(--c-text)' }}>{ch.name}</span>
+                      <WeightageBadge weightage={ch.weightage} />
+                      {isCustom && <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: 'var(--c-orange)20', color: 'var(--c-orange)' }}>Custom</span>}
+                    </div>
+                    <div className="flex items-center gap-3 mt-1">
+                      {totalTopics > 0 && (
+                        <div className="flex-1 max-w-[120px] h-1 rounded-full" style={{ background: 'var(--c-progress-bg)' }}>
+                          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: chStatus === 'done' ? 'var(--c-green)' : 'var(--c-blue)' }} />
+                        </div>
+                      )}
+                      <span className="text-[11px]" style={{ color: 'var(--c-caption)' }}>
+                        {totalTopics > 0 ? `${doneTopics}/${totalTopics}` : 'No topics'}
+                        {chStatus === 'done' && p?.completedOn && ` · ${p.completedOn}`}
+                        {chStatus === 'done' && (p?.revisionCount ?? 0) > 0 && ` · Rev ${p?.revisionCount}`}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Quick actions */}
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => handleChapterStatus(ch)}
+                      className="p-1.5 rounded-lg transition-colors hover:opacity-80"
+                      style={{ color: chStatus === 'done' ? 'var(--c-green)' : 'var(--c-caption)' }}
+                      title={chStatus === 'done' ? 'Mark incomplete' : 'Toggle progress'}>
+                      <span className="material-symbols-rounded text-[18px]">
+                        {chStatus === 'done' ? 'check_circle' : chStatus === 'in_progress' ? 'radio_button_partial' : 'radio_button_unchecked'}
+                      </span>
+                    </button>
+                    <button onClick={() => setShowAddModal(true)}
+                      className="p-1.5 rounded-lg" style={{ color: 'var(--c-caption)' }} title="Add topic">
+                      <span className="material-symbols-rounded text-[18px]">playlist_add</span>
+                    </button>
+                  </div>
+
+                  {/* Mobile quick status */}
+                  <button onClick={() => handleChapterStatus(ch)}
+                    className="sm:hidden p-1 rounded-lg"
+                    style={{ color: chStatus === 'done' ? 'var(--c-green)' : 'var(--c-blue)' }}>
+                    <span className="material-symbols-rounded text-[20px]">
+                      {chStatus === 'done' ? 'check_circle' : chStatus === 'in_progress' ? 'hourglass_top' : 'circle'}
+                    </span>
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Context Menu */}
+        {contextMenu && (
+          <ContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            onClose={() => setContextMenu(null)}
+            items={[
+              { label: 'Rename', icon: 'edit', onClick: () => { setRenameTarget(contextMenu.chapterId); setContextMenu(null) } },
+              { label: 'Mark Complete', icon: 'check_circle', onClick: () => { setChapterStatus(contextMenu.chapterId, 'done'); setContextMenu(null) } },
+              { label: 'Increment Revision', icon: 'refresh', onClick: () => { incrementRevision(contextMenu.chapterId); setContextMenu(null) } },
+              { label: 'Add Topic', icon: 'playlist_add', onClick: () => { setContextMenu(null) } },
+              { divider: true, label: '', icon: '', onClick: () => {} },
+              { label: 'Delete', icon: 'delete', danger: true, onClick: () => { setDeleteTarget(contextMenu.chapterId); setContextMenu(null) } },
+            ].filter(i => {
+              if (i.label === 'Delete' && !contextMenu.chapterId.startsWith('custom_')) return false
+              return true
+            }) as any}
+          />
+        )}
+
+        {/* Modals */}
+        {showAddModal && <AddChapterModal subject={subject} onClose={() => setShowAddModal(false)} />}
+        {renameTarget && <RenameModal currentName={filteredChapters.find(ch => ch.id === renameTarget)?.name ?? ''}
+          onSave={handleRename} onClose={() => setRenameTarget(null)} />}
+        {deleteTarget && <ConfirmModal message="Delete this chapter? This action cannot be undone."
+          onConfirm={() => deleteChapter(deleteTarget)} onClose={() => setDeleteTarget(null)} />}
       </div>
     </div>
   )

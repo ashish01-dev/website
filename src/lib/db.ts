@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import type { UserProgress, TimetableData, TestEntry, ErrorEntry, FormulaEntry, DailyLog, PomodoroSession, DailyPlan, QuestionsEntry, ChapterProgress } from '@/types'
+import type { UserProgress, TimetableData, TestEntry, ErrorEntry, FormulaEntry, DailyLog, PomodoroSession, DailyPlan, QuestionsEntry, ChapterProgress, Chapter } from '@/types'
 import { syncUpsert, syncAdd, syncDelete, syncClear } from './supabase-sync'
 
 export class JeeDatabase extends Dexie {
@@ -13,10 +13,12 @@ export class JeeDatabase extends Dexie {
   pomodoro!: Table<PomodoroSession, string>
   dailyPlans!: Table<DailyPlan, string>
   questions!: Table<QuestionsEntry, string>
+  customChapters!: Table<Chapter, string>
+  aiRecommendations!: Table<{ id: string; date: string; data: unknown }, string>
 
   constructor() {
     super('JEE2027Tracker')
-    this.version(5).stores({
+    this.version(6).stores({
       progress: '&chapterId',
       timetable: '&id',
       tests: '&id, date, subject',
@@ -27,6 +29,13 @@ export class JeeDatabase extends Dexie {
       pomodoro: '&id, date',
       dailyPlans: '&date',
       questions: '&id, date, subject, chapter',
+      customChapters: '&id, subject',
+      aiRecommendations: '&id, date',
+    }).upgrade(tx => {
+      return tx.table('progress').toCollection().modify(p => {
+        if (p.revisionCount === undefined) p.revisionCount = 0
+        if (p.studySessions === undefined) p.studySessions = 0
+      })
     })
   }
 }
@@ -37,7 +46,7 @@ const dexie = new JeeDatabase()
 const TABLE_KEY = {
   progress: 'chapterId', timetable: 'id', tests: 'id', errors: 'id',
   formulas: 'id', dailylogs: 'date', settings: 'id', pomodoro: 'id',
-  dailyplans: 'date', questions: 'id',
+  dailyplans: 'date', questions: 'id', customchapters: 'id', airecommendations: 'id',
 } as Record<string, string>
 
 function synced<T>(dexieKey: string, keyField?: string, supabaseTable?: string) {
@@ -68,16 +77,18 @@ const noop = () => ({
 const useSync = typeof window !== 'undefined'
 
 export const db = {
-  progress:   useSync ? synced<ChapterProgress & { chapterId: string }>('progress', 'chapterId') : noop(),
-  timetable:  useSync ? synced<{ id: string; data: TimetableData }>('timetable') : noop(),
-  tests:      useSync ? synced<TestEntry>('tests') : noop(),
-  errors:     useSync ? synced<ErrorEntry>('errors') : noop(),
-  formulas:   useSync ? synced<FormulaEntry>('formulas') : noop(),
-  dailyLogs:  useSync ? synced<DailyLog>('dailyLogs', 'date', 'dailylogs') : noop(),
-  settings:   useSync ? synced<{ id: string; value: unknown }>('settings') : noop(),
-  pomodoro:   useSync ? synced<PomodoroSession>('pomodoro') : noop(),
-  dailyPlans: useSync ? synced<DailyPlan>('dailyPlans', 'date', 'dailyplans') : noop(),
-  questions:  useSync ? synced<QuestionsEntry>('questions') : noop(),
+  progress:          useSync ? synced<ChapterProgress & { chapterId: string }>('progress', 'chapterId') : noop(),
+  timetable:         useSync ? synced<{ id: string; data: TimetableData }>('timetable') : noop(),
+  tests:             useSync ? synced<TestEntry>('tests') : noop(),
+  errors:            useSync ? synced<ErrorEntry>('errors') : noop(),
+  formulas:          useSync ? synced<FormulaEntry>('formulas') : noop(),
+  dailyLogs:         useSync ? synced<DailyLog>('dailyLogs', 'date', 'dailylogs') : noop(),
+  settings:          useSync ? synced<{ id: string; value: unknown }>('settings') : noop(),
+  pomodoro:          useSync ? synced<PomodoroSession>('pomodoro') : noop(),
+  dailyPlans:        useSync ? synced<DailyPlan>('dailyPlans', 'date', 'dailyplans') : noop(),
+  questions:         useSync ? synced<QuestionsEntry>('questions') : noop(),
+  customChapters:    useSync ? synced<Chapter>('customChapters') : noop(),
+  aiRecommendations: useSync ? synced<{ id: string; date: string; data: unknown }>('aiRecommendations') : noop(),
 }
 
 export { dexie }

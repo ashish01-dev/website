@@ -45,11 +45,24 @@ export interface SyllabusData {
   maths: SubjectData
 }
 
+export interface TopicProgress {
+  theoryDone: boolean
+  practiceDone: boolean
+  pyqDone: boolean
+}
+
 export interface ChapterProgress {
   status: 'not_started' | 'in_progress' | 'done'
   completedOn?: string
   topicStatus: Record<string, boolean>
+  topicProgress?: Record<string, TopicProgress>
   customTopics?: Record<string, string>
+  revisionCount: number
+  lastRevised?: string
+  estimatedHours?: number
+  actualHours?: number
+  studySessions: number
+  difficulty?: 'easy' | 'medium' | 'hard'
 }
 
 export type UserProgress = Record<string, ChapterProgress>
@@ -127,6 +140,9 @@ export interface DailyPlanSubject {
   subject: Subject
   chapters: string[]
   questions: number
+  theory?: number
+  practice?: number
+  pyq?: number
 }
 
 export interface DailyPlan {
@@ -191,4 +207,30 @@ export interface Settings {
   showChangelog: boolean
   storageWarningShown: boolean
   autoPlanPopup: boolean
+}
+
+export type ChapterFilter = 'all' | 'not_started' | 'in_progress' | 'done' | 'revision_pending' | 'high_weightage' | 'weak' | 'high_priority'
+
+export type SortOption = 'default' | 'name' | 'progress' | 'weightage' | 'revision_gap'
+
+export interface RoadmapStage {
+  id: string
+  name: string
+  description: string
+  icon: string
+  estimatedWeeks: number
+  remainingWeeks: number
+  progress: number
+  chaptersPending: number
+}
+
+export interface Achievement {
+  id: string
+  name: string
+  description: string
+  icon: string
+  unlocked: boolean
+  unlockedAt?: string
+  progress: number
+  target: number
 }

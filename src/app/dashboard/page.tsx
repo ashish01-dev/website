@@ -26,8 +26,17 @@ const SUBJECT_META: Record<Subject, { emoji: string; light: string }> = {
 
 const GREETINGS = ['Morning', 'Afternoon', 'Evening']
 
+const MOTIVATIONAL_QUOTES = [
+  '"The only way to do great work is to love what you do." — Steve Jobs',
+  '"Success is not final, failure is not fatal." — Winston Churchill',
+  '"The best time to plant a tree was 20 years ago. The second best time is now."',
+  '"It does not matter how slowly you go as long as you do not stop." — Confucius',
+  '"Believe you can and you\'re halfway there." — Theodore Roosevelt',
+  '"Push yourself because no one else is going to do it for you."',
+]
+
 export default function DashboardPage() {
-  const { progress, getProgress, loaded } = useProgressStore()
+  const { progress, getProgress, getTotalChapters, loaded } = useProgressStore()
   const { settings } = useSettingsStore()
   const { user } = useUser()
   const isPro = user?.isPro ?? false
@@ -35,11 +44,13 @@ export default function DashboardPage() {
   const [showPlanModal, setShowPlanModal] = useState(false)
   const [planLoaded, setPlanLoaded] = useState(false)
   const [sessions, setSessions] = useState<PomodoroSession[]>([])
+  const [quote] = useState(() => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)])
 
   const today = formatDate(new Date())
   const hour = new Date().getHours()
   const greeting = GREETINGS[hour < 12 ? 0 : hour < 17 ? 1 : 2]
   const daysLeft = Math.ceil((new Date(settings.examDate).getTime() - Date.now()) / 86400000)
+  const { total, done } = getTotalChapters()
 
   useEffect(() => {
     db.dailyPlans.get(today).then(p => {
@@ -130,14 +141,30 @@ export default function DashboardPage() {
       <div className="max-w-[1000px] mx-auto px-4 md:px-6 pt-[17px] pb-6 md:pb-10" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
 
         {/* Greeting + date */}
-        <div className="mb-8">
-          <h1 className="text-[clamp(24px,3vw,32px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>
-            Good {greeting}, <span style={{ color: 'var(--c-blue)' }}>{settings.name || 'Champion'}</span>
-          </h1>
-          <p className="text-[14px]" style={{ color: 'var(--c-muted)' }}>
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-            {plan ? ` · ${plan.hoursGoal || 0}h planned today` : ''}
-          </p>
+        <div className="mb-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-[clamp(24px,3vw,32px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>
+                Good {greeting}, <span style={{ color: 'var(--c-blue)' }}>{settings.name || 'Champion'}</span>
+              </h1>
+              <p className="text-[14px]" style={{ color: 'var(--c-muted)' }}>
+                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                {plan ? ` · ${plan.hoursGoal || 0}h planned today` : ''}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-right">
+              <div>
+                <div className="text-[10px] uppercase tracking-wider font-medium" style={{ color: 'var(--c-caption)' }}>Chapters</div>
+                <div className="text-sm font-bold" style={{ color: 'var(--c-green)' }}>{done}/{total}</div>
+              </div>
+              <div className="w-px h-8" style={{ background: 'var(--c-border)' }} />
+              <div>
+                <div className="text-[10px] uppercase tracking-wider font-medium" style={{ color: 'var(--c-caption)' }}>Days Left</div>
+                <div className="text-sm font-bold" style={{ color: 'var(--c-blue)' }}>{daysLeft}</div>
+              </div>
+            </div>
+          </div>
+          <p className="text-[12px] italic mt-2" style={{ color: 'var(--c-muted)' }}>{quote}</p>
         </div>
 
         {/* Days left + Subject progress cards */}

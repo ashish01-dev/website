@@ -10,6 +10,7 @@ export const SIDEBAR_WIDTH = 260
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+  { href: '/ai', label: 'AI Assistant', icon: '🤖' },
   { href: '/syllabus', label: 'Syllabus', icon: '📚' },
   { href: '/roadmap', label: 'Roadmap', icon: '🗺️' },
   { href: '/timetable', label: 'Timetable', icon: '📅' },
