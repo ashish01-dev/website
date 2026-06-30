@@ -152,6 +152,11 @@ export default function AIPage() {
     return () => clearTimeout(t)
   }, [loaded])
 
+  const handleBetaAcknowledge = () => {
+    localStorage.setItem('ai_beta_acknowledged', '1')
+    setShowBeta(false)
+  }
+
   const pace = useMemo(() => calculatePace(syllabus, progress, examDate, today, settings.freezeDays), [progress, settings])
 
   const allChapters = useMemo(() => {
@@ -615,16 +620,18 @@ export default function AIPage() {
           </div>
         </div>
       )}
-      {showBeta && <BetaPopup onAcknowledge={() => { localStorage.setItem('ai_beta_acknowledged', '1'); setShowBeta(false) }} />}
     </>
   )
 
   return (
+    <>
     <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
       {content}
     </div>
+    {isPro && showBeta && <BetaPopup onAcknowledge={handleBetaAcknowledge} />}
+    </>
   )
 }

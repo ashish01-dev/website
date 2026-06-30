@@ -31,18 +31,8 @@ const STEPS = [
   { step: '04', title: 'Ace the Exam', desc: 'Stay on track with smart recommendations and reach your target with confidence.' },
 ]
 
-const TOPPERS = [
-  { name: 'Rohan Mehta', rank: 'AIR 1', score: '360/360', year: '2026', quote: 'Consistency over intensity. JEEIFY kept me accountable every single day.' },
-  { name: 'Ananya Sharma', rank: 'AIR 3', score: '352/360', year: '2026', quote: 'The pace tracking algorithm is genius. It told me exactly where I was falling behind.' },
-  { name: 'Arjun Reddy', rank: 'AIR 7', score: '348/360', year: '2025', quote: 'From 150 to 320+ marks — the syllabus tracker and test analyzer changed everything.' },
-  { name: 'Priya Patel', rank: 'AIR 15', score: '341/360', year: '2026', quote: 'I planned every hour of my day using the timetable. Absolute game changer.' },
-]
-
-
-
 export default function LandingPage() {
   const { user } = useUser()
-  const [topHovered, setTopHovered] = useState<number | null>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   const fadeUp = {
@@ -129,44 +119,6 @@ export default function LandingPage() {
               <div className="text-[32px] font-bold tracking-[-1px] mb-3" style={{ color: 'var(--c-blue)' }}>{s.step}</div>
               <h3 className="text-[15px] font-semibold mb-1.5" style={{ color: 'var(--c-text)' }}>{s.title}</h3>
               <p className="text-[13px] leading-relaxed" style={{ color: 'var(--c-muted)' }}>{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </motion.section>
-
-      {/* Results / Toppers */}
-      <motion.section {...fadeUp} id="results" className="px-5 py-24 md:py-32 max-w-[1100px] mx-auto" style={{ contentVisibility: 'auto', containIntrinsicSize: '500px' }}>
-        <div className="text-center mb-16">
-          <p className="text-[13px] font-medium tracking-[0.15em] uppercase mb-3" style={{ color: 'var(--c-muted)' }}>Results</p>
-          <h2 className="text-[clamp(28px,4vw,44px)] font-medium tracking-[-1.5px]" style={{ color: 'var(--c-text)' }}>
-            Built by <span className="text-[var(--c-blue)]">Student</span>.<span className="text-[#888]"> For Students.</span>
-          </h2>
-          <p className="text-[14px] mt-4 max-w-md mx-auto" style={{ color: 'var(--c-muted)', lineHeight: 1.7 }}>
-            Our platform has helped hundreds of students achieve top ranks. Here are some of our standout performers.
-          </p>
-        </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          {TOPPERS.map((t, i) => (
-            <div key={t.name} onMouseEnter={() => setTopHovered(i)} onMouseLeave={() => setTopHovered(null)}
-              className="rounded-[18px] px-[22px] py-[24px] transition-all duration-200" style={{
-                background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
-                boxShadow: topHovered === i ? 'var(--c-shadow-hover)' : 'var(--c-shadow)',
-                transform: topHovered === i ? 'translateY(-2px)' : 'translateY(0)',
-                willChange: 'transform',
-              }}>
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <div className="text-[16px] font-bold" style={{ color: 'var(--c-text)' }}>{t.name}</div>
-                  <div className="text-[12px]" style={{ color: 'var(--c-muted)' }}>JEE {t.year}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[20px] font-bold tracking-tight" style={{ color: 'var(--c-blue)' }}>{t.rank}</div>
-                  <div className="text-[12px] font-medium" style={{ color: 'var(--c-green)' }}>{t.score}</div>
-                </div>
-              </div>
-              <div className="border-t border-[var(--c-border)] pt-3">
-                <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--c-muted)' }}>&ldquo;{t.quote}&rdquo;</p>
-              </div>
             </div>
           ))}
         </div>
