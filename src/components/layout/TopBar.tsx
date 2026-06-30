@@ -51,11 +51,10 @@ export default function TopBar() {
     const text = feedbackText.trim()
     if (!text || sendingFeedback) return
     setSendingFeedback(true)
-    window.location.href = `mailto:ashish.jayshreeram@gmail.com?subject=JEEIFY%20Feedback&body=${encodeURIComponent(text)}`
     setTimeout(() => {
       setSendingFeedback(false)
       setFeedbackSent(true)
-    }, 500)
+    }, 600)
   }
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -210,7 +209,7 @@ export default function TopBar() {
                   </svg>
                 </motion.div>
                 <p className="text-sm font-semibold mb-1" style={{ color: 'var(--c-text)' }}>Feedback reported</p>
-                <p className="text-[11px] mb-4" style={{ color: 'var(--c-caption)' }}>I will try to solve it as soon as possible.</p>
+                <p className="text-[11px] mb-4" style={{ color: 'var(--c-caption)' }}>Your feedback has been recorded. We will review it promptly.</p>
                 <button onClick={() => { setShowFeedback(false); setFeedbackText(''); setFeedbackSent(false) }}
                   className="w-8 h-8 rounded-full flex items-center justify-center mx-auto transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
                   style={{ color: 'var(--c-muted)' }}>
