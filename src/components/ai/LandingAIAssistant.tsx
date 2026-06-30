@@ -225,8 +225,25 @@ export default function LandingAIAssistant() {
               </button>
             </div>
 
-            {/* Messages */}
+            {/* Messages + Quick questions inside scrollable area */}
             <ScrollArea className="flex-1 px-4 py-4" ref={scrollRef}>
+              {/* Quick questions at the top — scroll up to reveal */}
+              <div className="mb-2 space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider pt-2 px-1 pb-1" style={{ color: 'var(--c-muted)' }}>Quick questions</p>
+                <div className="space-y-1">
+                  {SUGGESTIONS_CURATED.map((item, i) => (
+                    <motion.button key={item.q} initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02, duration: 0.2 }}
+                      onClick={() => handleSend(item.q)}
+                      className="flex items-center gap-2 w-full text-left text-sm px-4 py-2 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
+                      style={{ color: 'var(--c-text-secondary)' }}>
+                      <MessageSquare size={13} className="shrink-0" style={{ color: 'var(--c-muted)' }} />
+                      <span className="flex-1 truncate">{item.q}</span>
+                      <ChevronRight size={13} className="shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" style={{ color: 'var(--c-blue)' }} />
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
               {messages.map((msg, i) => (
                 <ChatMessage key={msg.id} message={msg} animate={i > 1 || msg.id === 'welcome'} />
               ))}
@@ -238,24 +255,6 @@ export default function LandingAIAssistant() {
                 </motion.div>
               )}
             </ScrollArea>
-
-            {/* Suggested questions always visible below scroll area */}
-            <div className="px-4 pb-2 space-y-1" style={{ borderTop: '1px solid var(--c-border)' }}>
-              <p className="text-[10px] font-semibold uppercase tracking-wider pt-2 px-1 pb-1" style={{ color: 'var(--c-muted)' }}>Quick questions</p>
-              <div className="max-h-[140px] overflow-y-auto space-y-1">
-                {SUGGESTIONS_CURATED.map((item, i) => (
-                  <motion.button key={item.q} initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02, duration: 0.2 }}
-                    onClick={() => handleSend(item.q)}
-                    className="flex items-center gap-2 w-full text-left text-sm px-4 py-2 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
-                    style={{ color: 'var(--c-text-secondary)' }}>
-                    <MessageSquare size={13} className="shrink-0" style={{ color: 'var(--c-muted)' }} />
-                    <span className="flex-1 truncate">{item.q}</span>
-                    <ChevronRight size={13} className="shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" style={{ color: 'var(--c-blue)' }} />
-                  </motion.button>
-                ))}
-              </div>
-            </div>
 
             {/* Input */}
             <div className="px-4 pb-3 shrink-0">

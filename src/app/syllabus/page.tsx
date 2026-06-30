@@ -502,7 +502,7 @@ export default function SyllabusPage() {
 
                   {/* Expanded Topics */}
                   {expandedId === ch.id && (
-                    <div className="ml-10 mt-1 mb-2 p-3 rounded-[12px] animate-slide-up" style={{ background: 'var(--c-card-alt)', border: '1px solid var(--c-border-card)' }}>
+                    <div className="ml-[46px] mt-1 mb-2 p-3 rounded-[12px] animate-slide-up" style={{ background: 'var(--c-card-alt)', border: '1px solid var(--c-border-card)' }}>
                       <div className="space-y-1">
                         {chTopics.length > 0 ? chTopics.map(t => {
                           const done = p?.topicStatus[t.id] ?? false
@@ -512,7 +512,7 @@ export default function SyllabusPage() {
                                 type="checkbox"
                                 checked={done}
                                 onChange={e => setTopicDone(ch.id, t.id, e.target.checked)}
-                                className="w-3.5 h-3.5 rounded-[3px] accent-[var(--c-blue)]"
+                                className="w-3.5 h-3.5 rounded-[3px]"
                                 style={{ accentColor: 'var(--c-blue)' }}
                               />
                               <span className={`text-[13px] ${done ? 'line-through' : ''}`}
@@ -528,7 +528,6 @@ export default function SyllabusPage() {
                           <p className="text-xs text-center py-3" style={{ color: 'var(--c-caption)' }}>No topics. Add one from the context menu.</p>
                         )}
                       </div>
-                      {/* Mark all done / quick actions */}
                       {chTopics.length > 0 && chStatus !== 'done' && (
                         <div className="flex items-center gap-2 mt-2 pt-2" style={{ borderTop: '1px solid var(--c-border)' }}>
                           <button onClick={() => markAllTopics(ch.id)}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSupabase } from '@/lib/supabase'
@@ -44,13 +45,17 @@ export default function TopBar() {
   const [showFeedback, setShowFeedback] = useState(false)
   const [feedbackText, setFeedbackText] = useState('')
   const [sendingFeedback, setSendingFeedback] = useState(false)
+  const [feedbackSent, setFeedbackSent] = useState(false)
 
   const handleFeedbackSubmit = async () => {
     const text = feedbackText.trim()
     if (!text || sendingFeedback) return
     setSendingFeedback(true)
     window.location.href = `mailto:ashish.jayshreeram@gmail.com?subject=JEEIFY%20Feedback&body=${encodeURIComponent(text)}`
-    setTimeout(() => { setSendingFeedback(false); setShowFeedback(false); setFeedbackText('') }, 1000)
+    setTimeout(() => {
+      setSendingFeedback(false)
+      setFeedbackSent(true)
+    }, 500)
   }
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,28 +197,51 @@ export default function TopBar() {
       {/* Feedback popup */}
       {showFeedback && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40" style={{ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
-          onClick={() => { if (!sendingFeedback) { setShowFeedback(false); setFeedbackText('') } }}>
+          onClick={() => { if (!sendingFeedback && !feedbackSent) { setShowFeedback(false); setFeedbackText(''); setFeedbackSent(false) } }}>
           <div className="max-w-sm w-full mx-4 rounded-[18px] p-5 animate-scale-in" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)',
           }} onClick={e => e.stopPropagation()}>
-            <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--c-text)' }}>Send Feedback</h3>
-            <p className="text-[11px] mb-3" style={{ color: 'var(--c-caption)' }}>Help us improve JEEIFY.</p>
-            <textarea value={feedbackText} onChange={e => setFeedbackText(e.target.value)} rows={4} placeholder="Share your thoughts, report a bug, or suggest a feature..."
-              className="w-full px-3.5 py-2.5 text-sm outline-none rounded-xl resize-none transition-all"
-              style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}
-              onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
-              onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
-            />
-            <div className="flex items-center gap-2 mt-3">
-              <button onClick={handleFeedbackSubmit} disabled={!feedbackText.trim() || sendingFeedback}
-                className="flex-1 text-xs font-medium py-2 rounded-[40px] text-white transition-opacity disabled:opacity-40"
-                style={{ background: 'var(--c-btn-primary)' }}
-              >{sendingFeedback ? 'Sending...' : 'Send Feedback'}</button>
-              <button onClick={() => { setShowFeedback(false); setFeedbackText('') }} disabled={sendingFeedback}
-                className="text-xs font-medium px-4 py-2 rounded-[40px] transition-all"
-                style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}
-              >Cancel</button>
-            </div>
+            {feedbackSent ? (
+              <div className="text-center py-4">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 15 }}>
+                  <svg className="mx-auto mb-3" width="48" height="48" viewBox="0 0 24 24" fill="none">
+                    <motion.circle cx="12" cy="12" r="11" stroke="#22c55e" strokeWidth="2" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4 }} />
+                    <motion.path d="M7 12l3 3 7-7" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4, delay: 0.2 }} />
+                  </svg>
+                </motion.div>
+                <p className="text-sm font-semibold mb-1" style={{ color: 'var(--c-text)' }}>Feedback reported</p>
+                <p className="text-[11px] mb-4" style={{ color: 'var(--c-caption)' }}>I will try to solve it as soon as possible.</p>
+                <button onClick={() => { setShowFeedback(false); setFeedbackText(''); setFeedbackSent(false) }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center mx-auto transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
+                  style={{ color: 'var(--c-muted)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>Send Feedback</h3>
+                  <button onClick={() => { setShowFeedback(false); setFeedbackText('') }}
+                    className="w-6 h-6 rounded-full flex items-center justify-center transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
+                    style={{ color: 'var(--c-muted)' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+                <p className="text-[11px] mb-3" style={{ color: 'var(--c-caption)' }}>Help us improve JEEIFY.</p>
+                <textarea value={feedbackText} onChange={e => setFeedbackText(e.target.value)} rows={4} placeholder="Share your thoughts, report a bug, or suggest a feature..."
+                  className="w-full px-3.5 py-2.5 text-sm outline-none rounded-xl resize-none transition-all"
+                  style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
+                />
+                <div className="flex items-center gap-2 mt-3">
+                  <button onClick={handleFeedbackSubmit} disabled={!feedbackText.trim() || sendingFeedback}
+                    className="flex-1 text-xs font-medium py-2 rounded-[40px] text-white transition-opacity disabled:opacity-40"
+                    style={{ background: 'var(--c-btn-primary)' }}
+                  >{sendingFeedback ? 'Sending...' : 'Send Feedback'}</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
