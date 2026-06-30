@@ -4,16 +4,17 @@ import { createServerClient } from '@supabase/ssr'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  const next = searchParams.get('next') || '/dashboard'
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.redirect(`${origin}/?error=missing_config`)
+    return NextResponse.redirect(`${origin}/auth?error=missing_config`)
   }
 
   if (code) {
     try {
-      const response = NextResponse.redirect(`${origin}/`)
+      const response = NextResponse.redirect(`${origin}${next}`)
       const sb = createServerClient(supabaseUrl, supabaseKey, {
         cookies: {
           getAll: () => request.cookies.getAll().map(c => ({ name: c.name, value: c.value })),
@@ -28,7 +29,11 @@ export async function GET(request: NextRequest) {
         const name = meta.full_name || meta.name || ''
         const avatar = meta.avatar_url || meta.picture || ''
         if (name || avatar) {
-          const { data: existing } = await sb.from('settings').select('value').eq('id', 'main').eq('user_id', session.user.id).single() as any
+          let existing
+          try {
+            const res = await sb.from('settings').select('value').eq('id', 'main').eq('user_id', session.user.id).single()
+            existing = res.data
+          } catch {}
           const merged = { ...(existing?.value || {}), ...(name ? { name } : {}), ...(avatar ? { avatarUrl: avatar } : {}) }
           await sb.from('settings').upsert({ user_id: session.user.id, id: 'main', value: merged }, { onConflict: 'user_id,id' })
         }
