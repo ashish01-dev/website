@@ -108,29 +108,47 @@ export default function OnboardingFlow() {
   const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings']
 
   const [checkingOnboarded, setCheckingOnboarded] = useState(true)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+
+  const onboardingKey = (email: string | null) => email ? `jee_onboarded_${btoa(email).slice(0, 20)}` : null
+
+  const checkAndSyncOnboarded = (email: string | null) => {
+    if (!email || settings.onboarded) return
+    const key = onboardingKey(email)
+    if (key && localStorage.getItem(key) === '1') {
+      update({ onboarded: true })
+    }
+  }
 
   useEffect(() => {
     const sb = getSupabase()
     if (!sb) { setSignedIn(false); setCheckingOnboarded(false); return }
     sb.auth.getUser().then((res: any) => {
       const user = res.data?.user
+      const email = user?.email || null
+      setUserEmail(email)
       setSignedIn(!!user)
-      const metadataOnboarded = user?.user_metadata?.onboarded === true
-      if (metadataOnboarded && !settings.onboarded) {
+      const alreadyOnboarded = settings.onboarded
+          || (email ? localStorage.getItem(onboardingKey(email)!) === '1' : false)
+          || user?.user_metadata?.onboarded === true
+      if (alreadyOnboarded && !settings.onboarded) {
         update({ onboarded: true })
       }
       setCheckingOnboarded(false)
     })
     const { data: { subscription } } = sb.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       const u = session?.user
+      const email = u?.email || null
+      setUserEmail(email)
       setSignedIn(!!u)
-      const metadataOnboarded = u?.user_metadata?.onboarded === true
-      if (metadataOnboarded && !useSettingsStore.getState().settings.onboarded) {
+      const alreadyOnboarded = u?.user_metadata?.onboarded === true
+          || (email ? localStorage.getItem(onboardingKey(email)!) === '1' : false)
+      if (alreadyOnboarded && !useSettingsStore.getState().settings.onboarded) {
         update({ onboarded: true })
       }
     })
     return () => subscription?.unsubscribe()
-  }, [update])
+  }, [])
 
   if (!APP_PATHS.some(p => pathname.startsWith(p))) return null
   if (!loaded || signedIn === null || checkingOnboarded) {
@@ -179,9 +197,11 @@ export default function OnboardingFlow() {
     if (answers.exam === 'jee_advanced') updates.examDate = '2027-06-01'
     if (avatarDataUrl) updates.avatarUrl = avatarDataUrl
     await update(updates)
+    const key = onboardingKey(userEmail)
+    if (key) localStorage.setItem(key, '1')
     const sb = getSupabase()
     if (sb) {
-      await sb.auth.updateUser({ data: { onboarded: true } })
+      try { await sb.auth.updateUser({ data: { onboarded: true } }) } catch {}
     }
   }
 

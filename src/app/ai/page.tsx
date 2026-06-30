@@ -631,7 +631,7 @@ export default function AIPage() {
       <MobileBottomNav />
       {content}
     </div>
-    {isPro && showBeta && <BetaPopup onAcknowledge={handleBetaAcknowledge} />}
+    {showBeta && <BetaPopup onAcknowledge={handleBetaAcknowledge} />}
     </>
   )
 }
