@@ -41,7 +41,7 @@ export default function ChangelogPopup() {
       setShow(true)
       update({ changelogSeenVersion: APP_VERSION })
     }
-  }, [loaded, settings.showChangelog, settings.changelogSeenVersion])
+  }, [loaded, settings.showChangelog, settings.changelogSeenVersion, update])
 
   if (!show) return null
 

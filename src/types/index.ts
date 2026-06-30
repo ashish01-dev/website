@@ -186,7 +186,6 @@ export interface Settings {
   freezeDays: number
   avatarUrl?: string
   sidebarHover: boolean
-  sidebarAutoHide: boolean
   onboarded: boolean
   changelogSeenVersion: string
   showChangelog: boolean

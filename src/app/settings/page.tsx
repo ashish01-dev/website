@@ -283,22 +283,6 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Auto-Hide Sidebar</div>
-                    <div className="text-xs" style={{ color: 'var(--c-muted)' }}>When OFF, sidebar stays pinned and content adjusts</div>
-                  </div>
-                  <button onClick={() => update({ sidebarAutoHide: !settings.sidebarAutoHide })}
-                    className={`text-xs font-medium px-4 py-1.5 rounded-[40px] transition-all ${!settings.sidebarAutoHide ? 'text-white' : ''}`}
-                    style={{
-                      background: !settings.sidebarAutoHide ? 'var(--c-blue)' : 'var(--c-input)',
-                      border: !settings.sidebarAutoHide ? 'none' : '1px solid var(--c-border-input)',
-                      color: !settings.sidebarAutoHide ? '#fff' : 'var(--c-text-secondary)',
-                    }}
-                  >
-                    {settings.sidebarAutoHide ? 'On' : 'Off'}
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
                     <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Changelog Popup</div>
                     <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Show what&apos;s new after updates</div>
                   </div>

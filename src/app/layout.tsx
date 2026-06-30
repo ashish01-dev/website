@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer'
 import LandingAIAssistant from '@/components/ai/LandingAIAssistant'
 import AITutorPanel from '@/components/ai/AITutorPanel'
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow'
+import PageTransition from '@/components/layout/PageTransition'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useProgressStore } from '@/store/progressStore'
 import { useTimetableStore } from '@/store/timetableStore'
@@ -78,7 +79,7 @@ async function initSync() {
   sb.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
     const uid = session?.user?.id ?? null
     setSyncUser(uid)
-    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && uid) {
+    if (event === 'SIGNED_IN' && uid) {
       fillLocalFromCloud().then(() => {
         useSettingsStore.getState().load()
         useProgressStore.getState().load()
@@ -162,10 +163,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <title>JEEIFY</title>
       </head>
       <body className="min-h-screen" style={{ background: 'var(--c-bg-gradient)', color: 'var(--c-text)', fontFamily: "'DM Sans', sans-serif" }}>
-        <Script id="theme-init" strategy="beforeInteractive">{`try{var t=localStorage.getItem('jee-theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light')}}catch(e){}`}</Script>
-        <div className="animate-page-in flex flex-col min-h-screen">
+        <Script id="theme-init" strategy="beforeInteractive">{`try{var t=localStorage.getItem('jee-theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light')}else if(t==='dark'){document.documentElement.classList.add('dark')}else{if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light')}else{document.documentElement.classList.add('dark')}}}catch(e){document.documentElement.classList.add('dark')}`}</Script>
+        <div className="flex flex-col min-h-screen">
           <div className="flex-1">
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
           </div>
           {!isAppPage && <Footer />}
         </div>

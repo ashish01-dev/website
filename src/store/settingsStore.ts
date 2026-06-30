@@ -19,7 +19,6 @@ const DEFAULT_SETTINGS: Settings = {
   freezeDays: 21,
   avatarUrl: '',
   sidebarHover: false,
-  sidebarAutoHide: true,
   onboarded: false,
   changelogSeenVersion: '',
   showChangelog: true,

@@ -5,14 +5,11 @@ import { useRouter } from 'next/navigation'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSupabase } from '@/lib/supabase'
-import { useSidebarStore } from './Sidebar'
 import { useUser } from '@/lib/useUser'
 
 export default function TopBar() {
   const router = useRouter()
   const { settings, update } = useSettingsStore()
-  const sidebarOpen = useSidebarStore(s => s.open)
-  const setSidebarOpen = useSidebarStore(s => s.setOpen)
   const { user } = useUser()
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 })
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -60,19 +57,6 @@ export default function TopBar() {
       <div className="max-w-[1000px] mx-auto flex items-center justify-between h-12 px-4 md:px-6">
         {/* Left: hamburger + live time + days left + clickable date */}
         <div className="flex items-center gap-1">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="sidebar-trigger w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
-            title="Toggle navigation"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round">
-              {sidebarOpen ? (
-                <path d="M18 6L6 18M6 6l12 12" />
-              ) : (
-                <path d="M3 6h18M3 12h18M3 18h18" />
-              )}
-            </svg>
-          </button>
           <span className="text-[13px] font-medium" style={{ color: 'var(--c-blue)' }}>
             {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
           </span>
