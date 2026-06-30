@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSupabase } from '@/lib/supabase'
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 interface Question {
   id: string
@@ -94,6 +95,7 @@ const slideVariants = {
 
 export default function OnboardingFlow() {
   const router = useRouter()
+  const pathname = usePathname()
   const { settings, update, loaded } = useSettingsStore()
   const [signedIn, setSignedIn] = useState<boolean | null>(null)
   const [step, setStep] = useState(0)
@@ -103,13 +105,20 @@ export default function OnboardingFlow() {
   const [answers, setAnswers] = useState<Record<string, string>>({ class: '12', exam: 'both', study_hours: '6-8' })
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/settings']
+
   useEffect(() => {
     const sb = getSupabase()
     if (!sb) { setSignedIn(false); return }
     sb.auth.getUser().then((res: any) => setSignedIn(!!res.data?.user))
+    const { data: { subscription } } = sb.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
+      setSignedIn(!!session?.user)
+    })
+    return () => subscription?.unsubscribe()
   }, [])
 
   if (!loaded || signedIn === null) return null
+  if (!APP_PATHS.some(p => pathname.startsWith(p))) return null
   if (settings.onboarded || !signedIn) return null
 
   const currentQuestion = QUESTIONS[step]
