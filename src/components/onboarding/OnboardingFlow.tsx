@@ -107,18 +107,33 @@ export default function OnboardingFlow() {
 
   const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings']
 
+  const [checkingOnboarded, setCheckingOnboarded] = useState(true)
+
   useEffect(() => {
     const sb = getSupabase()
-    if (!sb) { setSignedIn(false); return }
-    sb.auth.getUser().then((res: any) => setSignedIn(!!res.data?.user))
+    if (!sb) { setSignedIn(false); setCheckingOnboarded(false); return }
+    sb.auth.getUser().then((res: any) => {
+      const user = res.data?.user
+      setSignedIn(!!user)
+      const metadataOnboarded = user?.user_metadata?.onboarded === true
+      if (metadataOnboarded && !settings.onboarded) {
+        update({ onboarded: true })
+      }
+      setCheckingOnboarded(false)
+    })
     const { data: { subscription } } = sb.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
-      setSignedIn(!!session?.user)
+      const u = session?.user
+      setSignedIn(!!u)
+      const metadataOnboarded = u?.user_metadata?.onboarded === true
+      if (metadataOnboarded && !useSettingsStore.getState().settings.onboarded) {
+        update({ onboarded: true })
+      }
     })
     return () => subscription?.unsubscribe()
-  }, [])
+  }, [update])
 
   if (!APP_PATHS.some(p => pathname.startsWith(p))) return null
-  if (!loaded || signedIn === null) {
+  if (!loaded || signedIn === null || checkingOnboarded) {
     return (
       <div className="fixed inset-0 z-[100]" style={{ background: 'var(--c-bg-gradient)' }} />
     )
@@ -164,6 +179,10 @@ export default function OnboardingFlow() {
     if (answers.exam === 'jee_advanced') updates.examDate = '2027-06-01'
     if (avatarDataUrl) updates.avatarUrl = avatarDataUrl
     await update(updates)
+    const sb = getSupabase()
+    if (sb) {
+      await sb.auth.updateUser({ data: { onboarded: true } })
+    }
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
