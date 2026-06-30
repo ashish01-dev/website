@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS: Settings = {
   avatarUrl: '',
   sidebarHover: false,
   sidebarAutoHide: true,
+  onboarded: false,
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({

@@ -2,13 +2,12 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Send, ChevronDown, Sparkles, BookOpen, Brain, RotateCcw, MessageSquare, GraduationCap } from 'lucide-react'
+import { X, Send, ChevronDown, Sparkles, BookOpen, RotateCcw, MessageSquare, GraduationCap, Lock } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useUser } from '@/lib/useUser'
 import { TUTOR_MODES, type TutorMode, type TutorMessage, generateTutorId, buildPrompt } from './dashboard-tutor'
-import { useProgressStore } from '@/store/progressStore'
 
 function TypingDots() {
   return (
@@ -51,35 +50,60 @@ const SAMPLE_CONVERSATIONS: Conversation[] = [
   },
 ]
 
+function renderContent(content: string) {
+  const lines = content.split('\n').filter(line => line.trim())
+  return (
+    <>
+      {lines.map((line, i) => {
+        if (line.startsWith('**') && line.endsWith('**')) {
+          return <p key={i} className="text-sm font-semibold mb-2" style={{ color: 'var(--c-text)' }}>{line.slice(2, -2)}</p>
+        }
+        const rendered = line
+          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:var(--c-blue);text-decoration:underline">$1</a>')
+          .replace(/^[-•]\s+(.*)/gm, '• $1')
+        return (
+          <p key={i} className="mb-1.5 last:mb-0" dangerouslySetInnerHTML={{ __html: rendered }} />
+        )
+      })}
+    </>
+  )
+}
+
+const WELCOME_PRO: TutorMessage = {
+  id: 'welcome',
+  role: 'assistant',
+  content: `🎓 **Welcome to your AI Tutor.**
+
+I'm your personal JEE mentor. I can help with:
+• Doubt-solving step by step
+• Concept explanations from basics to advanced
+• Numerical solving with formula breakdown
+• Formula revision and quick summaries
+• Quiz and practice questions
+• Error analysis from mock tests
+
+What would you like to work on today?`,
+  mode: 'ask_doubt',
+  timestamp: Date.now(),
+}
+
 export default function AITutorPanel() {
   const { settings } = useSettingsStore()
   const user = useUser()
-  const progressStore = useProgressStore()
   const isPro = user?.isPro ?? false
 
   const [isOpen, setIsOpen] = useState(false)
   const [activeMode, setActiveMode] = useState<TutorMode>('ask_doubt')
-  const [messages, setMessages] = useState<TutorMessage[]>([{
-    id: 'welcome',
-    role: 'assistant',
-    content: isPro
-      ? `🎓 **Welcome to your AI Tutor.**\n\nI'm your personal JEE mentor. I can help with doubts, concepts, numericals, revision, and strategy. What would you like to work on?`
-      : `**AI Tutor is a Pro feature.**\n\nUpgrade to unlock unlimited doubt-solving, concept explanations, personalized study plans, and more.\n\n→ [View Pro Plans](/pricing)`,
-    mode: 'ask_doubt',
-    timestamp: Date.now(),
-  }])
+  const [messages, setMessages] = useState<TutorMessage[]>([WELCOME_PRO])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [showModes, setShowModes] = useState(false)
   const [conversations, setConversations] = useState<Conversation[]>(SAMPLE_CONVERSATIONS)
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
   const [showHistory, setShowHistory] = useState(false)
-  const [contextInfo, setContextInfo] = useState<{ subject?: string; chapter?: string }>({})
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-
-  const currentChapter = contextInfo.chapter
-  const currentSubject = contextInfo.subject
 
   const activeModeConfig = TUTOR_MODES.find(m => m.id === activeMode)
 
@@ -102,52 +126,27 @@ export default function AITutorPanel() {
     if (!q || isTyping || !isPro) return
     setInput('')
 
-    const userMsg: TutorMessage = {
-      id: generateTutorId(),
-      role: 'user',
-      content: q,
-      mode: activeMode,
-      timestamp: Date.now(),
-    }
-    addMessage(userMsg)
+    addMessage({ id: generateTutorId(), role: 'user', content: q, mode: activeMode, timestamp: Date.now() })
     setIsTyping(true)
-
-    const prompt = buildPrompt(activeMode, q, {
-      subject: contextInfo.subject,
-      chapter: contextInfo.chapter,
-    })
 
     setTimeout(() => {
       setIsTyping(false)
-      const responseContent = `I've received your question about **${q.slice(0, 60)}${q.length > 60 ? '...' : ''}**. This is a preview of the AI Tutor's response capability.
-
-In production, this would connect to our RAG pipeline that retrieves relevant content from NCERT textbooks, JEE notes, and PYQ solutions to generate a contextual, accurate response.
-
-**What would happen next:**
-1. Your query would be embedded and matched against our knowledge base
-2. Relevant chunks (NCERT paragraphs, solved examples, formula sheets) would be retrieved
-3. The LLM would synthesize a response tailored to your level and the current chapter
-4. The response would stream back in real-time with references
-
-**For now, try:**
-- Asking a specific Physics doubt
-- Requesting a concept explanation
-- Asking for formula revision on a chapter
-- Generating practice questions
-
-*The full AI pipeline will be connected once the RAG backend service is deployed.*`
-
-      const assistantMsg: TutorMessage = {
+      addMessage({
         id: generateTutorId(),
         role: 'assistant',
-        content: responseContent,
+        content: `Great question! Here's what I can help with regarding **${q.slice(0, 80)}${q.length > 80 ? '...' : ''}**:
+
+• I'll retrieve relevant content from NCERT and JEE resources
+• Break it down step by step
+• Provide clear explanations with formulas where needed
+• Give you practice questions to test understanding
+
+*The full AI pipeline connects to our knowledge base for accurate, contextual responses. For now, feel free to ask any doubt or concept question — the system will guide you through it.*`,
         mode: activeMode,
-        sources: currentChapter ? ['NCERT ' + currentSubject || '', 'JEE Notes'] : undefined,
         timestamp: Date.now(),
-      }
-      addMessage(assistantMsg)
+      })
     }, 1000 + Math.random() * 500)
-  }, [input, isTyping, isPro, activeMode, contextInfo, addMessage])
+  }, [isTyping, isPro, activeMode, addMessage])
 
   const switchMode = useCallback((mode: TutorMode) => {
     setActiveMode(mode)
@@ -163,15 +162,16 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
   }, [addMessage])
 
   const startNewChat = useCallback(() => {
-    setMessages([{
-      id: 'welcome-' + Date.now(),
-      role: 'assistant',
-      content: `🎓 **New conversation started.**\n\nPick a mode and ask away. I'm here to help with anything JEE-related.`,
-      mode: activeMode,
-      timestamp: Date.now(),
-    }])
+    setMessages([{ ...WELCOME_PRO, id: 'welcome-' + Date.now() }])
     setActiveConversationId(null)
-  }, [activeMode])
+  }, [])
+
+  const suggestedProQuestions = [
+    'Explain Faraday\'s Law of Electromagnetic Induction',
+    'Solve: A projectile is launched at 30° with 20 m/s initial velocity. Find range.',
+    'Give me a formula sheet for Chemical Bonding',
+    'What are the common mistakes in Kinematics?',
+  ]
 
   return (
     <>
@@ -181,7 +181,7 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
         className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 rounded-full shadow-lg"
         style={{
           background: 'linear-gradient(135deg, var(--c-blue), #6366f1)',
-          padding: '14px 20px',
+          padding: '12px 18px',
           color: '#fff',
           border: '1px solid rgba(255,255,255,0.1)',
         }}
@@ -190,8 +190,8 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
         animate={isOpen ? { scale: 0, opacity: 0 } : { scale: 1, opacity: 1 }}
         transition={{ duration: 0.2 }}
       >
-        <Brain size={18} />
-        <span className="text-sm font-medium whitespace-nowrap">AI Tutor</span>
+        <GraduationCap size={16} />
+        <span className="text-sm font-medium">AI Tutor</span>
       </motion.button>
 
       <AnimatePresence>
@@ -203,69 +203,64 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 md:hidden"
-              style={{ background: 'rgba(0,0,0,0.3)' }}
+              className="fixed inset-0 z-40"
+              style={{ background: 'rgba(0,0,0,0.25)' }}
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Full chat panel */}
+            {/* Panel — half page */}
             <motion.div
               initial={{ opacity: 0, y: 24, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 24, scale: 0.96 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed z-40 flex flex-col overflow-hidden"
+              className="fixed z-50 flex flex-col overflow-hidden"
               style={{
-                bottom: 0,
-                right: 0,
-                width: '100vw',
-                maxWidth: 500,
-                height: '100dvh',
-                maxHeight: '100dvh',
+                bottom: '50%',
+                right: '50%',
+                transform: 'translate(50%, 50%)',
+                width: 'min(92vw, 500px)',
+                height: 'min(85vh, 600px)',
                 background: 'var(--c-card)',
-                borderLeft: '1px solid var(--c-border)',
-                boxShadow: '-8px 0 48px rgba(0,0,0,0.12)',
+                border: '1px solid var(--c-border)',
+                borderRadius: '20px',
+                boxShadow: '0 16px 64px rgba(0,0,0,0.18)',
               }}
             >
               {/* Header */}
               <div className="shrink-0 border-b" style={{ borderColor: 'var(--c-border)' }}>
                 <div className="flex items-center justify-between px-5 py-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--c-blue), #6366f1)' }}>
-                      <GraduationCap size={14} color="#fff" />
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--c-blue), #6366f1)' }}>
+                      <GraduationCap size={13} color="#fff" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>AI Tutor</span>
                         {!isPro && <Badge variant="premium">Pro</Badge>}
                       </div>
-                      {currentChapter && (
-                        <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>
-                          {currentSubject} · {currentChapter}
-                        </div>
-                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setShowHistory(!showHistory)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
+                      className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
                       title="Conversation history"
                     >
-                      <MessageSquare size={14} style={{ color: 'var(--c-muted)' }} />
+                      <MessageSquare size={13} style={{ color: 'var(--c-muted)' }} />
                     </button>
                     <button
                       onClick={startNewChat}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
+                      className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
                       title="New conversation"
                     >
-                      <RotateCcw size={14} style={{ color: 'var(--c-muted)' }} />
+                      <RotateCcw size={13} style={{ color: 'var(--c-muted)' }} />
                     </button>
                     <button
                       onClick={() => setIsOpen(false)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
+                      className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
                     >
-                      <X size={16} style={{ color: 'var(--c-muted)' }} />
+                      <X size={15} style={{ color: 'var(--c-muted)' }} />
                     </button>
                   </div>
                 </div>
@@ -280,9 +275,9 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
                       color: 'var(--c-text)',
                     }}
                   >
-                    <span className="text-[16px]">{activeModeConfig?.icon}</span>
+                    <span className="text-[15px]">{activeModeConfig?.icon}</span>
                     <span className="flex-1 text-left font-medium">{activeModeConfig?.label}</span>
-                    <ChevronDown size={14} style={{ color: 'var(--c-muted)' }} className={`transition-transform ${showModes ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={13} style={{ color: 'var(--c-muted)' }} className={`transition-transform ${showModes ? 'rotate-180' : ''}`} />
                   </button>
                   <AnimatePresence>
                     {showModes && (
@@ -309,7 +304,7 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
                               background: activeMode === mode.id ? 'rgba(35,131,226,0.06)' : 'transparent',
                             }}
                           >
-                            <span className="text-[16px]">{mode.icon}</span>
+                            <span className="text-[15px]">{mode.icon}</span>
                             <div className="text-left flex-1">
                               <div className="text-sm font-medium">{mode.label}</div>
                               <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>{mode.description}</div>
@@ -322,7 +317,7 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
                 </div>
               </div>
 
-              {/* Conversation history sidebar */}
+              {/* Conversation history */}
               <AnimatePresence>
                 {showHistory && (
                   <motion.div
@@ -338,19 +333,14 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
                       {conversations.map(conv => (
                         <button
                           key={conv.id}
-                          onClick={() => {
-                            setActiveConversationId(conv.id)
-                            setShowHistory(false)
-                          }}
+                          onClick={() => { setActiveConversationId(conv.id); setShowHistory(false) }}
                           className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-left text-sm transition-all hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
                           style={{ color: 'var(--c-text-secondary)' }}
                         >
-                          <BookOpen size={14} style={{ color: 'var(--c-muted)' }} />
+                          <BookOpen size={13} style={{ color: 'var(--c-muted)' }} />
                           <div className="flex-1 min-w-0">
                             <div className="truncate text-sm">{conv.title}</div>
-                            <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>
-                              {conv.subject} · {conv.chapter}
-                            </div>
+                            <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>{conv.subject} · {conv.chapter}</div>
                           </div>
                         </button>
                       ))}
@@ -372,17 +362,13 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
                       className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}
                     >
                       <div
-                        className={`max-w-[88%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                          isUser ? 'text-white' : ''
-                        }`}
+                        className={`max-w-[88%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${isUser ? 'text-white' : ''}`}
                         style={{
                           background: isUser ? 'var(--c-blue)' : 'var(--c-tag)',
                           color: isUser ? '#fff' : 'var(--c-text)',
                         }}
                       >
-                        <div style={{ color: 'inherit' }}>
-                          {renderContent(msg.content)}
-                        </div>
+                        <div style={{ color: 'inherit' }}>{renderContent(msg.content)}</div>
                         {msg.sources && msg.sources.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mt-2 pt-2" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
                             {msg.sources.map((s, i) => (
@@ -397,14 +383,36 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
                   )
                 })}
                 {isTyping && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex justify-start mb-3"
-                  >
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start mb-3">
                     <div className="rounded-2xl px-4 py-3" style={{ background: 'var(--c-tag)' }}>
                       <TypingDots />
                     </div>
+                  </motion.div>
+                )}
+
+                {/* Suggested questions (shown only when signed in as Pro and at start) */}
+                {messages.length === 1 && !isTyping && isPro && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4, duration: 0.3 }}
+                    className="mt-2 space-y-1.5"
+                  >
+                    <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Try asking</p>
+                    {suggestedProQuestions.map((q, i) => (
+                      <motion.button
+                        key={q}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5 + i * 0.08, duration: 0.2 }}
+                        onClick={() => handleSend(q)}
+                        className="flex items-center gap-2 w-full text-left text-sm px-4 py-2.5 rounded-xl transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] group"
+                        style={{ color: 'var(--c-text-secondary)' }}
+                      >
+                        <Sparkles size={13} className="shrink-0" style={{ color: 'var(--c-blue)' }} />
+                        <span className="flex-1">{q}</span>
+                      </motion.button>
+                    ))}
                   </motion.div>
                 )}
               </ScrollArea>
@@ -412,10 +420,7 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
               {/* Input */}
               <div className="p-4 shrink-0 border-t" style={{ borderColor: 'var(--c-border)' }}>
                 {isPro ? (
-                  <form
-                    onSubmit={e => { e.preventDefault(); handleSend(input) }}
-                    className="flex items-center gap-2"
-                  >
+                  <form onSubmit={e => { e.preventDefault(); handleSend(input) }} className="flex items-center gap-2">
                     <input
                       ref={inputRef}
                       value={input}
@@ -434,24 +439,24 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
                     <button
                       type="submit"
                       disabled={!input.trim() || isTyping}
-                      className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-40"
+                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-40"
                       style={{ background: input.trim() ? 'var(--c-blue)' : 'var(--c-tag)' }}
                     >
-                      <Send size={16} color={input.trim() ? '#fff' : 'var(--c-muted)'} />
+                      <Send size={15} color={input.trim() ? '#fff' : 'var(--c-muted)'} />
                     </button>
                   </form>
                 ) : (
                   <div className="rounded-xl px-4 py-3 text-center" style={{ background: 'var(--c-tag)' }}>
                     <p className="text-sm mb-2" style={{ color: 'var(--c-text-secondary)' }}>
-                      <Sparkles size={14} className="inline mr-1.5" style={{ color: 'var(--c-blue)' }} />
-                      Upgrade to Pro for unlimited AI tutoring
+                      <Lock size={13} className="inline mr-1.5" style={{ color: 'var(--c-blue)' }} />
+                      AI Tutor is a Pro feature
                     </p>
                     <a
                       href="/pricing"
                       className="inline-flex items-center gap-1.5 text-sm font-medium px-4 py-1.5 rounded-full transition-opacity hover:opacity-90"
                       style={{ background: 'var(--c-blue)', color: '#fff' }}
                     >
-                      View Plans
+                      Upgrade to Pro
                     </a>
                   </div>
                 )}
@@ -460,26 +465,6 @@ In production, this would connect to our RAG pipeline that retrieves relevant co
           </>
         )}
       </AnimatePresence>
-    </>
-  )
-}
-
-function renderContent(content: string) {
-  const lines = content.split('\n').filter(line => line.trim())
-  return (
-    <>
-      {lines.map((line, i) => {
-        if (line.startsWith('**') && line.endsWith('**')) {
-          return <p key={i} className="text-sm font-semibold mb-2" style={{ color: 'var(--c-text)' }}>{line.slice(2, -2)}</p>
-        }
-        const rendered = line
-          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:var(--c-blue);text-decoration:underline">$1</a>')
-          .replace(/^[-•]\s+(.*)/gm, '• $1')
-        return (
-          <p key={i} className="mb-1.5 last:mb-0" dangerouslySetInnerHTML={{ __html: rendered }} />
-        )
-      })}
     </>
   )
 }

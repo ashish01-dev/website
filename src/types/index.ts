@@ -187,4 +187,5 @@ export interface Settings {
   avatarUrl?: string
   sidebarHover: boolean
   sidebarAutoHide: boolean
+  onboarded: boolean
 }

@@ -39,10 +39,8 @@ function ChatMessage({ message, animate }: { message: Message; animate?: boolean
       className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}
     >
       <div
-        className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-          isUser
-            ? 'text-white'
-            : ''
+        className={`max-w-[88%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+          isUser ? 'text-white' : ''
         }`}
         style={{
           background: isUser ? 'var(--c-blue)' : 'var(--c-tag)',
@@ -75,7 +73,6 @@ function ChatMessage({ message, animate }: { message: Message; animate?: boolean
 }
 
 function MarkdownContent({ content }: { content: string }) {
-  const parts = content.split(/(\*\*[^*]+\*\*)/g)
   const lines = content.split('\n').filter(line => line.trim())
   return (
     <>
@@ -96,12 +93,45 @@ function MarkdownContent({ content }: { content: string }) {
 const WELCOME_MESSAGE: Message = {
   id: 'welcome',
   role: 'assistant',
-  content: `👋 **Hi there! Welcome to JEEIFY.**
+  content: `👋 Hey! I'm **J**, your JEEIFY guide.
 
-I'm your personal platform guide. I can help you understand what JEEIFY offers, how it works, and which plan fits your needs.
+Ask me anything about the platform — features, pricing, how to start, or what's available.
 
-What would you like to know?`,
+What can I help you with?`,
   timestamp: Date.now(),
+}
+
+const AUTO_REPLIES: Record<string, string> = {
+  'what does this platform offer': `JEEIFY is your all-in-one JEE prep command center. You get:
+
+• **Smart syllabus tracker** — real-time progress per chapter
+• **AI-powered tutoring** (Pro) — doubt-solving, concept teaching, strategy
+• **Timetable planner** — drag-and-drop weekly schedule
+• **Progress analytics** — pace tracking, mock test analysis
+• **Pomodoro timer** — built-in focus sessions
+• **Formula repository** — upload and organize sheets
+• **Cloud sync** — study across devices seamlessly
+
+Everything is built specifically for JEE Main & Advanced.`,
+  'how does ai help me': `The **AI Tutor** (Pro feature, ₹50/month) acts as your personal JEE mentor:
+
+• **Ask Doubts** — get step-by-step help on any problem
+• **Explain Concepts** — clear, structured teaching from basics to advanced
+• **Solve Numericals** — worked solutions with formula breakdown
+• **Formula Revision** — instant formula sheets per chapter
+• **Quiz & Practice** — AI generates questions at your level
+• **Error Analysis** — the AI analyzes your mistakes from mock tests
+
+The AI adapts to your level — beginner or advanced — and remembers your context across conversations.`,
+  'show pricing': `**Free Plan** — ₹0/month
+Full syllabus tracker, timetable, Pomodoro, progress dashboard, cloud sync.
+
+**Pro Plan** — ₹50/month (less than a coffee ☕)
+Everything in Free + AI Tutor, advanced analytics, PYQ library, formula repository, revision tools, priority support.
+
+7-day money-back guarantee on all plans. No hidden fees. Cancel anytime.
+
+→ [View full pricing](/pricing)`,
 }
 
 export default function LandingAIAssistant() {
@@ -111,7 +141,6 @@ export default function LandingAIAssistant() {
   const [isTyping, setIsTyping] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isOpen) {
@@ -151,7 +180,18 @@ export default function LandingAIAssistant() {
         addMessage({
           id: generateId(),
           role: 'assistant',
-          content: `I'd love to help with that, but I'm here to answer questions about JEEIFY as a platform. For JEE academic questions, **please sign in and head to the dashboard** — the AI Tutor there is built specifically for Physics, Chemistry, and Mathematics and can help you with everything from doubt-solving to exam strategy.`,
+          content: `I'm J — here to help with platform questions! For JEE academic help, **sign in and open the AI Tutor** on your dashboard. It's built specifically for Physics, Chemistry, and Mathematics and can help you ace your prep.`,
+          timestamp: Date.now(),
+        })
+        return
+      }
+
+      const exactKey = Object.keys(AUTO_REPLIES).find(k => lower.includes(k))
+      if (exactKey) {
+        addMessage({
+          id: generateId(),
+          role: 'assistant',
+          content: AUTO_REPLIES[exactKey],
           timestamp: Date.now(),
         })
         return
@@ -170,7 +210,7 @@ export default function LandingAIAssistant() {
         addMessage({
           id: generateId(),
           role: 'assistant',
-          content: `I'm not sure I have the answer to that yet. Try asking about features, pricing, how to get started, or check our [FAQ](/faq). You can also email **support@jeeify.app** for specific questions.`,
+          content: `Hmm, I don't have an answer for that yet. Try asking about features, pricing, or how to get started. You can also email **support@jeeify.app** for specific questions.`,
           timestamp: Date.now(),
         })
       }
@@ -185,7 +225,7 @@ export default function LandingAIAssistant() {
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-full shadow-lg transition-shadow duration-200 hover:shadow-xl"
         style={{
           background: 'linear-gradient(135deg, var(--c-blue), #6366f1)',
-          padding: '14px 20px',
+          padding: '12px 18px',
           color: '#fff',
           border: '1px solid rgba(255,255,255,0.1)',
         }}
@@ -194,8 +234,8 @@ export default function LandingAIAssistant() {
         animate={isOpen ? { scale: 0, opacity: 0 } : { scale: 1, opacity: 1 }}
         transition={{ duration: 0.2 }}
       >
-        <Sparkles size={18} />
-        <span className="text-sm font-medium whitespace-nowrap">Ask AI</span>
+        <Sparkles size={16} />
+        <span className="text-sm font-medium">Ask J</span>
       </motion.button>
 
       {/* Chat panel */}
@@ -208,47 +248,47 @@ export default function LandingAIAssistant() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 md:hidden"
-              style={{ background: 'rgba(0,0,0,0.3)' }}
+              className="fixed inset-0 z-50"
+              style={{ background: 'rgba(0,0,0,0.25)' }}
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Panel */}
+            {/* Panel — half page */}
             <motion.div
-              ref={chatContainerRef}
-              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              ref={scrollRef as any}
+              initial={{ opacity: 0, y: 24, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.96 }}
+              exit={{ opacity: 0, y: 24, scale: 0.96 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               className="fixed z-50 flex flex-col overflow-hidden"
               style={{
-                bottom: 0,
-                right: 0,
-                width: '100vw',
-                height: '100dvh',
-                maxWidth: 440,
-                maxHeight: '100dvh',
+                bottom: '50%',
+                right: '50%',
+                transform: 'translate(50%, 50%)',
+                width: 'min(92vw, 440px)',
+                height: 'min(85vh, 560px)',
                 background: 'var(--c-card)',
-                borderLeft: '1px solid var(--c-border)',
-                boxShadow: '-8px 0 40px rgba(0,0,0,0.12)',
+                border: '1px solid var(--c-border)',
+                borderRadius: '20px',
+                boxShadow: '0 16px 64px rgba(0,0,0,0.18)',
               }}
             >
               {/* Header */}
-              <div className="flex items-center justify-between px-5 py-4 shrink-0 border-b" style={{ borderColor: 'var(--c-border)' }}>
+              <div className="flex items-center justify-between px-5 py-3.5 shrink-0 border-b" style={{ borderColor: 'var(--c-border)' }}>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--c-blue), #6366f1)' }}>
-                    <Sparkles size={14} color="#fff" />
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--c-blue), #6366f1)' }}>
+                    <Sparkles size={13} color="#fff" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>JEEIFY Assistant</div>
-                    <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>Platform guide</div>
+                    <div className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>Ask J</div>
+                    <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>JEEIFY guide</div>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
+                  className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
                 >
-                  <X size={16} style={{ color: 'var(--c-muted)' }} />
+                  <X size={15} style={{ color: 'var(--c-muted)' }} />
                 </button>
               </div>
 
@@ -269,7 +309,7 @@ export default function LandingAIAssistant() {
                   </motion.div>
                 )}
 
-                {/* Starter suggestions (shown only after welcome) */}
+                {/* Starter suggestions */}
                 {messages.length === 1 && !isTyping && (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -306,7 +346,7 @@ export default function LandingAIAssistant() {
                     ref={inputRef}
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    placeholder="Ask about JEEIFY..."
+                    placeholder="Ask J about JEEIFY..."
                     disabled={isTyping}
                     className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none transition-all duration-200"
                     style={{
@@ -320,10 +360,10 @@ export default function LandingAIAssistant() {
                   <button
                     type="submit"
                     disabled={!input.trim() || isTyping}
-                    className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-40"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-40"
                     style={{ background: input.trim() ? 'var(--c-blue)' : 'var(--c-tag)' }}
                   >
-                    <Send size={16} color={input.trim() ? '#fff' : 'var(--c-muted)'} />
+                    <Send size={15} color={input.trim() ? '#fff' : 'var(--c-muted)'} />
                   </button>
                 </form>
               </div>

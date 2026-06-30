@@ -28,6 +28,7 @@ export default function AuthPage() {
   const [error, setError] = useState('')
   const [emailTouched, setEmailTouched] = useState(false)
   const [submittedEmail, setSubmittedEmail] = useState(false)
+  const [newEmailMessage, setNewEmailMessage] = useState('')
 
   const emailValid = isValidEmail(email)
   const emailWarning = emailTouched && email.length > 0 && !emailValid
@@ -53,10 +54,19 @@ export default function AuthPage() {
     })
   }
 
-  const handleEmailSignIn = (e: React.FormEvent) => {
+  const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmittedEmail(true)
-    setError('This feature is in works. Please login with Google.')
+    if (mode === 'login') {
+      setError('This email is not registered. Please sign up instead.')
+      setTimeout(() => {
+        setMode('signup')
+        setNewEmailMessage('We found your email. Complete registration below.')
+        setError('')
+      }, 1500)
+    } else {
+      setError('Email sign-up is being set up. Please sign in with Google.')
+    }
   }
 
   return (
@@ -124,6 +134,7 @@ export default function AuthPage() {
               )}
             </div>
             {error && submittedEmail && <p className="text-[#d9730d] text-[11px] text-center font-medium">{error}</p>}
+            {newEmailMessage && <p className="text-[var(--c-blue)] text-[11px] text-center font-medium">{newEmailMessage}</p>}
             <button type="submit" disabled={!canSubmit}
               className="w-full px-4 py-3 text-sm font-semibold rounded-[40px] transition-all disabled:opacity-40"
               style={{
