@@ -8,6 +8,9 @@ import { formatDate, getDaysBetween } from '@/lib/utils'
 import { db } from '@/lib/db'
 import syllabusData from '@/data/syllabus.json'
 import type { SyllabusData, Subject, Chapter, DailyPlan, RoadmapStage } from '@/types'
+import Sidebar from '@/components/layout/Sidebar'
+import TopBar from '@/components/layout/TopBar'
+import MobileBottomNav from '@/components/layout/MobileBottomNav'
 
 const syllabus = syllabusData as unknown as SyllabusData
 
@@ -189,8 +192,11 @@ export default function RoadmapPage() {
   }, [selectedDay, progress, pace])
 
   return (
-    <div className="min-h-screen pb-[100px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
-      <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8 animate-page-in">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
+      <Sidebar />
+      <TopBar />
+      <MobileBottomNav />
+      <div className="max-w-[900px] mx-auto px-4 md:px-6 pt-[17px] pb-6" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         {/* Header */}
         <div className="flex items-start justify-between mb-2">
           <div>

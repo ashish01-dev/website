@@ -11,7 +11,7 @@ export default function AIPoliciesPage() {
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
-      <div className="max-w-[700px] mx-auto px-5 pt-[17px] pb-6 animate-page-in" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+      <div className="max-w-[700px] mx-auto px-5 pt-[17px] pb-6" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         <Link href="/ai" className="inline-flex items-center gap-1.5 text-sm mb-8" style={{ color: 'var(--c-muted)' }}>
           <span className="material-symbols-rounded text-[18px]">arrow_back</span>
           Back to AI Assistant

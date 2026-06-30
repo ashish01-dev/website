@@ -8,6 +8,9 @@ import { db } from '@/lib/db'
 import { formatDate } from '@/lib/utils'
 import syllabusData from '@/data/syllabus.json'
 import type { SyllabusData, Subject, TestEntry, PomodoroSession, Chapter } from '@/types'
+import Sidebar from '@/components/layout/Sidebar'
+import TopBar from '@/components/layout/TopBar'
+import MobileBottomNav from '@/components/layout/MobileBottomNav'
 
 const syllabus = syllabusData as unknown as SyllabusData
 
@@ -233,8 +236,11 @@ export default function ProgressPage() {
   if (!loaded) return null
 
   return (
-    <div className="min-h-screen pb-24" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
-      <div className="max-w-[960px] mx-auto px-4 md:px-6 py-8 animate-page-in">
+    <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
+      <Sidebar />
+      <TopBar />
+      <MobileBottomNav />
+      <div className="max-w-[960px] mx-auto px-4 md:px-6 pt-[17px] pb-6" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px]" style={{ color: 'var(--c-text)' }}>My Progress</h1>

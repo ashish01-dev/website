@@ -297,6 +297,12 @@ export default function SettingsPage() {
                     {settings.showChangelog ? 'On' : 'Off'}
                   </button>
                 </div>
+                {settings.showChangelog && (
+                  <a href="https://github.com/ashish01-dev/JEEIFY/releases/tag/Release" target="_blank" rel="noopener noreferrer"
+                    className="text-[11px] underline mt-1 inline-block" style={{ color: 'var(--c-blue)' }}>
+                    View full release notes →
+                  </a>
+                )}
                 {user && isProEmail(user.email || '') && (
                 <div className="flex items-center justify-between">
                   <div>

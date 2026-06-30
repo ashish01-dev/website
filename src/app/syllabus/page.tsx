@@ -311,7 +311,7 @@ export default function SyllabusPage() {
   }
 
   const handleChapterClick = (chId: string, e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('button, [draggable]')) return
+    if ((e.target as HTMLElement).closest('button')) return
     setExpandedId(expandedId === chId ? null : chId)
   }
 

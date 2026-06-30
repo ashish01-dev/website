@@ -217,7 +217,7 @@ export default function AIPage() {
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
-      <div className="max-w-[960px] mx-auto px-4 md:px-6 pt-[17px] pb-6 animate-page-in" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+      <div className="max-w-[960px] mx-auto px-4 md:px-6 pt-[17px] pb-6" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         {/* ─── Header ─── */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
           <div>

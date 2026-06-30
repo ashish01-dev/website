@@ -1,9 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { useSettingsStore } from '@/store/settingsStore'
 
 const APP_VERSION = '1.0.0'
+
+const APP_PATHS = ['/dashboard', '/syllabus', '/roadmap', '/timetable', '/progress', '/pomodoro', '/completion', '/activity', '/questions', '/tests', '/revision', '/settings', '/ai', '/ai-policies']
 
 interface ChangelogEntry {
   version: string
@@ -33,15 +36,31 @@ const CHANGELOG: ChangelogEntry[] = [
 export default function ChangelogPopup() {
   const { settings, loaded, update } = useSettingsStore()
   const [show, setShow] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!loaded) return
     if (!settings.showChangelog) return
+
+    const fromLanding = sessionStorage.getItem('fromLanding') === 'true'
+    sessionStorage.removeItem('fromLanding')
+
+    if (fromLanding) {
+      setShow(true)
+      return
+    }
+
     if (settings.changelogSeenVersion !== APP_VERSION) {
       setShow(true)
       update({ changelogSeenVersion: APP_VERSION })
     }
   }, [loaded, settings.showChangelog, settings.changelogSeenVersion, update])
+
+  useEffect(() => {
+    if (pathname && !APP_PATHS.some(p => pathname.startsWith(p))) {
+      sessionStorage.setItem('fromLanding', 'true')
+    }
+  }, [pathname])
 
   if (!show) return null
 
