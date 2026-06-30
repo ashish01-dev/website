@@ -41,11 +41,24 @@ export default function TopBar() {
     router.push('/')
   }
 
+  const [showFeedback, setShowFeedback] = useState(false)
+  const [feedbackText, setFeedbackText] = useState('')
+  const [sendingFeedback, setSendingFeedback] = useState(false)
+
+  const handleFeedbackSubmit = async () => {
+    const text = feedbackText.trim()
+    if (!text || sendingFeedback) return
+    setSendingFeedback(true)
+    window.location.href = `mailto:ashish.jayshreeram@gmail.com?subject=JEEIFY%20Feedback&body=${encodeURIComponent(text)}`
+    setTimeout(() => { setSendingFeedback(false); setShowFeedback(false); setFeedbackText('') }, 1000)
+  }
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) update({ examDate: e.target.value })
   }
 
   return (
+    <>
     <header className="sticky top-0 z-30" style={{
       background: 'var(--c-topbar-bg)',
       backdropFilter: 'blur(12px)',
@@ -84,6 +97,13 @@ export default function TopBar() {
             ) : (
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             )}
+          </button>
+
+          <button onClick={() => setShowFeedback(true)}
+            className="w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
+            title="Send feedback"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--c-muted)" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </button>
 
           <span className="text-[12px] font-medium hidden sm:block" style={{ color: 'var(--c-text-secondary)' }}>
@@ -168,5 +188,35 @@ export default function TopBar() {
         </div>
       </div>
     </header>
+
+      {/* Feedback popup */}
+      {showFeedback && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40" style={{ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+          onClick={() => { if (!sendingFeedback) { setShowFeedback(false); setFeedbackText('') } }}>
+          <div className="max-w-sm w-full mx-4 rounded-[18px] p-5 animate-scale-in" style={{
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)',
+          }} onClick={e => e.stopPropagation()}>
+            <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--c-text)' }}>Send Feedback</h3>
+            <p className="text-[11px] mb-3" style={{ color: 'var(--c-caption)' }}>Help us improve JEEIFY.</p>
+            <textarea value={feedbackText} onChange={e => setFeedbackText(e.target.value)} rows={4} placeholder="Share your thoughts, report a bug, or suggest a feature..."
+              className="w-full px-3.5 py-2.5 text-sm outline-none rounded-xl resize-none transition-all"
+              style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'var(--c-blue)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'var(--c-border-input)' }}
+            />
+            <div className="flex items-center gap-2 mt-3">
+              <button onClick={handleFeedbackSubmit} disabled={!feedbackText.trim() || sendingFeedback}
+                className="flex-1 text-xs font-medium py-2 rounded-[40px] text-white transition-opacity disabled:opacity-40"
+                style={{ background: 'var(--c-btn-primary)' }}
+              >{sendingFeedback ? 'Sending...' : 'Send Feedback'}</button>
+              <button onClick={() => { setShowFeedback(false); setFeedbackText('') }} disabled={sendingFeedback}
+                className="text-xs font-medium px-4 py-2 rounded-[40px] transition-all"
+                style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}
+              >Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

@@ -237,9 +237,12 @@ export default function LandingAIAssistant() {
                   </div>
                 </motion.div>
               )}
-              {/* Suggested questions always visible so users can scroll and select more */}
-              <div className="space-y-1 mt-4 pt-3" style={{ borderTop: '1px solid var(--c-border)' }}>
-                <p className="text-[10px] font-semibold uppercase tracking-wider px-1 py-1" style={{ color: 'var(--c-muted)' }}>Quick questions</p>
+            </ScrollArea>
+
+            {/* Suggested questions always visible below scroll area */}
+            <div className="px-4 pb-2 space-y-1" style={{ borderTop: '1px solid var(--c-border)' }}>
+              <p className="text-[10px] font-semibold uppercase tracking-wider pt-2 px-1 pb-1" style={{ color: 'var(--c-muted)' }}>Quick questions</p>
+              <div className="max-h-[140px] overflow-y-auto space-y-1">
                 {SUGGESTIONS_CURATED.map((item, i) => (
                   <motion.button key={item.q} initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02, duration: 0.2 }}
@@ -252,11 +255,11 @@ export default function LandingAIAssistant() {
                   </motion.button>
                 ))}
               </div>
-            </ScrollArea>
+            </div>
 
             {/* Input */}
-            <div className="p-4 shrink-0 border-t" style={{ borderColor: 'var(--c-border)' }}>
-              <form onSubmit={e => { e.preventDefault(); handleSend(input) }} className="flex items-center gap-2">
+            <div className="px-4 pb-3 shrink-0">
+              <form onSubmit={e => { e.preventDefault(); handleSend(input) }} className="flex items-center gap-2 mb-1.5">
                 <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)}
                   placeholder="Ask J about JEEIFY..." disabled={isTyping}
                   className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none transition-all duration-200"
@@ -271,6 +274,7 @@ export default function LandingAIAssistant() {
                   <Send size={15} color={input.trim() ? '#fff' : 'var(--c-muted)'} />
                 </button>
               </form>
+              <p className="text-[10px] text-center" style={{ color: 'var(--c-caption)' }}>AI can make mistakes. Verify important information.</p>
             </div>
           </motion.div>
         )}

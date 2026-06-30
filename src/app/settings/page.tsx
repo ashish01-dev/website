@@ -44,6 +44,9 @@ export default function SettingsPage() {
   const { settings, update } = useSettingsStore()
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
+  const [deleteAccountConfirm, setDeleteAccountConfirm] = useState('')
+  const [deletingAccount, setDeletingAccount] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -493,6 +496,75 @@ export default function SettingsPage() {
               )}
             </div>
           </div>
+
+          {/* Delete Account */}
+          <div className="rounded-[18px] px-[22px] py-[24px]" style={{
+            background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
+          }}>
+            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Delete Account</h2>
+            {!showDeleteAccount ? (
+              <div>
+                <p className="text-xs mb-3" style={{ color: 'var(--c-muted)' }}>
+                  Permanently delete your account and all associated data. This action cannot be undone.
+                </p>
+                <button onClick={() => setShowDeleteAccount(true)}
+                  className="text-xs font-medium px-4 py-2 rounded-[40px] transition-all"
+                  style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-red)' }}
+                >Delete Account</button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs" style={{ color: 'var(--c-red)' }}>
+                  Type <strong>DELETE ACCOUNT</strong> to confirm permanent deletion:
+                </p>
+                <input
+                  value={deleteAccountConfirm}
+                  onChange={e => setDeleteAccountConfirm(e.target.value)}
+                  className="w-full px-3 py-2 text-xs outline-none rounded-[40px]"
+                  style={{ border: '1px solid #e03e3e', color: 'var(--c-text)', background: 'var(--c-input)' }}
+                  placeholder="DELETE ACCOUNT"
+                  disabled={deletingAccount}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      if (deleteAccountConfirm !== 'DELETE ACCOUNT' || deletingAccount) return
+                      setDeletingAccount(true)
+                      try {
+                        const res = await fetch('/api/delete-account', { method: 'POST' })
+                        if (!res.ok) { alert('Failed to delete account. Try signing out and back in.'); setDeletingAccount(false); return }
+                        await db.progress.clear()
+                        await db.timetable.clear()
+                        await db.tests.clear()
+                        await db.errors.clear()
+                        await db.formulas.clear()
+                        await db.dailyLogs.clear()
+                        await db.pomodoro.clear()
+                        await db.dailyPlans.clear()
+                        await db.questions.clear()
+                        await db.settings.clear()
+                        localStorage.removeItem('jee-theme')
+                        const sb = getSupabase()
+                        if (sb) await sb.auth.signOut()
+                        window.location.href = '/'
+                      } catch (err) {
+                        alert('Something went wrong. Please try again.')
+                        setDeletingAccount(false)
+                      }
+                    }}
+                    disabled={deleteAccountConfirm !== 'DELETE ACCOUNT' || deletingAccount}
+                    className="text-xs font-medium px-4 py-1.5 rounded-[40px] disabled:opacity-40"
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-red)' }}
+                  >{deletingAccount ? 'Deleting...' : 'Confirm Delete'}</button>
+                  <button onClick={() => { setShowDeleteAccount(false); setDeleteAccountConfirm('') }}
+                    className="text-xs font-medium px-4 py-1.5 rounded-[40px]"
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}
+                  >Cancel</button>
+                </div>
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
     </div>

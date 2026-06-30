@@ -269,9 +269,9 @@ export default function AITutorPanel() {
             )}
 
             {/* Input */}
-            <div className="p-4 shrink-0 border-t" style={{ borderColor: 'var(--c-border)' }}>
+            <div className="px-4 pb-3 shrink-0 border-t" style={{ borderColor: 'var(--c-border)' }}>
               {isPro ? (
-                <form onSubmit={e => { e.preventDefault(); handleSend(input) }} className="flex items-center gap-2">
+                <form onSubmit={e => { e.preventDefault(); handleSend(input) }} className="flex items-center gap-2 mb-1.5">
                   <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} placeholder={activeModeConfig ? `Ask a ${activeModeConfig.label.toLowerCase()} question...` : 'Type your question...'} disabled={isTyping}
                     className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none transition-all duration-200"
                     style={{ background: 'var(--c-input)', border: '1px solid var(--c-border-input)', color: 'var(--c-text)' }}
@@ -291,6 +291,7 @@ export default function AITutorPanel() {
                     style={{ background: 'var(--c-blue)', color: '#fff' }}>Upgrade to Pro</a>
                 </div>
               )}
+              <p className="text-[10px] text-center mt-1.5" style={{ color: 'var(--c-caption)' }}>AI can make mistakes. Verify important information.</p>
             </div>
           </motion.div>
         )}

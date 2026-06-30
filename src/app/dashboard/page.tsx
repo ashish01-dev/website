@@ -138,7 +138,7 @@ export default function DashboardPage() {
       <StoragePopup isPro={isPro} />
       <ChangelogPopup />
 
-      <div className="max-w-[1000px] mx-auto px-4 md:px-6 pt-[17px] pb-6 md:pb-10" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+      <div className="max-w-[1000px] mx-auto px-4 md:px-6 pt-[17px] pb-6 md:pb-10 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
 
         {/* Greeting + date */}
         <div className="mb-6">
@@ -325,7 +325,8 @@ export default function DashboardPage() {
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Study Heatmap — Last 30 Days</h2>
-            <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(30, 1fr)' }}>
+            <div className="overflow-x-auto pb-1">
+            <div className="grid gap-1 min-w-[360px]" style={{ gridTemplateColumns: 'repeat(30, 1fr)' }}>
               {heatmapData.map((d, i) => {
                 const level = getHeatLevel(d.hours)
                 return (
@@ -339,6 +340,7 @@ export default function DashboardPage() {
                   />
                 )
               })}
+            </div>
             </div>
             <div className="flex items-center gap-2 mt-3 text-[10px]" style={{ color: 'var(--c-caption)' }}>
               <span>Less</span>

@@ -79,25 +79,6 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Stats section */}
-      <div className="max-w-[900px] mx-auto px-5 pb-20" style={{ contentVisibility: 'auto' }}>
-        <div className="rounded-[18px] px-[28px] py-[32px] grid grid-cols-2 md:grid-cols-4 gap-8" style={{
-          background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
-        }}>
-          {[
-            { value: '10,000+', label: 'Active Aspirants' },
-            { value: '50,000+', label: 'Chapters Tracked' },
-            { value: '2,00,000+', label: 'Test Scores Logged' },
-            { value: '₹5,00,000+', label: 'Donated to NGOs' },
-          ].map(s => (
-            <div key={s.label} className="text-center">
-              <div className="text-[clamp(24px,3vw,36px)] font-bold tracking-[-1px]" style={{ color: 'var(--c-text)' }}>{s.value}</div>
-              <div className="text-[13px] mt-1" style={{ color: 'var(--c-muted)' }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Mission */}
       <div className="max-w-[1100px] mx-auto px-5 pb-20" style={{ contentVisibility: 'auto' }}>
         <div className="flex flex-col md:flex-row items-center gap-16">
