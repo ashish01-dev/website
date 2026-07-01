@@ -38,6 +38,7 @@ export default function Footer() {
             <ul className="space-y-2.5">
               <li><Link href="/privacy" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Privacy Policy</Link></li>
               <li><Link href="/terms" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>Terms of Service</Link></li>
+              <li><Link href="/ai-policies" className="text-[13px] transition-colors hover:text-[var(--c-blue)]" style={{ color: 'var(--c-muted)' }}>AI Policies</Link></li>
             </ul>
           </div>
         </div>

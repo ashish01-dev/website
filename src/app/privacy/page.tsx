@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import BackButton from '@/components/layout/BackButton'
 
 export default function PrivacyPage() {
   return (
@@ -11,7 +12,6 @@ export default function PrivacyPage() {
             <img src="https://pub-f170a2592d2c4a1485466404c36807be.r2.dev/Tests/logoipsum-415.svg" alt="logo" style={{ height: 28, filter: 'var(--c-logo-filter)' }} />
             <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
           </Link>
-          <Link href="/" className="text-sm font-medium rounded-[40px] px-[16px] py-[5px] transition-all" style={{ color: 'var(--c-text-secondary)', border: '1px solid var(--c-border-input)' }}>&larr; Back</Link>
         </div>
         <div className="absolute bottom-0 left-[40px] right-[40px] h-[1px]" style={{ backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.08) 2px, transparent 2px)', backgroundSize: '6px 1px' }} />
       </nav>
@@ -63,6 +63,7 @@ export default function PrivacyPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 mt-10">
+          <BackButton />
           <Link href="/terms"
             className="flex items-center gap-2 px-4 py-2.5 text-sm rounded-[40px] transition-all"
             style={{ color: 'var(--c-text-secondary)', background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>

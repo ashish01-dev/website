@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import BackButton from '@/components/layout/BackButton'
 
 export default function ContactPage() {
   const [email, setEmail] = useState('')
@@ -29,12 +30,6 @@ export default function ContactPage() {
               style={{ height: 28, filter: 'var(--c-logo-filter)' }}
             />
             <span className="text-[20px] font-bold tracking-[-0.3px]" style={{ color: 'var(--c-text)' }}>JEEIFY</span>
-          </Link>
-          <Link href="/"
-            className="text-sm font-medium rounded-[40px] px-[16px] py-[5px] transition-all duration-200 hover:-translate-y-[1px]"
-            style={{ color: 'var(--c-text-secondary)', border: '1px solid var(--c-border-input)' }}
-          >
-            &larr; Back to Home
           </Link>
         </div>
         <div className="absolute bottom-0 left-[40px] right-[40px] h-[1px] pointer-events-none max-md:left-5 max-md:right-5" style={{
@@ -108,6 +103,10 @@ export default function ContactPage() {
           )}
         </div>
       </section>
+
+      <div className="max-w-lg mx-auto px-5 pb-4">
+        <BackButton label="Back to Home" />
+      </div>
 
       {/* Footer */}
       <footer className="border-t border-[var(--c-border)] py-12 md:py-16 px-5 max-w-[1100px] mx-auto">
