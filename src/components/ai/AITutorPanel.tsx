@@ -120,7 +120,7 @@ export default function AITutorPanel() {
     } catch {
       clearTimeout(timeout)
       setIsTyping(false)
-      addMessage({ id: generateTutorId(), role: 'assistant', content: `Sorry, I'm having trouble connecting. Please try again in a moment.`, mode: activeMode, timestamp: Date.now() })
+      addMessage({ id: generateTutorId(), role: 'assistant', content: `Failed to connect to server. Please try again after some time.`, mode: activeMode, timestamp: Date.now() })
     }
   }, [isTyping, isPro, activeMode, addMessage])
 

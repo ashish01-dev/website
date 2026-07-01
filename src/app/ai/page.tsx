@@ -6,7 +6,6 @@ import { useProgressStore } from '@/store/progressStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useUser } from '@/lib/useUser'
 import { calculatePace } from '@/lib/pacing'
-import { generateId, formatDate, getDaysBetween } from '@/lib/utils'
 import Link from 'next/link'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
@@ -15,19 +14,6 @@ import syllabusData from '@/data/syllabus.json'
 import type { SyllabusData, Subject, Chapter } from '@/types'
 
 const syllabus = syllabusData as unknown as SyllabusData
-
-const MOTIVATIONAL_QUOTES = [
-  '"The only way to do great work is to love what you do." — Steve Jobs',
-  '"Success is not final, failure is not fatal: it is the courage to continue that counts." — Winston Churchill',
-  '"The future belongs to those who believe in the beauty of their dreams." — Eleanor Roosevelt',
-  '"Strive not to be a success, but rather to be of value." — Albert Einstein',
-  '"The best time to plant a tree was 20 years ago. The second best time is now." — Chinese Proverb',
-  '"It does not matter how slowly you go as long as you do not stop." — Confucius',
-  '"Believe you can and you\'re halfway there." — Theodore Roosevelt',
-  '"Your limitation—it\'s only your imagination."',
-  '"Push yourself because no one else is going to do it for you."',
-  '"Great things never come from comfort zones."',
-]
 
 function BetaPopup({ onAcknowledge }: { onAcknowledge: () => void }) {
   return (
@@ -75,10 +61,10 @@ function estimateHours(chapter: Chapter): number {
 
 const SUBJECTS: Subject[] = ['physics', 'chemistry', 'maths']
 
-const SUBJECT_STYLES: Record<Subject, { color: string; emoji: string; icon: string }> = {
-  physics: { color: 'var(--c-blue)', emoji: '⚡', icon: 'bolt' },
-  chemistry: { color: 'var(--c-green)', emoji: '🧪', icon: 'science' },
-  maths: { color: 'var(--c-orange)', emoji: '📐', icon: 'calculate' },
+const SUBJECT_STYLES: Record<Subject, { color: string; emoji: string }> = {
+  physics: { color: 'var(--c-blue)', emoji: '⚡' },
+  chemistry: { color: 'var(--c-green)', emoji: '🧪' },
+  maths: { color: 'var(--c-orange)', emoji: '📐' },
 }
 
 export default function AIPage() {
@@ -97,7 +83,6 @@ export default function AIPage() {
     if (localStorage.getItem('ai_beta_acknowledged')) setShowBeta(false)
   }, [])
   const [aiLoading, setAiLoading] = useState(true)
-  const [quote] = useState(() => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)])
   const [availableHours, setAvailableHours] = useState(settings.dailyStudyHours || 6)
   const [showDisclaimer, setShowDisclaimer] = useState(false)
 
@@ -229,7 +214,6 @@ export default function AIPage() {
 
     if (needingRevision.length === 0) return []
 
-    /* Ensure at least one chapter per subject, then fill with most overdue */
     const bySubject = new Map<Subject, typeof needingRevision[0]>()
     const rest: typeof needingRevision = []
     for (const item of needingRevision) {
@@ -291,61 +275,26 @@ export default function AIPage() {
   if (loading) return null
 
   const proContent = (
-    <div className="max-w-[900px] mx-auto px-4 md:px-6 pt-[17px] pb-6" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+    <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
+      <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-[clamp(24px,3vw,36px)] font-medium tracking-[-1px]" style={{ color: 'var(--c-text)' }}>
+          <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>
             {getGreeting()}, <span style={{ color: 'var(--c-blue)' }}>{user?.name || settings.name || 'Student'}</span>
           </h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--c-muted)' }}>Let&apos;s make today count.</p>
-        </div>
-        <div className="flex items-start gap-4">
-          <div className="text-right">
-            <div className="text-[11px] uppercase tracking-wider font-medium" style={{ color: 'var(--c-caption)' }}>JEE Main</div>
-            <div className="text-xl font-bold" style={{ color: 'var(--c-text)' }}>{daysRemaining}<span className="text-sm font-normal" style={{ color: 'var(--c-muted)' }}> days</span></div>
-          </div>
-          <div className="w-px h-10" style={{ background: 'var(--c-border)' }} />
-          <div className="text-right">
-            <div className="text-[11px] uppercase tracking-wider font-medium" style={{ color: 'var(--c-caption)' }}>Streak</div>
-            <div className="text-xl font-bold" style={{ color: 'var(--c-orange)' }}>
-              {Math.min(30, Math.max(0, Math.floor(Math.random() * 8) + 1))}
-              <span className="text-sm font-normal" style={{ color: 'var(--c-muted)' }}> days</span>
-            </div>
-          </div>
+          <p className="text-sm" style={{ color: 'var(--c-muted)' }}>{daysRemaining} days until JEE Main · {overallPct}% syllabus done</p>
         </div>
       </div>
 
-      {/* Quote */}
-      <div className="text-[13px] italic mb-8 px-4 py-3 rounded-[14px]" style={{
-        color: 'var(--c-text-secondary)', background: 'var(--c-card-alt)', border: '1px solid var(--c-border-card)',
-      }}>
-        {quote}
-      </div>
-
-      {/* Overall Progress Bar (matching Roadmap pattern) */}
-      <div className="rounded-[18px] p-5 mb-8" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-2xl">🤖</span>
-          <div>
-            <div className="text-base font-semibold" style={{ color: 'var(--c-text)' }}>AI Assistant</div>
-            <div className="text-xs" style={{ color: 'var(--c-muted)' }}>{overallPct}% syllabus done · {daysRemaining} days until JEE Main</div>
-          </div>
-        </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
-          <div className="h-full bg-gradient-to-r from-[#2383e2] to-[#4da6ff] rounded-full transition-all duration-1000" style={{ width: `${overallPct}%` }} />
-        </div>
-      </div>
-
-      {/* Today's AI Recommendation */}
+      {/* Today's Recommendation */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold" style={{ color: 'var(--c-text)' }}>
             <span className="material-symbols-rounded text-[20px] align-text-bottom mr-1.5" style={{ color: 'var(--c-blue)' }}>auto_awesome</span>
-            AI Recommendation
+Today&apos;s Recommendation
           </h2>
           <div className="flex items-center gap-2">
-            <span className="text-[11px]" style={{ color: 'var(--c-caption)' }}>Available time:</span>
+            <span className="text-[11px]" style={{ color: 'var(--c-caption)' }}>Time:</span>
             <select value={availableHours} onChange={e => setAvailableHours(Number(e.target.value))}
               className="text-xs px-2 py-1 rounded-[8px] outline-none text-[var(--c-text)] bg-[var(--c-input)] border border-[var(--c-border-input)]">
               {[1, 2, 3, 4, 5, 6, 7, 8].map(h => (
@@ -359,58 +308,49 @@ export default function AIPage() {
           <div className="space-y-3">
             {[1, 2].map(i => (
               <div key={i} className="rounded-[18px] p-5 animate-pulse" style={{
-                background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
-                boxShadow: 'var(--c-shadow)',
+                background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
               }}>
-                <div className="flex items-start gap-3 mb-4">
+                <div className="flex items-start gap-3 mb-3">
                   <div className="w-10 h-10 rounded-full" style={{ background: 'var(--c-progress-bg)' }} />
                   <div className="flex-1 space-y-2">
                     <div className="h-3 w-20 rounded" style={{ background: 'var(--c-progress-bg)' }} />
                     <div className="h-4 w-48 rounded" style={{ background: 'var(--c-progress-bg)' }} />
                   </div>
-                  <div className="h-3 w-14 rounded" style={{ background: 'var(--c-progress-bg)' }} />
                 </div>
-                <div className="flex gap-2 mb-3">
+                <div className="flex gap-2">
                   <div className="h-7 w-24 rounded-[10px]" style={{ background: 'var(--c-progress-bg)' }} />
                   <div className="h-7 w-20 rounded-[10px]" style={{ background: 'var(--c-progress-bg)' }} />
                 </div>
-                <div className="h-12 rounded-[12px]" style={{ background: 'var(--c-progress-bg)' }} />
               </div>
             ))}
           </div>
         ) : todayRecommendations.length > 0 ? (
           <div className="space-y-3">
             {todayRecommendations.map((rec, idx) => (
-              <div key={rec.chapter.id} className="rounded-[18px] p-5" style={{
+              <div key={rec.chapter.id} className="rounded-[18px] p-5 transition-all hover:-translate-y-[0.5px]" style={{
                 background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
                 boxShadow: 'var(--c-shadow)', borderLeft: `4px solid ${getSubjectColor(rec.subject)}`,
               }}>
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg" style={{ background: 'var(--c-tag)' }}>
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0" style={{ background: 'var(--c-tag)' }}>
                     {SUBJECT_STYLES[rec.subject].emoji}
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-sm font-semibold capitalize" style={{ color: 'var(--c-text)' }}>{rec.subject}</span>
                       <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded-full" style={{
-                        background: getSubjectColor(rec.subject) + '20',
-                        color: getSubjectColor(rec.subject),
-                      }}>
-                        {rec.chapter.weightage} wt.
-                      </span>
+                        background: getSubjectColor(rec.subject) + '20', color: getSubjectColor(rec.subject),
+                      }}>{rec.chapter.weightage} wt.</span>
                       {idx === 0 && <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: 'rgba(224,62,62,0.1)', color: 'var(--c-red)' }}>Top Priority</span>}
                     </div>
                     <h3 className="text-lg font-bold" style={{ color: 'var(--c-text)' }}>{rec.chapter.name}</h3>
                   </div>
-                  <div className="text-right">
-                    <div className="text-[11px] font-medium" style={{ color: 'var(--c-blue)' }}>
-                      {getChapterProgress(rec.chapter).pct}% done
-                    </div>
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-[11px] font-medium" style={{ color: 'var(--c-blue)' }}>{getChapterProgress(rec.chapter).pct}% done</div>
                     <div className="text-[11px]" style={{ color: 'var(--c-caption)' }}>{rec.tasks.reduce((acc, t) => acc + parseInt(t.duration), 0)} min</div>
                   </div>
                 </div>
-
-                <div className="flex flex-wrap gap-2 mb-3">
+                <div className="flex flex-wrap gap-2">
                   {rec.tasks.map((task, i) => (
                     <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-medium" style={{
                       background: 'var(--c-tag)', color: 'var(--c-text)',
@@ -419,11 +359,6 @@ export default function AIPage() {
                       <span style={{ color: 'var(--c-caption)' }}>({task.duration})</span>
                     </div>
                   ))}
-                </div>
-
-                <div className="flex items-start gap-2 p-3 rounded-[12px]" style={{ background: 'var(--c-card-alt)' }}>
-                  <span className="material-symbols-rounded text-[16px] flex-shrink-0" style={{ color: 'var(--c-muted)' }}>lightbulb</span>
-                  <p className="text-[12px]" style={{ color: 'var(--c-text-secondary)', lineHeight: 1.6 }}>{rec.reason}</p>
                 </div>
               </div>
             ))}
@@ -437,16 +372,15 @@ export default function AIPage() {
         )}
       </section>
 
-      {/* AI Priority List */}
+      {/* Priority List */}
       <section className="mb-8">
         <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--c-text)' }}>
           <span className="material-symbols-rounded text-[20px] align-text-bottom mr-1.5" style={{ color: 'var(--c-orange)' }}>priority</span>
-          Priority List
+          Priority Chapters
         </h2>
         <div className="space-y-2">
           {priorityChapters.map(({ subject, chapter, score, daysSince }) => {
             const priority = score >= 18 ? 'high' : score >= 12 ? 'medium' : 'low'
-            const stars = score >= 18 ? 5 : score >= 14 ? 4 : score >= 10 ? 3 : 2
             return (
               <div key={chapter.id} className="flex items-center gap-3 px-4 py-3 rounded-[14px] transition-all hover:-translate-y-[0.5px]" style={{
                 background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
@@ -458,7 +392,6 @@ export default function AIPage() {
                     <span className="text-[10px] capitalize" style={{ color: 'var(--c-caption)' }}>{subject}</span>
                   </div>
                   <div className="flex items-center gap-2 text-[11px]" style={{ color: 'var(--c-caption)' }}>
-                    <span>{'⭐'.repeat(stars)}</span>
                     {daysSince >= 7 && <span style={{ color: 'var(--c-red)' }}>Not studied in {daysSince}d</span>}
                     <span>{chapter.weightage} wt.</span>
                   </div>
@@ -475,7 +408,7 @@ export default function AIPage() {
         </div>
       </section>
 
-      {/* Smart Revision Suggestions */}
+      {/* Revision Needed */}
       {revisionSuggestions.length > 0 && (
         <section className="mb-8">
           <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--c-text)' }}>
@@ -485,20 +418,17 @@ export default function AIPage() {
           <div className="space-y-2">
             {revisionSuggestions.map(({ subject, chapter, daysSinceRev, retention }) => {
               const color = getSubjectColor(subject)
-              const subLabel = subject.charAt(0).toUpperCase() + subject.slice(1)
               return (
                 <div key={chapter.id} className="rounded-[14px] px-5 py-3.5 flex items-center gap-4 transition-all hover:-translate-y-[0.5px]" style={{
-                  background: 'var(--c-card)',
-                  border: '1px solid var(--c-border-card)',
-                  borderLeft: `3px solid ${color}`,
-                  boxShadow: 'var(--c-shadow)',
+                  background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
+                  borderLeft: `3px solid ${color}`, boxShadow: 'var(--c-shadow)',
                 }}>
                   <span className="text-lg flex-shrink-0">{SUBJECT_STYLES[subject].emoji}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>{chapter.name}</span>
                       <span className="text-[10px] font-medium capitalize px-2 py-0.5 rounded-full" style={{ background: `${color}18`, color }}>
-                        {subLabel}
+                        {subject.charAt(0).toUpperCase() + subject.slice(1)}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-[11px]" style={{ color: 'var(--c-muted)' }}>
@@ -519,12 +449,12 @@ export default function AIPage() {
         </section>
       )}
 
-      {/* AI Daily Plan — matching Roadmap daily schedule style */}
+      {/* Daily Schedule */}
       {dailyPlan && (
         <section className="mb-8">
           <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--c-text)' }}>
             <span className="material-symbols-rounded text-[20px] align-text-bottom mr-1.5" style={{ color: 'var(--c-blue)' }}>calendar_clock</span>
-            Today&apos;s Study Schedule
+            Today&apos;s Schedule
           </h2>
           <div className="rounded-[18px] overflow-hidden" style={{ border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
             {dailyPlan.map((slot, i) => (
@@ -551,8 +481,7 @@ export default function AIPage() {
         <div className="grid sm:grid-cols-3 gap-3">
           {mistakes.map(m => (
             <div key={m.id} className="rounded-[18px] p-4 opacity-60" style={{
-              background: 'var(--c-card)', border: '1px solid var(--c-border-card)',
-              boxShadow: 'var(--c-shadow)',
+              background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
             }}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full" style={{ background: getSubjectColor(m.subject) }} />
@@ -569,16 +498,13 @@ export default function AIPage() {
         </div>
       </section>
 
-      {/* AI Disclaimer */}
+      {/* Disclaimer */}
       <section className="mt-12 pt-6" style={{ borderTop: '1px solid var(--c-border)' }}>
         <div className="flex items-start gap-2">
           <span className="material-symbols-rounded text-[16px] flex-shrink-0" style={{ color: 'var(--c-caption)' }}>info</span>
           <p className="text-[12px]" style={{ color: 'var(--c-caption)', lineHeight: 1.7 }}>
             AI can make mistakes.{' '}
-            <button onClick={() => setShowDisclaimer(true)}
-              className="underline hover:opacity-80" style={{ color: 'var(--c-blue)' }}>
-              Learn more
-            </button>
+            <button onClick={() => setShowDisclaimer(true)} className="underline hover:opacity-80" style={{ color: 'var(--c-blue)' }}>Learn more</button>
             <br />
             Recommendations are generated using your study data and estimated progress. Always use your own judgment and adjust your schedule if needed.
           </p>
@@ -594,7 +520,6 @@ export default function AIPage() {
         Back to AI Assistant
       </div>
 
-      {/* Skeleton */}
       <div className="rounded-[18px] p-5 mb-6" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
         <div className="h-5 w-48 rounded bg-[var(--c-progress-bg)] animate-pulse mb-3" />
         <div className="h-4 w-64 rounded bg-[var(--c-progress-bg)] animate-pulse mb-2" />
@@ -610,12 +535,8 @@ export default function AIPage() {
         ))}
       </div>
 
-      {/* Overlay */}
       <div className="absolute inset-0 flex items-center justify-center" style={{
-        background: 'rgba(0,0,0,0.5)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        zIndex: 10,
+        background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 10,
       }}>
         <div className="text-center px-6">
           <div className="text-3xl mb-3">🤖</div>

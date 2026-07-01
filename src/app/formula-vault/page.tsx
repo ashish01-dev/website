@@ -94,10 +94,16 @@ export default function FormulaVaultPage() {
 
         /* Cache blob locally */
         saveFileBlob(chapterId, formulaFile, file)
-      } catch (err: any) {
-        console.error('file upload error:', err)
-        setUploadError(err.message || 'Upload failed')
-      }
+        } catch (err: any) {
+          console.error('file upload error:', err)
+          const code = err.message?.includes('timeout') ? 5
+            : err.message?.includes('abort') ? 5
+            : err.message?.includes('413') || err.message?.includes('too large') ? 2
+            : err.message?.includes('type') || err.message?.includes('invalid') ? 3
+            : err.message?.includes('500') ? 4
+            : 1
+          setUploadError(`Failed to upload to server (Error ${code})`)
+        }
     }
 
     const entry: FormulaEntry = {
