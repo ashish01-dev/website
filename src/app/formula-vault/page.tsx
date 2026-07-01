@@ -61,10 +61,21 @@ export default function FormulaVaultPage() {
 
     for (const file of Array.from(files)) {
       try {
-        const body = new FormData()
-        body.append('file', file)
-        body.append('isPro', String(isPro))
-        const res = await fetch('/api/vault/upload', { method: 'POST', body })
+        const reader = new FileReader()
+        const base64 = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => {
+            const result = reader.result as string
+            resolve(result.split(',')[1])
+          }
+          reader.onerror = () => reject(new Error('Failed to read file'))
+          reader.readAsDataURL(file)
+        })
+
+        const res = await fetch('/api/vault/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ file: base64, name: file.name, type: file.type, isPro }),
+        })
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}))
           throw new Error(errData.error || `Upload failed (HTTP ${res.status})`)
