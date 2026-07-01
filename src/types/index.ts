@@ -107,8 +107,9 @@ export interface FormulaFile {
   name: string
   size: number
   type: string
-  url?: string
-  storagePath?: string
+  fileCode?: string
+  gdriveFileId?: string
+  uploadedAt: string
 }
 
 export interface FormulaEntry {
@@ -208,6 +209,7 @@ export interface Settings {
   storageWarningShown: boolean
   autoPlanPopup: boolean
   isPro: boolean
+  proExpiryDate?: string
 }
 
 export type ChapterFilter = 'all' | 'not_started' | 'in_progress' | 'done' | 'revision_pending' | 'high_weightage' | 'weak' | 'high_priority'

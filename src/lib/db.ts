@@ -15,10 +15,11 @@ export class JeeDatabase extends Dexie {
   questions!: Table<QuestionsEntry, string>
   customChapters!: Table<Chapter, string>
   aiRecommendations!: Table<{ id: string; date: string; data: unknown }, string>
+  vaultFiles!: Table<{ id: string; chapterId: string; fileName: string; blob: Blob; type: string; size: number }, string>
 
   constructor() {
     super('JEE2027Tracker')
-    this.version(6).stores({
+    this.version(7).stores({
       progress: '&chapterId',
       timetable: '&id',
       tests: '&id, date, subject',
@@ -31,11 +32,7 @@ export class JeeDatabase extends Dexie {
       questions: '&id, date, subject, chapter',
       customChapters: '&id, subject',
       aiRecommendations: '&id, date',
-    }).upgrade(tx => {
-      return tx.table('progress').toCollection().modify(p => {
-        if (p.revisionCount === undefined) p.revisionCount = 0
-        if (p.studySessions === undefined) p.studySessions = 0
-      })
+      vaultFiles: '&id, chapterId, fileName',
     })
   }
 }
@@ -89,6 +86,7 @@ export const db = {
   questions:         useSync ? synced<QuestionsEntry>('questions') : noop(),
   customChapters:    useSync ? synced<Chapter>('customChapters') : noop(),
   aiRecommendations: useSync ? synced<{ id: string; date: string; data: unknown }>('aiRecommendations') : noop(),
+
 }
 
 export { dexie }

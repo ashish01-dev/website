@@ -341,7 +341,11 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex-1">
                   <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>You&apos;re a Pro subscriber</div>
-                  <div className="text-[11px]" style={{ color: 'var(--c-muted)' }}>Enjoy all Pro features including unlimited storage, advanced analytics, and priority support.</div>
+                  <div className="text-[11px]" style={{ color: 'var(--c-muted)' }}>
+                    {settings.proExpiryDate
+                      ? <>Expires on {new Date(settings.proExpiryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</>
+                      : 'Enjoy all Pro features including advanced analytics, priority support, and direct file downloads.'}
+                  </div>
                 </div>
               </div>
             ) : (

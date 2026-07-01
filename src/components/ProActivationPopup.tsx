@@ -18,9 +18,10 @@ export default function ProActivationPopup({ show, onGoToDashboard }: ProActivat
   useEffect(() => {
     if (!show) { setPhase(null); return }
     setPhase('activating')
-    update({ isPro: true })
+    const expiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    update({ isPro: true, proExpiryDate: expiry })
     const sb = getSupabase()
-    if (sb) { sb.auth.updateUser({ data: { isPro: true } }).catch(() => {}) }
+    if (sb) { sb.auth.updateUser({ data: { isPro: true, proExpiryDate: expiry } }).catch(() => {}) }
     const t = setTimeout(() => {
       setPhase('success')
       btnRef.current?.focus()

@@ -14,6 +14,7 @@ import { useProgressStore } from '@/store/progressStore'
 import { useTimetableStore } from '@/store/timetableStore'
 import { getSupabase } from '@/lib/supabase'
 import { setSyncUser, syncPullAll } from '@/lib/supabase-sync'
+import { useUser } from '@/lib/useUser'
 import { db, dexie } from '@/lib/db'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 
@@ -104,6 +105,20 @@ async function initSync() {
   })
 }
 
+function RequireAuth({ children, isAppPage }: { children: React.ReactNode; isAppPage: boolean }) {
+  const { user, loading } = useUser()
+  const [redirected, setRedirected] = useState(false)
+  useEffect(() => {
+    if (!loading && isAppPage && !user && !redirected) {
+      setRedirected(true)
+      window.location.href = '/?signin=true'
+    }
+  }, [loading, isAppPage, user, redirected])
+  if (isAppPage && loading) return null
+  if (isAppPage && !user) return null
+  return <>{children}</>
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const { load } = useSettingsStore()
   const { load: loadProgress } = useProgressStore()
@@ -166,7 +181,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="flex flex-col min-h-screen">
           <div className="flex-1">
             <PageTransition>
-              {children}
+              <RequireAuth isAppPage={isAppPage}>{children}</RequireAuth>
             </PageTransition>
           </div>
           {!isAppPage && <Footer />}

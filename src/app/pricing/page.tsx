@@ -8,7 +8,7 @@ import ProActivationPopup from '@/components/ProActivationPopup'
 import { useUser } from '@/lib/useUser'
 import { useSettingsStore } from '@/store/settingsStore'
 
-const ASTERISK_FEATURES = new Set(['Unlimited storage', '1-on-1 mentorship access'])
+const ASTERISK_FEATURES = new Set(['Unlimited storage'])
 
 const MONTHLY_PLANS = [
   {
@@ -18,7 +18,7 @@ const MONTHLY_PLANS = [
   },
   {
     name: 'Pro', price: '50', desc: 'Accelerate your preparation',
-    features: ['Everything in Free', 'Unlimited storage', 'Advanced analytics', 'Priority support', '1-on-1 mentorship access', 'Custom study insights'],
+    features: ['Everything in Free', 'Unlimited storage', 'Advanced analytics', 'Priority support', 'Direct file downloads across devices', 'Custom study insights'],
     cta: 'Subscribe to Pro', popular: true,
   },
 ]
@@ -31,14 +31,14 @@ const YEARLY_PLANS = [
   },
   {
     name: 'Pro', price: '500', desc: 'Best value — 2 months free',
-    features: ['Everything in Free', 'Unlimited storage', 'Advanced analytics', 'Priority support', '1-on-1 mentorship access', 'Custom study insights', 'Early access to new features'],
+    features: ['Everything in Free', 'Unlimited storage', 'Advanced analytics', 'Priority support', 'Direct file downloads across devices', 'Custom study insights', 'Early access to new features'],
     cta: 'Subscribe Yearly', popular: true,
   },
 ]
 
 const TESTIMONIALS = [
   { name: 'Neha G.', role: 'JEE 2027 Aspirant', text: 'Pro analytics showed me exactly which chapters I was weak in. My accuracy improved from 65% to 89% in 3 months.', rating: 5, avatar: '' },
-  { name: 'Aarav K.', role: 'JEE 2027 Aspirant', text: 'The mentorship access alone is worth it. My mentor helped me plan a strategy that actually fit my schedule.', rating: 5, avatar: '' },
+  { name: 'Aarav K.', role: 'JEE 2027 Aspirant', text: 'The file sync across devices is seamless. I study on my tablet and review on my phone — everything stays in sync.', rating: 5, avatar: '' },
   { name: 'Sneha R.', role: 'JEE 2027 Aspirant', text: 'I switched from Free to Pro after a month. Unlimited storage means I never delete old test papers. Game changer.', rating: 5, avatar: '' },
   { name: 'Rahul M.', role: 'JEE 2027 Aspirant', text: 'Priority support responds in minutes, not hours. When I had a sync issue, they fixed it before my next study session.', rating: 5, avatar: '' },
   { name: 'Priya S.', role: 'JEE 2027 Aspirant', text: 'Custom study insights helped me realize I was spending too much time on topics I already knew. Now I focus better.', rating: 5, avatar: '' },
@@ -171,7 +171,7 @@ export default function PricingPage() {
       {/* Footnotes */}
       <div className="max-w-[650px] mx-auto px-5 pb-10 text-center">
         <p className="text-[11px] leading-relaxed" style={{ color: 'var(--c-caption)' }}>
-          <sup>*</sup> Subject to fair usage policy. Unlimited storage applies to study materials, notes, and test papers. 1-on-1 mentorship access depends on mentor availability and is provided on a first-come, first-served basis.
+          <sup>*</sup> 5GB limited as of now &mdash; working to expand.
         </p>
       </div>
 

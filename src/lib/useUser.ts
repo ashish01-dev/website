@@ -44,7 +44,7 @@ export function useUser(): { user: UserInfo | null; loading: boolean } {
   }, [])
 
   useEffect(() => {
-    setUser(prev => prev ? { ...prev, isPro: prev.isPro || settingsPro } : null)
+    setUser(prev => prev ? { ...prev, isPro: isProEmail(prev.email) || settingsPro } : null)
   }, [settingsPro])
 
   return { user, loading }

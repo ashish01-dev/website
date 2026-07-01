@@ -68,6 +68,7 @@ export default function ProgressPage() {
   const [dailyLogs, setDailyLogs] = useState<{ date: string; studyMinutes: number }[]>([])
   const [restDays, setRestDays] = useState(1)
   const [dailyHoursInput, setDailyHoursInput] = useState(settings.dailyStudyHours || 6)
+  const [badgePopup, setBadgePopup] = useState<{ name: string; icon: string; desc: string; color: string } | null>(null)
 
   useEffect(() => { db.tests.toArray().then(setTests) }, [])
   useEffect(() => { db.questions.toArray().then(setQuestionEntries) }, [])
@@ -345,7 +346,8 @@ export default function ProgressPage() {
                   const progressInBatch = Math.min(100, ((totalDone - prevThreshold) / (b.chapters - prevThreshold)) * 100)
                   const isActive = !unlocked && totalDone >= prevThreshold
                   return (
-                    <div key={b.name} className="flex items-center gap-3 p-3 rounded-[14px] transition-all" style={{
+                    <div key={b.name} onClick={() => unlocked && setBadgePopup({ name: b.name, icon: b.icon, desc: `Complete ${b.chapters} chapters`, color: b.color })}
+                      className="flex items-center gap-3 p-3 rounded-[14px] transition-all cursor-pointer hover:-translate-y-[1px]" style={{
                       background: unlocked ? 'var(--c-card-alt)' : 'var(--c-card-alt)',
                       border: `1px solid ${unlocked ? b.color : 'var(--c-border-card)'}`,
                       opacity: unlocked || isActive ? 1 : 0.5,
@@ -503,11 +505,12 @@ export default function ProgressPage() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {achievements.map(a => (
-              <div key={a.id} className="rounded-[14px] p-3 transition-all" style={{
-                background: a.unlocked ? 'var(--c-card-alt)' : 'var(--c-card-alt)',
-                border: `1px solid ${a.unlocked ? 'var(--c-orange)' : 'var(--c-border-card)'}`,
-                opacity: a.unlocked ? 1 : 0.5,
-              }}>
+              <div key={a.id} onClick={() => setBadgePopup({ name: a.name, icon: a.icon, desc: a.description, color: a.unlocked ? 'var(--c-orange)' : 'var(--c-caption)' })}
+                className="rounded-[14px] p-3 transition-all cursor-pointer hover:-translate-y-[1px]" style={{
+                  background: a.unlocked ? 'var(--c-card-alt)' : 'var(--c-card-alt)',
+                  border: `1px solid ${a.unlocked ? 'var(--c-orange)' : 'var(--c-border-card)'}`,
+                  opacity: a.unlocked ? 1 : 0.5,
+                }}>
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-lg">{a.icon}</span>
                   <span className="text-xs font-semibold" style={{ color: a.unlocked ? 'var(--c-text)' : 'var(--c-muted)' }}>{a.name}</span>
@@ -586,6 +589,25 @@ export default function ProgressPage() {
           </div>
         </div>
       </div>
+
+      {badgePopup && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}
+        onClick={() => setBadgePopup(null)}>
+        <div className="backdrop-blur-xl absolute inset-0" />
+        <div className="relative z-10 animate-scaleIn rounded-[18px] px-8 py-10 text-center max-w-[320px] w-[90vw]"
+          style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}
+          onClick={e => e.stopPropagation()}>
+          <div className="text-5xl mb-4">{badgePopup.icon}</div>
+          <h2 className="text-lg font-bold mb-2" style={{ color: badgePopup.color }}>
+            You&apos;re now a{/^[aeiou]/i.test(badgePopup.name) ? 'n' : ''} {badgePopup.name}!</h2>
+          <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>{badgePopup.desc}</p>
+          <button onClick={() => setBadgePopup(null)}
+            className="px-6 py-2 rounded-[40px] text-sm font-medium text-white transition-all"
+            style={{ background: 'var(--c-btn-primary)' }}>Thanks</button>
+        </div>
+      </div>
+    )}
+    <style>{`@keyframes scaleIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}.animate-scaleIn{animation:scaleIn .3s ease-out}`}</style>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import LandingNav from '@/components/layout/LandingNav'
@@ -34,6 +34,14 @@ const STEPS = [
 export default function LandingPage() {
   const { user } = useUser()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [showSigninPrompt, setShowSigninPrompt] = useState(false)
+
+  useEffect(() => {
+    if (window.location.search.includes('signin=true')) {
+      setShowSigninPrompt(true)
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   const fadeUp = {
     initial: { opacity: 0, y: 30 },
@@ -182,6 +190,29 @@ export default function LandingPage() {
       </motion.section>
 
       {/* Footer is rendered by layout.tsx */}
+
+      {showSigninPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setShowSigninPrompt(false)}>
+          <div className="backdrop-blur-xl absolute inset-0" />
+          <div className="relative z-10 animate-scaleIn rounded-[18px] px-8 py-10 text-center max-w-[340px] w-[90vw]"
+            style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}
+            onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowSigninPrompt(false)}
+              className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-all hover:opacity-70"
+              style={{ background: 'var(--c-tag)', color: 'var(--c-muted)' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div className="text-4xl mb-4">🔒</div>
+            <h2 className="text-lg font-bold mb-2" style={{ color: 'var(--c-text)' }}>Please sign in first</h2>
+            <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>You need to be signed in to access your dashboard.</p>
+            <Link href="/auth?mode=signup" onClick={() => setShowSigninPrompt(false)}
+              className="inline-block px-6 py-2.5 rounded-[40px] text-sm font-medium text-white transition-all"
+              style={{ background: 'var(--c-btn-primary)' }}>Sign In</Link>
+          </div>
+        </div>
+      )}
+      <style>{`@keyframes scaleIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}.animate-scaleIn{animation:scaleIn .3s ease-out}`}</style>
     </div>
   )
 }

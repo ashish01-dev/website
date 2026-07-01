@@ -25,6 +25,7 @@ const DEFAULT_SETTINGS: Settings = {
   storageWarningShown: false,
   autoPlanPopup: true,
   isPro: false,
+  proExpiryDate: undefined,
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -34,6 +35,14 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     try {
       const saved = await db.settings.get('main')
       const merged = saved?.value ? { ...DEFAULT_SETTINGS, ...(saved.value as Partial<Settings>) } : DEFAULT_SETTINGS
+      /* Auto-downgrade if Pro has expired */
+      if (merged.isPro && merged.proExpiryDate && new Date(merged.proExpiryDate) < new Date()) {
+        merged.isPro = false
+        merged.proExpiryDate = undefined
+        await db.settings.put({ id: 'main', value: merged })
+        const sb = (await import('@/lib/supabase')).getSupabase()
+        if (sb) sb.auth.updateUser({ data: { isPro: false } }).catch(() => {})
+      }
       set({ settings: merged, loaded: true })
     } catch (err) { console.error('settings.load:', err); set({ loaded: true }) }
   },
