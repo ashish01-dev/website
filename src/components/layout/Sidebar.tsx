@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   { href: '/settings', label: 'Settings', icon: '⚙️' },
 ]
 
-export default function Sidebar() {
+const Sidebar = memo(function Sidebar() {
   const pathname = usePathname()
   const { settings } = useSettingsStore()
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -41,7 +41,7 @@ export default function Sidebar() {
     })
   }, [settings.avatarUrl])
 
-  const isActive = (href: string) => pathname.startsWith(href)
+  const isActive = useCallback((href: string) => pathname.startsWith(href), [pathname])
 
   return (
     <div
@@ -121,4 +121,6 @@ export default function Sidebar() {
       {showBeta && <BetaPopup onAcknowledge={() => { setShowBeta(false); localStorage.setItem('ai_beta_acknowledged', '1'); router.push('/ai') }} />}
     </div>
   )
-}
+})
+
+export default Sidebar

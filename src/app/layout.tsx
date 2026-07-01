@@ -169,7 +169,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         setUserName(null)
       }
     })
-  }, [pathname])
+  }, [])
 
   useEffect(() => {
     if (pathname === '/dashboard' && userName) {

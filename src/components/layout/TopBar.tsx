@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { memo, useEffect, useState, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -8,7 +8,7 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { getSupabase } from '@/lib/supabase'
 import { useUser } from '@/lib/useUser'
 
-export default function TopBar() {
+const TopBar = memo(function TopBar() {
   const router = useRouter()
   const { settings, update } = useSettingsStore()
   const { user } = useUser()
@@ -17,22 +17,27 @@ export default function TopBar() {
   const dateInputRef = useRef<HTMLInputElement>(null)
 
   const isPro = user?.isPro ?? false
-  const displayName = user?.name || settings.name || 'User'
-  const firstName = displayName.split(' ')[0]
-  const displayAvatar = settings.avatarUrl || user?.avatar || ''
-  const displayInitial = displayName.charAt(0).toUpperCase()
+  const displayName = useMemo(() => user?.name || settings.name || 'User', [user?.name, settings.name])
+  const firstName = useMemo(() => displayName.split(' ')[0], [displayName])
+  const displayAvatar = useMemo(() => settings.avatarUrl || user?.avatar || '', [settings.avatarUrl, user?.avatar])
+  const displayInitial = useMemo(() => displayName.charAt(0).toUpperCase(), [displayName])
+
+  const examDateRef = useRef(settings.examDate)
+  examDateRef.current = settings.examDate
 
   useEffect(() => {
     const fn = () => {
-      const diff = new Date(settings.examDate).getTime() - Date.now()
-      if (diff > 0) setTimeLeft({
-        days: Math.floor(diff / 86400000),
-        hours: Math.floor((diff % 86400000) / 3600000),
-        minutes: Math.floor((diff % 3600000) / 60000),
-      })
+      const diff = new Date(examDateRef.current).getTime() - Date.now()
+      if (diff > 0) {
+        setTimeLeft({
+          days: Math.floor(diff / 86400000),
+          hours: Math.floor((diff % 86400000) / 3600000),
+          minutes: Math.floor((diff % 3600000) / 60000),
+        })
+      }
     }
     fn(); const id = setInterval(fn, 60000); return () => clearInterval(id)
-  }, [settings.examDate])
+  }, [])
 
   const handleSignOut = async () => {
     if (!window.confirm('Are you sure you want to sign out? Your data will remain saved and synced.')) return
@@ -247,4 +252,6 @@ export default function TopBar() {
       )}
     </>
   )
-}
+})
+
+export default TopBar

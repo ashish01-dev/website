@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
@@ -34,6 +34,14 @@ const MOTIVATIONAL_QUOTES = [
   '"Believe you can and you\'re halfway there." — Theodore Roosevelt',
   '"Push yourself because no one else is going to do it for you."',
 ]
+
+const getHeatLevel = (hours: number) => {
+  if (hours === 0) return 0
+  if (hours < 2) return 1
+  if (hours < 4) return 2
+  if (hours < 7) return 3
+  return 4
+}
 
 export default function DashboardPage() {
   const { progress, getProgress, getTotalChapters, loaded } = useProgressStore()
@@ -83,20 +91,37 @@ export default function DashboardPage() {
     if (!loaded) return null
     let best: { chapter: { name: string; id: string; class: number }; subject: Subject; doneTopics: number; totalTopics: number; percent: number } | null = null
     const subs: Subject[] = ['physics', 'chemistry', 'maths']
-    for (const sub of subs) {
-      for (const div of syllabus[sub].divisions) {
-        for (const ch of div.chapters) {
+    for (let si = 0; si < subs.length; si++) {
+      const sub = subs[si]
+      const divisions = syllabus[sub].divisions
+      for (let di = 0; di < divisions.length; di++) {
+        const chapters = divisions[di].chapters
+        for (let ci = 0; ci < chapters.length; ci++) {
+          const ch = chapters[ci]
           if (ch.deleted) continue
           const chProg = progress[ch.id]
           if (!chProg || chProg.status === 'done' || chProg.status === 'not_started') continue
-          const activeTopics = ch.topics.filter(t => !t.deleted)
-          const customIds = Object.keys(chProg.customTopics || {})
-          const allIds = [...activeTopics.map(t => t.id), ...customIds]
-          const done = allIds.filter(id => chProg.topicStatus[id]).length
-          const total = allIds.length || 1
-          const pct = Math.round((done / total) * 100)
+          const topics = ch.topics
+          let doneCount = 0
+          let totalCount = 0
+          for (let ti = 0; ti < topics.length; ti++) {
+            if (!topics[ti].deleted) {
+              totalCount++
+              if (chProg.topicStatus[topics[ti].id]) doneCount++
+            }
+          }
+          const customTopics = chProg.customTopics
+          if (customTopics) {
+            const customIds = Object.keys(customTopics)
+            for (let ki = 0; ki < customIds.length; ki++) {
+              totalCount++
+              if (chProg.topicStatus[customIds[ki]]) doneCount++
+            }
+          }
+          const total = totalCount || 1
+          const pct = Math.round((doneCount / total) * 100)
           if (!best || pct > best.percent) {
-            best = { chapter: { name: ch.name, id: ch.id, class: ch.class }, subject: sub, doneTopics: done, totalTopics: total, percent: pct }
+            best = { chapter: { name: ch.name, id: ch.id, class: ch.class }, subject: sub, doneTopics: doneCount, totalTopics: totalCount, percent: pct }
           }
         }
       }
@@ -105,28 +130,25 @@ export default function DashboardPage() {
   }, [progress, loaded])
 
   const heatmapData = useMemo(() => {
-    const days: { date: string; hours: number }[] = []
+    const days: { date: string; hours: number }[] = new Array(30)
+    const logMap: Record<string, number> = {}
+    for (let li = 0; li < dailyLogs.length; li++) {
+      logMap[dailyLogs[li].date] = dailyLogs[li].studyMinutes
+    }
+    const now = new Date()
     for (let i = 29; i >= 0; i--) {
-      const d = new Date()
+      const d = new Date(now)
       d.setDate(d.getDate() - i)
       const ds = formatDate(d)
-      const log = dailyLogs.find(l => l.date === ds)
-      days.push({ date: ds, hours: log ? log.studyMinutes / 60 : 0 })
+      const minutes = logMap[ds]
+      days[29 - i] = { date: ds, hours: minutes ? minutes / 60 : 0 }
     }
     return days
   }, [dailyLogs])
 
-  const getHeatLevel = (hours: number) => {
-    if (hours === 0) return 0
-    if (hours < 2) return 1
-    if (hours < 4) return 2
-    if (hours < 7) return 3
-    return 4
-  }
-
-  const handleSavePlan = (p: DailyPlan) => {
+  const handleSavePlan = useCallback((p: DailyPlan) => {
     setPlan(p)
-  }
+  }, [])
 
   return (
     <div className="min-h-screen pb-[100px] md:pb-[90px]" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--c-bg-gradient)' }}>
