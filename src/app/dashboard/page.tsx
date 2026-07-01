@@ -55,11 +55,11 @@ export default function DashboardPage() {
   useEffect(() => {
     db.dailyPlans.get(today).then(p => {
       setPlan(p || null)
-      if (!p && isPro && settings.autoPlanPopup) setShowPlanModal(true)
+      if (!p && isPro && settings.autoPlanPopup && settings.onboarded) setShowPlanModal(true)
       setPlanLoaded(true)
     })
     db.dailyLogs.toArray().then(setDailyLogs)
-  }, [today, isPro, settings.autoPlanPopup])
+  }, [today, isPro, settings.autoPlanPopup, settings.onboarded])
 
   const pace = useMemo(() => {
     if (!loaded) return null

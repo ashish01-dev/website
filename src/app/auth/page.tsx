@@ -74,15 +74,34 @@ function AuthPageContent() {
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmittedEmail(true)
+    setError('')
+    setNewEmailMessage('')
+    const sb = getSupabase()
+    if (!sb) { setError('Authentication is not configured yet.'); return }
+
     if (mode === 'login') {
-      setError('This email is not registered. Please sign up instead.')
-      setTimeout(() => {
-        setMode('signup')
-        setNewEmailMessage('We found your email. Complete registration below.')
-        setError('')
-      }, 1500)
+      const { error } = await sb.auth.signInWithPassword({ email, password })
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          setError('Incorrect password. Try again, or sign up with this email instead.')
+        } else if (error.message.includes('Email not confirmed')) {
+          setError('Please confirm your email address before signing in.')
+        } else {
+          setError(error.message)
+        }
+      }
     } else {
-      setError('Email sign-up is being set up. Please sign in with Google.')
+      const { data, error } = await sb.auth.signUp({ email, password })
+      if (error) {
+        if (error.message.includes('already registered')) {
+          setError('An account with this email already exists. Sign in instead.')
+          setTimeout(() => { setMode('login'); setPassword(''); setError('') }, 1500)
+        } else {
+          setError(error.message)
+        }
+      } else if (data?.user && !data.session) {
+        setNewEmailMessage('Account created! Check your email for a confirmation link, then sign in.')
+      }
     }
   }
 

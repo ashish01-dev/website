@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { Settings } from '@/types'
 import { db, dexie } from '@/lib/db'
+import { syncUpsert } from '@/lib/supabase-sync'
 
 interface SettingsState {
   settings: Settings
@@ -63,6 +64,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     try {
       await db.settings.put({ id: 'main', value: updated })
       localStorage.setItem('jee-theme', updated.theme)
+      syncUpsert('settings', { id: 'main', value: updated })
     } catch (err) { console.error('settings.update:', err) }
     if (partial.theme) {
       document.documentElement.classList.toggle('dark', updated.theme === 'dark')
