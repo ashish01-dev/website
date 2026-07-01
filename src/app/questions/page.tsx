@@ -94,7 +94,7 @@ export default function QuestionsPage() {
         <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>Log questions practiced per chapter</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+          <div className="rounded-[18px] p-4" data-tour="tour-questions-log" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Log Questions</h2>
             <div className="space-y-3">
               <div ref={subjectRef} className="relative">
@@ -164,7 +164,7 @@ export default function QuestionsPage() {
           </div>
 
           <div className="md:col-span-2 space-y-4">
-            <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+            <div className="rounded-[18px] p-4" data-tour="tour-questions-breakdown" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
               <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Breakdown</h2>
               {entries.length === 0 ? (
                 <p className="text-sm text-center py-6" style={{ color: 'var(--c-muted)' }}>No questions logged yet.</p>

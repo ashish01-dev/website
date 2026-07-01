@@ -100,7 +100,7 @@ export default function TestsPage() {
         <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>Log and track your mock tests</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+          <div className="rounded-[18px] p-4" data-tour="tour-tests-log" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Log a Test</h2>
             <div className="space-y-3">
               <div>
@@ -221,7 +221,7 @@ export default function TestsPage() {
             </div>
           </div>
 
-          <div className="md:col-span-2 rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+          <div className="md:col-span-2 rounded-[18px] p-4" data-tour="tour-tests-history" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
             <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>History</h2>
             {tests.length === 0 ? (
               <p className="text-sm text-center py-8" style={{ color: 'var(--c-muted)' }}>No tests logged yet.</p>
