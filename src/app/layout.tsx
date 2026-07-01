@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import Script from 'next/script'
 import './globals.css'
@@ -108,10 +108,17 @@ async function initSync() {
 function RequireAuth({ children, isAppPage }: { children: React.ReactNode; isAppPage: boolean }) {
   const { user, loading } = useUser()
   const [redirected, setRedirected] = useState(false)
+  const isLoggingOut = useRef(false)
   useEffect(() => {
-    if (!loading && isAppPage && !user && !redirected) {
+    if (typeof window !== 'undefined') {
+      isLoggingOut.current = sessionStorage.getItem('voluntary_logout') === 'true'
+      if (isLoggingOut.current) sessionStorage.removeItem('voluntary_logout')
+    }
+  }, [])
+  useEffect(() => {
+    if (!loading && isAppPage && !user && !redirected && !isLoggingOut.current) {
       setRedirected(true)
-      window.location.href = '/'
+      window.location.href = '/?signin=true'
     }
   }, [loading, isAppPage, user, redirected])
   if (isAppPage && loading) return null

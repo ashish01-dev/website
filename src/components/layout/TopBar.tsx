@@ -36,6 +36,7 @@ export default function TopBar() {
 
   const handleSignOut = async () => {
     if (!window.confirm('Are you sure you want to sign out? Your data will remain saved and synced.')) return
+    sessionStorage.setItem('voluntary_logout', 'true')
     const sb = getSupabase()
     if (!sb) return
     await sb.auth.signOut()

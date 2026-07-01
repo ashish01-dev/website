@@ -108,6 +108,7 @@ export default function SettingsPage() {
 
   const handleSignOut = async () => {
     if (!window.confirm('Are you sure you want to sign out? Your data will remain saved and synced.')) return
+    sessionStorage.setItem('voluntary_logout', 'true')
     const sb = getSupabase()
     if (!sb) return
     await sb.auth.signOut()
@@ -548,6 +549,7 @@ export default function SettingsPage() {
                         await db.questions.clear()
                         await db.settings.clear()
                         localStorage.removeItem('jee-theme')
+                        sessionStorage.setItem('voluntary_logout', 'true')
                         const sb = getSupabase()
                         if (sb) await sb.auth.signOut()
                         window.location.href = '/'
