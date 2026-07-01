@@ -126,7 +126,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname()
   const [userName, setUserName] = useState<string | null>(null)
   const APP_PATHS = ['/dashboard', '/syllabus', '/timetable', '/progress', '/completion', '/activity', '/questions', '/tests', '/revision', '/formula-vault', '/settings', '/ai']
-  const isAppPage = APP_PATHS.some(p => pathname.startsWith(p))
+  const isAppPage = APP_PATHS.some(p => {
+    if (p === '/ai') return pathname === '/ai'
+    return pathname.startsWith(p)
+  })
 
   useEffect(() => {
     let cancelled = false

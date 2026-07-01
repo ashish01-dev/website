@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSupabase } from '@/lib/supabase'
+import BetaPopup from '@/components/ai/BetaPopup'
 
 export const SIDEBAR_WIDTH = 260
 
@@ -27,6 +28,7 @@ export default function Sidebar() {
   const pathname = usePathname()
   const { settings } = useSettingsStore()
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [showBeta, setShowBeta] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -73,6 +75,27 @@ export default function Sidebar() {
       <div className="px-3 py-3 space-y-0.5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 68px)' }}>
         {NAV_ITEMS.map(item => {
           const active = isActive(item.href)
+          if (item.href === '/ai') {
+            return (
+              <button key={item.href} onClick={() => setShowBeta(true)}
+                className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm transition-all ${active ? 'font-medium' : ''}`}
+                style={{
+                  color: active ? 'var(--c-blue)' : 'var(--c-text-secondary)',
+                  background: active ? 'rgba(35,131,226,0.08)' : 'transparent',
+                }}>
+                <span className="text-[18px]">{item.icon}</span>
+                <span>{item.label}</span>
+                <span className="ml-auto flex items-center gap-1.5">
+                  {(item as any).badge && (
+                    <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide" style={{ background: 'rgba(35,131,226,0.15)', color: 'var(--c-blue)' }}>
+                      {(item as any).badge}
+                    </span>
+                  )}
+                  {active && <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--c-blue)' }} />}
+                </span>
+              </button>
+            )
+          }
           return (
             <Link key={item.href} href={item.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${active ? 'font-medium' : ''}`}
@@ -94,6 +117,7 @@ export default function Sidebar() {
           )
         })}
       </div>
+      {showBeta && <BetaPopup onAcknowledge={() => { setShowBeta(false); localStorage.setItem('ai_beta_acknowledged', '1'); router.push('/ai') }} />}
     </div>
   )
 }

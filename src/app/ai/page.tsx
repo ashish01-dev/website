@@ -213,7 +213,7 @@ export default function AIPage() {
   }, [allChapters, progress])
 
   const revisionSuggestions = useMemo(() => {
-    return allChapters.filter(({ chapter }) => {
+    const needingRevision = allChapters.filter(({ chapter }) => {
       const p = progress[chapter.id]
       if (!p || p.status !== 'done') return false
       const lastRev = p.lastRevised ? new Date(p.lastRevised) : null
@@ -225,7 +225,22 @@ export default function AIPage() {
       const daysSinceRev = p?.lastRevised ? Math.round((today.getTime() - new Date(p.lastRevised).getTime()) / 86400000) : 30
       const retention = Math.max(20, Math.min(95, 100 - daysSinceRev * 2.5))
       return { subject, chapter, daysSinceRev, retention }
-    }).slice(0, 4)
+    })
+
+    if (needingRevision.length === 0) return []
+
+    /* Ensure at least one chapter per subject, then fill with most overdue */
+    const bySubject = new Map<Subject, typeof needingRevision[0]>()
+    const rest: typeof needingRevision = []
+    for (const item of needingRevision) {
+      const key = item.subject
+      if (!bySubject.has(key)) bySubject.set(key, item)
+      else rest.push(item)
+    }
+    const result = Array.from(bySubject.values())
+    rest.sort((a, b) => b.daysSinceRev - a.daysSinceRev)
+    result.push(...rest)
+    return result.slice(0, 6)
   }, [allChapters, progress])
 
   const dailyPlan = useMemo(() => {
@@ -467,31 +482,39 @@ export default function AIPage() {
             <span className="material-symbols-rounded text-[20px] align-text-bottom mr-1.5" style={{ color: 'var(--c-green)' }}>refresh</span>
             Revision Needed
           </h2>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {revisionSuggestions.map(({ subject, chapter, daysSinceRev, retention }) => (
-              <div key={chapter.id} className="rounded-[18px] p-4" style={{
-                background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
-              }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-2 h-2 rounded-full" style={{ background: getSubjectColor(subject) }} />
-                  <span className="text-xs capitalize font-medium" style={{ color: 'var(--c-text)' }}>{subject}</span>
-                  <span className="text-xs" style={{ color: 'var(--c-muted)' }}>· {chapter.name}</span>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <div>
-                    <div className="text-[11px]" style={{ color: 'var(--c-muted)' }}>Last revised {daysSinceRev} days ago</div>
-                    <div className="text-[11px]" style={{ color: retention < 50 ? 'var(--c-red)' : 'var(--c-orange)' }}>
-                      Retention probability: {retention}%
+          <div className="space-y-2">
+            {revisionSuggestions.map(({ subject, chapter, daysSinceRev, retention }) => {
+              const color = getSubjectColor(subject)
+              const subLabel = subject.charAt(0).toUpperCase() + subject.slice(1)
+              return (
+                <div key={chapter.id} className="rounded-[14px] px-5 py-3.5 flex items-center gap-4 transition-all hover:-translate-y-[0.5px]" style={{
+                  background: 'var(--c-card)',
+                  border: '1px solid var(--c-border-card)',
+                  borderLeft: `3px solid ${color}`,
+                  boxShadow: 'var(--c-shadow)',
+                }}>
+                  <span className="text-lg flex-shrink-0">{SUBJECT_STYLES[subject].emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>{chapter.name}</span>
+                      <span className="text-[10px] font-medium capitalize px-2 py-0.5 rounded-full" style={{ background: `${color}18`, color }}>
+                        {subLabel}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px]" style={{ color: 'var(--c-muted)' }}>
+                      <span>Last revised <span className="font-medium" style={{ color: 'var(--c-text)' }}>{daysSinceRev} days</span> ago</span>
+                      <span className="w-1 h-1 rounded-full" style={{ background: 'var(--c-border)' }} />
+                      <span>Retention: <span className={`font-medium ${retention < 50 ? 'text-[var(--c-red)]' : 'text-[var(--c-orange)]'}`}>{retention}%</span></span>
                     </div>
                   </div>
                   <button onClick={() => incrementRevision(chapter.id)}
-                    className="text-[11px] font-medium px-3 py-1.5 rounded-[40px] text-white"
+                    className="text-[11px] font-medium px-4 py-2 rounded-[40px] text-white transition-all hover:opacity-90 active:scale-[0.97] flex-shrink-0"
                     style={{ background: 'var(--c-btn-primary)' }}>
                     Revise Now
                   </button>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
       )}
