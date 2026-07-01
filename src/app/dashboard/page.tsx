@@ -7,6 +7,7 @@ import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import DailyPlanModal from '@/components/dashboard/DailyPlanModal'
 import StoragePopup from '@/components/dashboard/StoragePopup'
 import ChangelogPopup from '@/components/dashboard/ChangelogPopup'
+import DashboardTour from '@/components/dashboard/DashboardTour'
 import { useProgressStore } from '@/store/progressStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { calculatePace, selectDailyTargets } from '@/lib/pacing'
@@ -140,7 +141,7 @@ export default function DashboardPage() {
       <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
 
         {/* ─── Greeting Bar ─── */}
-        <div className="mb-7">
+        <div className="mb-7" data-tour="tour-greeting">
           <div className="flex items-start justify-between flex-wrap gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-3 flex-wrap">
@@ -195,7 +196,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ─── Subject Progress Cards ─── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7" data-tour="tour-progress-cards">
           <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 text-center relative overflow-hidden" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
@@ -228,7 +229,7 @@ export default function DashboardPage() {
 
         {/* ─── Today's Plan + Continue Studying ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-7">
-          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 lg:col-span-2 relative overflow-hidden" style={{
+          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 lg:col-span-2 relative overflow-hidden" data-tour="tour-plan" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-60" style={{ background: 'var(--c-blue)' }} />
@@ -301,7 +302,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 relative overflow-hidden" style={{
+          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 relative overflow-hidden" data-tour="tour-continue" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <div className="absolute top-0 right-0 w-36 h-36 rounded-full blur-3xl opacity-60" style={{ background: 'var(--c-orange)' }} />
@@ -347,7 +348,7 @@ export default function DashboardPage() {
 
         {/* ─── Heatmap + Study Pace ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-7">
-          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 lg:col-span-2" style={{
+          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 lg:col-span-2" data-tour="tour-heatmap" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <div className="flex items-center gap-2 mb-4">
@@ -379,7 +380,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6" style={{
+          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6" data-tour="tour-pace" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <div className="flex items-center gap-2 mb-4">
@@ -434,6 +435,7 @@ export default function DashboardPage() {
         )}
 
       </div>
+      <DashboardTour />
     </div>
   )
 }

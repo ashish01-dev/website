@@ -45,6 +45,7 @@ export default function Sidebar() {
 
   return (
     <div
+      data-tour="tour-sidebar"
       className="fixed top-0 left-0 h-full z-40 hidden md:block"
       style={{
         width: SIDEBAR_WIDTH,

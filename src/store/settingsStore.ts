@@ -26,6 +26,7 @@ const DEFAULT_SETTINGS: Settings = {
   autoPlanPopup: true,
   isPro: false,
   proExpiryDate: undefined,
+  tourCompleted: false,
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({

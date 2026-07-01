@@ -143,6 +143,7 @@ export default function AITutorPanel() {
   return (
     <>
       <motion.button onClick={() => setIsOpen(true)}
+        data-tour="tour-ai-tutor"
         className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full shadow-lg hover:shadow-xl"
         style={{ background: 'linear-gradient(135deg, var(--c-blue), #6366f1)', padding: '12px 18px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}
         whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
