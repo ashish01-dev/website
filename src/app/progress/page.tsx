@@ -264,7 +264,7 @@ export default function ProgressPage() {
 
         {/* ─── Readiness + Total Progress ─── */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <div className="rounded-[18px] p-6 flex flex-col items-center" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+          <div className="rounded-[18px] p-6 flex flex-col items-center" data-tour="tour-progress-readiness" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
             <p className="text-xs uppercase tracking-wider font-medium mb-3" style={{ color: 'var(--c-muted)' }}>JEE Readiness Score</p>
             <ReadinessCircle score={readinessScore} />
             <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 mt-4 text-[11px]">
@@ -327,7 +327,7 @@ export default function ProgressPage() {
         </div>
 
         {/* ─── Batches ─── */}
-        <div className="rounded-[18px] p-5 mb-8" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+        <div className="rounded-[18px] p-5 mb-8" data-tour="tour-progress-badges" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
           <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--c-text)' }}>
             <span className="material-symbols-rounded text-[18px] align-text-bottom mr-1.5" style={{ color: 'var(--c-orange)' }}>military_tech</span>
             Batches

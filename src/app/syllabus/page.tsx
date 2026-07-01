@@ -341,7 +341,7 @@ export default function SyllabusPage() {
         </p>
 
         {/* Subject Tabs */}
-        <div className="flex gap-1.5 mb-6 p-1 rounded-[14px]" style={{ background: 'var(--c-card-alt)', border: '1px solid var(--c-border-card)' }}>
+        <div className="flex gap-1.5 mb-6 p-1 rounded-[14px]" data-tour="tour-syllabus-filter" style={{ background: 'var(--c-card-alt)', border: '1px solid var(--c-border-card)' }}>
           {SUBJECTS.map(s => (
             <button key={s} onClick={() => { setSubject(s); setSearch(''); setFilter('all'); setSort('default') }}
               className="flex-1 py-2 text-sm font-medium rounded-[12px] capitalize transition-all"
@@ -423,7 +423,7 @@ export default function SyllabusPage() {
             <p className="text-sm mt-2" style={{ color: 'var(--c-muted)' }}>No chapters match your filters</p>
           </div>
         ) : (
-          <div className="space-y-1.5">
+          <div className="space-y-1.5" data-tour="tour-syllabus-chapters">
             {filteredChapters.map(ch => {
               const p = progress[ch.id]
               const chTopics = ch.topics.filter(t => !t.deleted)

@@ -7,7 +7,6 @@ import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import DailyPlanModal from '@/components/dashboard/DailyPlanModal'
 import StoragePopup from '@/components/dashboard/StoragePopup'
 import ChangelogPopup from '@/components/dashboard/ChangelogPopup'
-import DashboardTour from '@/components/dashboard/DashboardTour'
 import { useProgressStore } from '@/store/progressStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { calculatePace, selectDailyTargets } from '@/lib/pacing'
@@ -435,7 +434,6 @@ export default function DashboardPage() {
         )}
 
       </div>
-      <DashboardTour />
     </div>
   )
 }

@@ -127,7 +127,7 @@ export default function TimetablePage() {
           ))}
         </div>
 
-        <div className="rounded-[18px] overflow-hidden" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+        <div className="rounded-[18px] overflow-hidden" data-tour="tour-timetable-grid" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[600px]">
               <thead>
@@ -211,7 +211,7 @@ export default function TimetablePage() {
         </div>
 
         {/* Custom Tag Creator */}
-        <div className="mt-6 rounded-[18px] p-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+        <div className="mt-6 rounded-[18px] p-4" data-tour="tour-timetable-tags" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
           <h3 className="text-[13px] font-semibold mb-3" style={{ color: 'var(--c-text)' }}>Create Custom Tag</h3>
           <div className="flex items-end gap-2 flex-wrap">
             <div className="flex-1 min-w-[140px]">
