@@ -1,56 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AVAILABLE_TOOLS, executeToolCall } from '@/lib/ai-actions'
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
-
-function buildGeminiContents(messages: { role: string; content?: string; tool_call?: { name: string; args: any; result?: any } }[]) {
-  const contents: any[] = []
-  let pendingFunctionResult: any = null
-
-  for (const msg of messages) {
-    if ((msg as any).tool_call) {
-      /* Function result from executing a tool */
-      const tc = (msg as any).tool_call
-      pendingFunctionResult = {
-        role: 'function',
-        parts: [{
-          functionResponse: {
-            name: tc.name,
-            response: {
-              name: tc.name,
-              content: tc.result || { success: false, message: 'No result' },
-            },
-          },
-        }],
-      }
-      continue
-    }
-
-    if (msg.role === 'assistant' && (msg as any).tool_call) {
-      /* Model's function call response */
-      const tc = (msg as any).tool_call
-      const parts: any[] = []
-      if (msg.content) parts.push({ text: msg.content })
-      parts.push({ functionCall: { name: tc.name, args: tc.args } })
-      contents.push({ role: 'model', parts })
-      if (pendingFunctionResult) {
-        contents.push(pendingFunctionResult)
-        pendingFunctionResult = null
-      }
-      continue
-    }
-
-    contents.push({
-      role: msg.role === 'assistant' ? 'model' : msg.role === 'system' ? 'user' : msg.role,
-      parts: [{ text: msg.content || '' }],
-    })
-  }
-
-  if (pendingFunctionResult) contents.push(pendingFunctionResult)
-
-  return contents
-}
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || ''
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
+const MODEL = 'nvidia/nemotron-3-ultra-550b-a55b:free'
 
 function buildActionSystemPrompt(): string {
   return `You are an intelligent JEE study assistant integrated into a study platform. You help JEE aspirants with their preparation.
@@ -77,11 +30,22 @@ function buildActionSystemPrompt(): string {
 - Ask if they need anything else`
 }
 
+function buildTools() {
+  return AVAILABLE_TOOLS.map(t => ({
+    type: 'function' as const,
+    function: {
+      name: t.name,
+      description: t.description,
+      parameters: t.parameters,
+    },
+  }))
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { messages, systemPrompt, maxTokens = 1024, temperature = 0.7, enableActions = true } = await req.json()
 
-    if (!GEMINI_API_KEY) {
+    if (!OPENROUTER_API_KEY) {
       return NextResponse.json({ error: 'AI service key not configured' }, { status: 500 })
     }
 
@@ -89,45 +53,48 @@ export async function POST(req: NextRequest) {
       ? `${systemPrompt}\n\n${enableActions ? buildActionSystemPrompt() : ''}`
       : (enableActions ? buildActionSystemPrompt() : '')
 
-    const contents = buildGeminiContents(messages)
-
-    const payload: Record<string, any> = {
-      contents,
-      generationConfig: {
-        maxOutputTokens: Math.min(maxTokens, 1024),
-        temperature,
-        topP: 0.9,
-      },
+    const openAiMessages: any[] = []
+    if (mergedSystem) {
+      openAiMessages.push({ role: 'system', content: mergedSystem })
+    }
+    for (const msg of messages) {
+      if (msg.tool_call) {
+        openAiMessages.push({
+          role: 'tool',
+          tool_call_id: msg.tool_call.id || `call_${msg.tool_call.name}`,
+          content: JSON.stringify(msg.tool_call.result || { success: false }),
+        })
+      } else if (msg.role === 'assistant' && msg.tool_calls) {
+        openAiMessages.push({ role: 'assistant', content: null, tool_calls: msg.tool_calls })
+      } else {
+        openAiMessages.push({ role: msg.role === 'assistant' ? 'assistant' : msg.role, content: msg.content })
+      }
     }
 
-    if (mergedSystem) {
-      payload.systemInstruction = { parts: [{ text: mergedSystem }] }
+    const payload: Record<string, any> = {
+      model: MODEL,
+      messages: openAiMessages,
+      max_tokens: Math.min(maxTokens, 1024),
+      temperature,
+      top_p: 0.9,
     }
 
     if (enableActions && AVAILABLE_TOOLS.length > 0) {
-      payload.tools = [{
-        functionDeclarations: AVAILABLE_TOOLS.map(t => ({
-          name: t.name,
-          description: t.description,
-          parameters: t.parameters,
-        })),
-      }]
+      payload.tools = buildTools()
     }
 
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 30000)
-
-    const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(OPENROUTER_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+      },
       body: JSON.stringify(payload),
-      signal: controller.signal,
     })
-    clearTimeout(timeout)
 
     if (!response.ok) {
       const errText = await response.text()
-      console.error('Gemini API error:', response.status, errText)
+      console.error('OpenRouter API error:', response.status, errText)
       const isAuthError = response.status === 400 || response.status === 401 || response.status === 403
       return NextResponse.json({
         error: isAuthError ? 'AI service key is invalid or expired' : 'AI service unavailable',
@@ -135,63 +102,67 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json()
-    const candidate = data?.candidates?.[0]
-    if (!candidate) {
-      return NextResponse.json({ choices: [{ index: 0, message: { role: 'assistant', content: 'I couldn\'t process that. Please try again.' } }] })
+    const choice = data?.choices?.[0]
+    if (!choice) {
+      return NextResponse.json({ choices: [{ index: 0, message: { role: 'assistant', content: 'The AI returned an empty response.' } }] })
     }
 
-    const parts = candidate.content?.parts || []
-    const textPart = parts.find((p: any) => p.text)?.text || ''
-    const fcPart = parts.find((p: any) => p.functionCall)
+    const message = choice.message || {}
 
-    /* If the model wants to call a function */
-    if (fcPart) {
-      const fc = fcPart.functionCall
-      const fnName = fc.name
-      const fnArgs = fc.args || {}
+    if (message.tool_calls && message.tool_calls.length > 0) {
+      const results = await Promise.all(message.tool_calls.map(async (tc: any) => {
+        const fnName = tc.function.name
+        const fnArgs = JSON.parse(tc.function.arguments || '{}')
+        return { id: tc.id, name: fnName, args: fnArgs, result: await executeToolCall(fnName, fnArgs) }
+      }))
 
-      const result = await executeToolCall(fnName, fnArgs)
-
-      /* Build follow-up with function result */
       const followUpMessages = [
-        ...messages,
-        { role: 'assistant' as const, content: textPart || null, tool_call: { name: fnName, args: fnArgs } },
-        { role: 'function' as const, tool_call: { name: fnName, args: fnArgs, result } },
+        ...openAiMessages,
+        { role: 'assistant', content: null, tool_calls: message.tool_calls },
+        ...results.map(r => ({
+          role: 'tool' as const,
+          tool_call_id: r.id,
+          content: JSON.stringify(r.result),
+        })),
       ]
 
-      const followUpContents = buildGeminiContents(followUpMessages)
       const followUpPayload: Record<string, any> = {
-        contents: followUpContents,
-        generationConfig: { maxOutputTokens: 512, temperature, topP: 0.9 },
+        model: MODEL,
+        messages: followUpMessages,
+        max_tokens: 512,
+        temperature,
+        top_p: 0.9,
       }
-      if (mergedSystem) followUpPayload.systemInstruction = { parts: [{ text: mergedSystem }] }
+      if (enableActions && AVAILABLE_TOOLS.length > 0) {
+        followUpPayload.tools = buildTools()
+      }
 
-      const followUpRes = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+      const followUpRes = await fetch(OPENROUTER_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        },
         body: JSON.stringify(followUpPayload),
-        signal: AbortSignal.timeout(15000),
       })
 
       if (followUpRes.ok) {
         const fd = await followUpRes.json()
-        const fcText = fd?.candidates?.[0]?.content?.parts?.find((p: any) => p.text)?.text || result.message
+        const fcContent = fd?.choices?.[0]?.message?.content || results[0]?.result?.message || 'Action completed.'
         return NextResponse.json({
-          choices: [{ index: 0, message: { role: 'assistant', content: fcText } }],
-          action_result: result,
+          choices: [{ index: 0, message: { role: 'assistant', content: fcContent } }],
+          action_results: results,
         })
       }
 
-      /* Fallback: return action result as text */
       return NextResponse.json({
-        choices: [{ index: 0, message: { role: 'assistant', content: result.message } }],
-        action_result: result,
+        choices: [{ index: 0, message: { role: 'assistant', content: results.map(r => r.result.message).join('\n') } }],
+        action_results: results,
       })
     }
 
-    /* Normal text response */
     return NextResponse.json({
-      choices: [{ index: 0, message: { role: 'assistant', content: textPart } }],
+      choices: [{ index: 0, message: { role: 'assistant', content: message.content || '' } }],
     })
   } catch (err) {
     console.error('Chat API error:', err)
