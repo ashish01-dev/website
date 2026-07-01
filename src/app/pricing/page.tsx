@@ -124,12 +124,17 @@ export default function PricingPage() {
                 </div>
               )}
               <div className="text-[18px] font-bold mb-1" style={{ color: 'var(--c-text)' }}>{plan.name}</div>
-              <div className="flex items-baseline gap-1 mb-2">
+              <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-[42px] font-bold tracking-[-1px]" style={{ color: plan.price === '0' ? 'var(--c-muted)' : 'var(--c-text)' }}>
-                  ₹{plan.price}
+                  ₹{plan.price}{plan.price !== '0' ? <sup className="text-base ml-0.5" style={{ color: 'var(--c-caption)' }}>*</sup> : null}
                 </span>
                 {plan.price !== '0' && <span className="text-[13px]" style={{ color: 'var(--c-muted)' }}>/{isYearly ? 'year' : 'month'}</span>}
               </div>
+              {plan.price !== '0' && (
+                <div className="text-[12px] font-medium mb-3 flex items-center gap-1" style={{ color: 'var(--c-green)' }}>
+                  FREE for all until 31st July 2026<sup className="text-[8px]" style={{ color: 'var(--c-caption)' }}>*</sup>
+                </div>
+              )}
               <p className="text-[13px] mb-6" style={{ color: 'var(--c-muted)' }}>{plan.desc}</p>
               <ul className="space-y-3 mb-8">
                 {plan.features.map(f => (
@@ -172,6 +177,9 @@ export default function PricingPage() {
       <div className="max-w-[650px] mx-auto px-5 pb-10 text-center">
         <p className="text-[11px] leading-relaxed" style={{ color: 'var(--c-caption)' }}>
           <sup>*</sup> 5GB limited as of now &mdash; working to expand.
+        </p>
+        <p className="text-[11px] leading-relaxed mt-1" style={{ color: 'var(--c-caption)' }}>
+          <sup>*</sup> Launching offer &mdash; free for all until 31st July 2026. No payment required.
         </p>
       </div>
 

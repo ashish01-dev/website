@@ -111,7 +111,7 @@ function RequireAuth({ children, isAppPage }: { children: React.ReactNode; isApp
   useEffect(() => {
     if (!loading && isAppPage && !user && !redirected) {
       setRedirected(true)
-      window.location.href = '/?signin=true'
+      window.location.href = '/'
     }
   }, [loading, isAppPage, user, redirected])
   if (isAppPage && loading) return null

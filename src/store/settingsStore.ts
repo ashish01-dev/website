@@ -35,6 +35,15 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     try {
       const saved = await db.settings.get('main')
       const merged = saved?.value ? { ...DEFAULT_SETTINGS, ...(saved.value as Partial<Settings>) } : DEFAULT_SETTINGS
+      const LAUNCH_OFFER_EXPIRY = '2026-07-31T23:59:59.999Z'
+      /* Grant Pro launch offer to anyone without an existing expiry */
+      if (!merged.proExpiryDate && new Date() < new Date(LAUNCH_OFFER_EXPIRY)) {
+        merged.isPro = true
+        merged.proExpiryDate = LAUNCH_OFFER_EXPIRY
+        await db.settings.put({ id: 'main', value: merged })
+        const sb = (await import('@/lib/supabase')).getSupabase()
+        if (sb) sb.auth.updateUser({ data: { isPro: true, proExpiryDate: LAUNCH_OFFER_EXPIRY } }).catch(() => {})
+      }
       /* Auto-downgrade if Pro has expired */
       if (merged.isPro && merged.proExpiryDate && new Date(merged.proExpiryDate) < new Date()) {
         merged.isPro = false
