@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, X } from 'lucide-react'
 
 export default function BetaPopup({ onAcknowledge }: { onAcknowledge: () => void }) {
   return (
@@ -16,7 +16,7 @@ export default function BetaPopup({ onAcknowledge }: { onAcknowledge: () => void
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="mx-4 rounded-[18px] p-6 w-full"
+        className="mx-4 rounded-[18px] p-6 w-full relative"
         style={{
           maxWidth: 400,
           background: 'var(--c-card)',
@@ -24,6 +24,11 @@ export default function BetaPopup({ onAcknowledge }: { onAcknowledge: () => void
           boxShadow: 'var(--c-shadow-hover)',
         }}
       >
+        <button onClick={onAcknowledge}
+          className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
+          style={{ color: 'var(--c-muted)' }}>
+          <X size={15} />
+        </button>
         <div className="flex items-center gap-2.5 mb-4">
           <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--c-blue), #6366f1)' }}>
             <Sparkles size={16} color="#fff" />

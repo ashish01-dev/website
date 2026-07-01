@@ -123,8 +123,8 @@ function RequireAuth({ children, isAppPage }: { children: React.ReactNode; isApp
       window.location.href = '/?signin=true'
     }
   }, [loading, isAppPage, user, redirected])
-  if (isAppPage && loading) return null
-  if (isAppPage && !user) return null
+  if (isAppPage && !user && !loading) return null
+  if (isAppPage && loading && !user) return null
   return <>{children}</>
 }
 

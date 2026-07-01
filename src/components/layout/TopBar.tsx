@@ -3,6 +3,7 @@
 import { memo, useEffect, useState, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { X } from 'lucide-react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSupabase } from '@/lib/supabase'
@@ -207,20 +208,22 @@ const TopBar = memo(function TopBar() {
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)',
           }} onClick={e => e.stopPropagation()}>
             {feedbackSent ? (
-              <div className="text-center py-4">
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 15 }}>
-                  <svg className="mx-auto mb-3" width="48" height="48" viewBox="0 0 24 24" fill="none">
-                    <motion.circle cx="12" cy="12" r="11" stroke="#22c55e" strokeWidth="2" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4 }} />
-                    <motion.path d="M7 12l3 3 7-7" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4, delay: 0.2 }} />
-                  </svg>
-                </motion.div>
-                <p className="text-sm font-semibold mb-1" style={{ color: 'var(--c-text)' }}>Feedback reported</p>
-                <p className="text-[11px] mb-4" style={{ color: 'var(--c-caption)' }}>Your feedback has been recorded. We will review it promptly.</p>
+              <div className="relative pt-2">
                 <button onClick={() => { setShowFeedback(false); setFeedbackText(''); setFeedbackSent(false) }}
-                  className="w-8 h-8 rounded-full flex items-center justify-center mx-auto transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
+                  className="absolute top-0 right-0 w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
                   style={{ color: 'var(--c-muted)' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  <X size={15} />
                 </button>
+                <div className="flex flex-col items-center py-2">
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 15 }}>
+                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
+                      <motion.circle cx="12" cy="12" r="11" stroke="#22c55e" strokeWidth="2" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4 }} />
+                      <motion.path d="M7 12l3 3 7-7" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4, delay: 0.2 }} />
+                    </svg>
+                  </motion.div>
+                  <p className="text-sm font-semibold mt-3 mb-0.5" style={{ color: 'var(--c-text)' }}>Feedback reported</p>
+                  <p className="text-[11px]" style={{ color: 'var(--c-caption)' }}>Your feedback has been recorded. We will follow up promptly.</p>
+                </div>
               </div>
             ) : (
               <>

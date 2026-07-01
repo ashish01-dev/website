@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
+import { X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useProgressStore } from '@/store/progressStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -18,9 +19,14 @@ const syllabus = syllabusData as unknown as SyllabusData
 function BetaPopup({ onAcknowledge }: { onAcknowledge: () => void }) {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40" style={{ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
-      <div className="max-w-sm mx-4 rounded-[18px] p-6 animate-scale-in" style={{
+      <div className="max-w-sm mx-4 rounded-[18px] p-6 animate-scale-in relative" style={{
         background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow-hover)',
       }}>
+        <button onClick={onAcknowledge}
+          className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
+          style={{ color: 'var(--c-muted)' }}>
+          <X size={15} />
+        </button>
         <h3 className="text-base font-bold mb-3" style={{ color: 'var(--c-text)' }}>AI Assistant is still in Beta</h3>
         <div className="space-y-2.5 text-[13px] leading-relaxed" style={{ color: 'var(--c-text-secondary)' }}>
           <p>Thanks for being an early adopter! Here are a few things to keep in mind:</p>
@@ -189,12 +195,25 @@ export default function AIPage() {
       const daysSince = p?.lastRevised ? Math.round((today.getTime() - new Date(p.lastRevised).getTime()) / 86400000) : 30
       const weightScore = chapter.weightage === 'high' ? 10 : chapter.weightage === 'medium' ? 5 : 2
       const gapScore = Math.min(10, daysSince)
-      const weakScore = p ? 10 - Math.round((Object.values(p.topicStatus).filter(Boolean).length / Math.max(1, chapter.topics.length)) * 10) : 10
+      const topicArr = chapter.topics.filter(t => !t.deleted)
+      const doneTopics = p ? topicArr.filter(t => p.topicStatus[t.id]).length : 0
+      const weakScore = p ? 10 - Math.round((doneTopics / Math.max(1, topicArr.length)) * 10) : 10
       const total = weightScore + gapScore + weakScore
       return { subject, chapter, score: total, weightScore, daysSince, weakScore }
     })
-    scored.sort((a, b) => b.score - a.score)
-    return scored.slice(0, 6)
+    const bySubject = new Map<Subject, typeof scored[0][]>()
+    for (const item of scored) {
+      const list = bySubject.get(item.subject)
+      if (list) list.push(item)
+      else bySubject.set(item.subject, [item])
+    }
+    const result: typeof scored = []
+    bySubject.forEach(items => {
+      items.sort((a, b) => b.score - a.score)
+      result.push(...items.slice(0, 2))
+    })
+    result.sort((a, b) => b.score - a.score)
+    return result.slice(0, 6)
   }, [allChapters, progress])
 
   const revisionSuggestions = useMemo(() => {
@@ -271,8 +290,6 @@ export default function AIPage() {
         for (const ch of div.chapters) { if (ch.deleted) continue; total++; if (progress[ch.id]?.status === 'done') done++ }
     return total > 0 ? Math.round((done / total) * 100) : 0
   }, [progress])
-
-  if (loading) return null
 
   const proContent = (
     <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
@@ -567,7 +584,13 @@ Today&apos;s Recommendation
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
-      {isPro ? proContent : (
+      {loading ? (
+        <div className="flex items-center justify-center py-24" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any }}>
+          <div className="w-6 h-6 border-2 border-[var(--c-blue)] border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : isPro ? (
+        proContent
+      ) : (
         <div className="relative min-h-[70vh]">
           {proGateContent}
         </div>
