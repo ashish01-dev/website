@@ -4,105 +4,77 @@ import { AVAILABLE_TOOLS, executeToolCall } from '@/lib/ai-actions'
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
 
-interface ChatMessage {
-  role: 'user' | 'assistant' | 'model'
-  content: string
-}
+function buildGeminiContents(messages: { role: string; content?: string; tool_call?: { name: string; args: any; result?: any } }[]) {
+  const contents: any[] = []
+  let pendingFunctionResult: any = null
 
-function transformToGemini(messages: ChatMessage[], systemPrompt: string, tools: any[]) {
-  const contents = messages.map((m: ChatMessage) => ({
-    role: m.role === 'assistant' ? 'model' : m.role,
-    parts: [{ text: m.content }],
-  }))
-
-  const payload: Record<string, any> = {
-    contents,
-    generationConfig: {
-      maxOutputTokens: 1024,
-      temperature: 0.7,
-      topP: 0.9,
-    },
-  }
-
-  if (systemPrompt) {
-    payload.systemInstruction = { parts: [{ text: systemPrompt }] }
-  }
-
-  if (tools.length > 0) {
-    payload.tools = [{
-      functionDeclarations: tools.map(t => ({
-        name: t.name,
-        description: t.description,
-        parameters: t.parameters,
-      })),
-    }]
-  }
-
-  return payload
-}
-
-function transformFromGemini(geminiResponse: any): any {
-  const candidate = geminiResponse?.candidates?.[0]
-  if (!candidate) return { choices: [] }
-
-  const content = candidate.content?.parts?.[0]
-  const text = content?.text || ''
-  const fc = candidate.content?.parts?.[1]?.functionCall || candidate.content?.parts?.[0]?.functionCall
-
-  if (fc) {
-    return {
-      choices: [{
-        index: 0,
-        message: {
-          role: 'assistant',
-          content: null,
-          tool_calls: [{
-            id: fc.name,
-            type: 'function',
-            function: {
-              name: fc.name,
-              arguments: JSON.stringify(fc.args || {}),
+  for (const msg of messages) {
+    if ((msg as any).tool_call) {
+      /* Function result from executing a tool */
+      const tc = (msg as any).tool_call
+      pendingFunctionResult = {
+        role: 'function',
+        parts: [{
+          functionResponse: {
+            name: tc.name,
+            response: {
+              name: tc.name,
+              content: tc.result || { success: false, message: 'No result' },
             },
-          }],
-        },
-      }],
+          },
+        }],
+      }
+      continue
     }
+
+    if (msg.role === 'assistant' && (msg as any).tool_call) {
+      /* Model's function call response */
+      const tc = (msg as any).tool_call
+      const parts: any[] = []
+      if (msg.content) parts.push({ text: msg.content })
+      parts.push({ functionCall: { name: tc.name, args: tc.args } })
+      contents.push({ role: 'model', parts })
+      if (pendingFunctionResult) {
+        contents.push(pendingFunctionResult)
+        pendingFunctionResult = null
+      }
+      continue
+    }
+
+    contents.push({
+      role: msg.role === 'assistant' ? 'model' : msg.role === 'system' ? 'user' : msg.role,
+      parts: [{ text: msg.content || '' }],
+    })
   }
 
-  return {
-    choices: [{
-      index: 0,
-      message: {
-        role: 'assistant',
-        content: text,
-      },
-    }],
-  }
+  if (pendingFunctionResult) contents.push(pendingFunctionResult)
+
+  return contents
 }
 
 function buildActionSystemPrompt(): string {
-  return `You are an intelligent JEE study assistant integrated into a study platform. You can help students with their preparation by answering questions AND performing actions on their behalf.
+  return `You are an intelligent JEE study assistant integrated into a study platform. You help JEE aspirants with their preparation.
 
-## Available Actions
-You have access to tools that let you:
-- Add chapters to the daily plan for specific dates
-- Log questions solved (count, subject, chapter)
+## What you can do
+- Answer JEE questions (Physics, Chemistry, Maths)
+- Add chapters to the user's daily study plan for any date
+- Log questions they completed (count, subject, chapter)
 - Log study hours/minutes
 - Update chapter progress status
-- Get a summary of the user dashboard
+- Show dashboard summary
 
-## When to use tools
-- If the user asks to ADD, SCHEDULE, or PLAN something → use add_to_daily_plan
-- If the user says they COMPLETED or SOLVED questions → use log_questions
-- If the user mentions study time/hours → use log_study_hours
-- If the user marks a chapter as done → use update_chapter_progress
-- If the user asks "what is my progress" or status → use get_dashboard_summary
+## When to use your tools
+- User says "add X chapter to my plan on Y date" → use add_to_daily_plan
+- User says "completed/solved X questions of Y chapter" → use log_questions
+- User says "studied for X hours" → use log_study_hours
+- User says "mark X chapter as done" → use update_chapter_progress
+- User asks "what's my progress" → use get_dashboard_summary
+- User just asks a doubt or concept question → answer directly, no tool needed
 
 ## Response style
-- Be concise and encouraging
-- Confirm what you did after using a tool
-- Use markdown formatting sparingly
-- Always ask if they need anything else after completing a request`
+- Be concise, warm, and encouraging
+- After using a tool, confirm what was done
+- Ask if they need anything else`
 }
 
 export async function POST(req: NextRequest) {
@@ -117,10 +89,30 @@ export async function POST(req: NextRequest) {
       ? `${systemPrompt}\n\n${enableActions ? buildActionSystemPrompt() : ''}`
       : (enableActions ? buildActionSystemPrompt() : '')
 
-    const tools = enableActions ? AVAILABLE_TOOLS : []
+    const contents = buildGeminiContents(messages)
 
-    const payload = transformToGemini(messages, mergedSystem, tools)
-    payload.generationConfig.maxOutputTokens = Math.min(maxTokens, 1024)
+    const payload: Record<string, any> = {
+      contents,
+      generationConfig: {
+        maxOutputTokens: Math.min(maxTokens, 1024),
+        temperature,
+        topP: 0.9,
+      },
+    }
+
+    if (mergedSystem) {
+      payload.systemInstruction = { parts: [{ text: mergedSystem }] }
+    }
+
+    if (enableActions && AVAILABLE_TOOLS.length > 0) {
+      payload.tools = [{
+        functionDeclarations: AVAILABLE_TOOLS.map(t => ({
+          name: t.name,
+          description: t.description,
+          parameters: t.parameters,
+        })),
+      }]
+    }
 
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 30000)
@@ -139,25 +131,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'AI service unavailable' }, { status: response.status })
     }
 
-    const geminiData = await response.json()
-    const transformed = transformFromGemini(geminiData)
+    const data = await response.json()
+    const candidate = data?.candidates?.[0]
+    if (!candidate) {
+      return NextResponse.json({ choices: [{ index: 0, message: { role: 'assistant', content: 'I couldn\'t process that. Please try again.' } }] })
+    }
 
-    /* Process tool calls if present */
-    const toolCall = transformed?.choices?.[0]?.message?.tool_calls?.[0]
-    if (toolCall) {
-      const fnName = toolCall.function.name
-      const fnArgs = JSON.parse(toolCall.function.arguments || '{}')
+    const parts = candidate.content?.parts || []
+    const textPart = parts.find((p: any) => p.text)?.text || ''
+    const fcPart = parts.find((p: any) => p.functionCall)
+
+    /* If the model wants to call a function */
+    if (fcPart) {
+      const fc = fcPart.functionCall
+      const fnName = fc.name
+      const fnArgs = fc.args || {}
+
       const result = await executeToolCall(fnName, fnArgs)
 
-      /* Send the tool result back to the AI for final response */
-      const updatedMessages = [
+      /* Build follow-up with function result */
+      const followUpMessages = [
         ...messages,
-        { role: 'user' as const, content: messages[messages.length - 1]?.content || '' },
-        { role: 'assistant' as const, content: `I called the function ${fnName} with ${JSON.stringify(fnArgs)}. Result: ${JSON.stringify(result)}` },
+        { role: 'assistant' as const, content: textPart || null, tool_call: { name: fnName, args: fnArgs } },
+        { role: 'function' as const, tool_call: { name: fnName, args: fnArgs, result } },
       ]
 
-      const followUpPayload = transformToGemini(updatedMessages, mergedSystem, [])
-      followUpPayload.generationConfig.maxOutputTokens = 512
+      const followUpContents = buildGeminiContents(followUpMessages)
+      const followUpPayload: Record<string, any> = {
+        contents: followUpContents,
+        generationConfig: { maxOutputTokens: 512, temperature, topP: 0.9 },
+      }
+      if (mergedSystem) followUpPayload.systemInstruction = { parts: [{ text: mergedSystem }] }
 
       const followUpRes = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
         method: 'POST',
@@ -167,23 +171,25 @@ export async function POST(req: NextRequest) {
       })
 
       if (followUpRes.ok) {
-        const followUpData = await followUpRes.json()
-        const followUpTransformed = transformFromGemini(followUpData)
-        const finalText = followUpTransformed?.choices?.[0]?.message?.content || result.message
+        const fd = await followUpRes.json()
+        const fcText = fd?.candidates?.[0]?.content?.parts?.find((p: any) => p.text)?.text || result.message
         return NextResponse.json({
-          choices: [{ index: 0, message: { role: 'assistant', content: finalText } }],
+          choices: [{ index: 0, message: { role: 'assistant', content: fcText } }],
           action_result: result,
         })
       }
 
-      /* If follow-up fails, just return the action result as text */
+      /* Fallback: return action result as text */
       return NextResponse.json({
         choices: [{ index: 0, message: { role: 'assistant', content: result.message } }],
         action_result: result,
       })
     }
 
-    return NextResponse.json(transformed)
+    /* Normal text response */
+    return NextResponse.json({
+      choices: [{ index: 0, message: { role: 'assistant', content: textPart } }],
+    })
   } catch (err) {
     console.error('Chat API error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -101,10 +101,11 @@ export default function AITutorPanel() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [{ role: 'user', content: q }],
+          messages: [...messages.slice(-4), { role: 'user', content: q }],
           systemPrompt,
           maxTokens: 512,
           temperature: 0.7,
+          enableActions: true,
         }),
         signal: controller.signal,
       })
