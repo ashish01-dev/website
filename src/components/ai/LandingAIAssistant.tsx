@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Sparkles, Send, ChevronRight, MessageSquare } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -96,16 +97,29 @@ const WELCOME_MESSAGE: Message = {
   timestamp: Date.now(),
 }
 
+const VALID_LANDING_ROUTES = new Set(['/', '/pricing', '/terms', '/privacy', '/contact', '/about', '/ai-policies', '/auth'])
+
 export default function LandingAIAssistant() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [showHint, setShowHint] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const is404 = !VALID_LANDING_ROUTES.has(pathname) && !pathname.startsWith('/auth/')
 
   useEffect(() => {
-    if (isOpen) setTimeout(() => inputRef.current?.focus(), 300)
+    if (is404) {
+      const t1 = setTimeout(() => setShowHint(true), 1500)
+      const t2 = setTimeout(() => setShowHint(false), 10000)
+      return () => { clearTimeout(t1); clearTimeout(t2) }
+    }
+  }, [is404])
+
+  useEffect(() => {
+    if (isOpen) { setShowHint(false); setTimeout(() => inputRef.current?.focus(), 300) }
   }, [isOpen])
 
   const scrollToBottom = () => {
@@ -187,6 +201,38 @@ export default function LandingAIAssistant() {
         <Sparkles size={16} />
         <span className="text-sm font-medium">Ask J</span>
       </motion.button>
+
+      {/* 404 hint bubble */}
+      <AnimatePresence>
+        {showHint && (
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.85 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.9 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed z-50 pointer-events-none"
+            style={{ bottom: 90, right: 20 }}
+          >
+            <div className="relative rounded-[14px] px-4 py-2.5 shadow-lg" style={{
+              background: 'var(--c-card)',
+              border: '1px solid var(--c-border-card)',
+            }}>
+              <p className="text-[12px] font-medium whitespace-nowrap" style={{ color: 'var(--c-text)' }}>
+                Need help? <span className="text-[var(--c-blue)]">Talk to me!</span>
+              </p>
+              <div
+                className="absolute w-3 h-3 rotate-45"
+                style={{
+                  bottom: -6, right: 24,
+                  background: 'var(--c-card)',
+                  borderRight: '1px solid var(--c-border-card)',
+                  borderBottom: '1px solid var(--c-border-card)',
+                }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Chat panel */}
       <AnimatePresence>

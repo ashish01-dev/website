@@ -10,9 +10,47 @@ function base64ToBytes(b64: string): Uint8Array {
   return bytes
 }
 
-/* Upload to DevUploads using the CGI upload URL (not the API server URL) */
-async function uploadToDevUploads(fileBytes: Uint8Array, fileName: string, fileType: string): Promise<string> {
-  /* First try the CGI upload URL (used by the actual upload form) */
+/* Get upload server URL from DevUploads API */
+async function getUploadServer(): Promise<string> {
+  const res = await fetch(`https://devuploads.com/api/upload/server?key=${DEVUPLOADS_KEY}`)
+  const data = await res.json()
+  if (data?.status !== 200 || !data?.result) throw new Error('Failed to get upload server')
+  return data.result
+}
+
+/* Extract file code from upload response HTML */
+function extractFileCode(html: string): string | null {
+  const patterns = [
+    /file_code["']?\s*[:=]\s*["']([^"']+)/i,
+    /filecode["']?\s*[:=]\s*["']([^"']+)/i,
+    /https:\/\/devuploads\.com\/([a-zA-Z0-9]+)/,
+    /[?&]fn=([a-zA-Z0-9]+)/,
+    /"result"\s*:\s*"([^"]+)"/,
+  ]
+  for (const p of patterns) {
+    const m = html.match(p)
+    if (m?.[1]) return m[1]
+  }
+  return null
+}
+
+/* Upload to DevUploads — tries proper API server first, then CGI fallback */
+async function uploadToDevUploads(fileBytes: Uint8Array, fileName: string, fileType: string): Promise<{ fileCode: string; directUrl?: string }> {
+  /* Try 1: Proper API upload server */
+  try {
+    const serverUrl = await getUploadServer()
+    const formData = new FormData()
+    formData.append('sess_id', DEVUPLOADS_KEY)
+    formData.append('file', new Blob([fileBytes.buffer as ArrayBuffer], { type: fileType }), fileName)
+      const uploadRes = await fetch(serverUrl, { method: 'POST', body: formData, signal: AbortSignal.timeout(30000) })
+    const uploadText = await uploadRes.text()
+    const fileCode = extractFileCode(uploadText)
+    if (fileCode) {
+      return { fileCode }
+    }
+  } catch {}
+
+  /* Try 2: CGI anonymous upload + clone */
   const cgiUrls = [
     'https://du4.devuploads.com/cgi-bin/upload.cgi',
     'https://s01.devuploads.com/cgi-bin/upload.cgi',
@@ -25,36 +63,32 @@ async function uploadToDevUploads(fileBytes: Uint8Array, fileName: string, fileT
       formData.append('utype', 'anon')
       formData.append('upload_type', 'file')
       formData.append('file', new Blob([fileBytes.buffer as ArrayBuffer], { type: fileType }), fileName)
-
       const uploadRes = await fetch(`${cgiUrl}?upload_type=file&utype=anon`, {
-        method: 'POST',
-        body: formData,
-        signal: AbortSignal.timeout(30000),
+        method: 'POST', body: formData, signal: AbortSignal.timeout(30000),
       })
       const uploadText = await uploadRes.text()
-
-      let fileCode = ''
-      const fnMatch = uploadText.match(/[?&]fn=([a-zA-Z0-9]+)/)
-      if (fnMatch?.[1]) fileCode = fnMatch[1]
-      const jMatch = uploadText.match(/"file_code"\s*:\s*"([^"]+)"/i)
-      if (jMatch?.[1]) fileCode = jMatch[1]
-      const codeMatch = uploadText.match(/file_code["']?\s*[:=]\s*["']([^"']+)/i)
-      if (codeMatch?.[1]) fileCode = codeMatch[1]
-      const directMatch = uploadText.match(/https:\/\/devuploads\.com\/([a-zA-Z0-9]+)/)
-      if (directMatch?.[1]) fileCode = directMatch[1]
-
+      const fileCode = extractFileCode(uploadText)
       if (fileCode) {
-        /* Clone to account */
         const cloneRes = await fetch(
           `https://devuploads.com/api/file/clone?key=${DEVUPLOADS_KEY}&file_code=${fileCode}`
         )
         const cloneData = await cloneRes.json()
-        if (cloneData?.result?.filecode) return cloneData.result.filecode
-        return fileCode
+        const finalCode = cloneData?.result?.filecode || fileCode
+        return { fileCode: finalCode }
       }
     } catch {}
   }
+
   throw new Error('Failed to upload to DevUploads via any server')
+}
+
+/* Get direct download link from DevUploads */
+async function getDirectLink(fileCode: string): Promise<string | undefined> {
+  try {
+    const res = await fetch(`https://devuploads.com/api/file/direct_link?key=${DEVUPLOADS_KEY}&file_code=${fileCode}`)
+    const data = await res.json()
+    return data?.result?.url
+  } catch { return undefined }
 }
 
 export async function POST(req: NextRequest) {
@@ -64,13 +98,14 @@ export async function POST(req: NextRequest) {
     if (!base64 || !name) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
     const fileBytes = base64ToBytes(base64)
-    const isProBool = isPro === true
+    const { fileCode, directUrl } = await uploadToDevUploads(fileBytes, name, type)
 
-    const fileCode = await uploadToDevUploads(fileBytes, name, type)
+    /* Fetch direct link after upload */
+    const directLink = directUrl || await getDirectLink(fileCode)
 
-    /* Upload to Google Drive (Pro only) */
+    /* Upload to Google Drive (Pro only — may fail without OAuth) */
     let gdriveFileId = ''
-    if (isProBool) {
+    if (isPro === true) {
       try {
         const gForm = new FormData()
         gForm.append('metadata', new Blob([JSON.stringify({ name, mimeType: type })], { type: 'application/json' }))
@@ -88,6 +123,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       fileCode,
+      directLink,
       gdriveFileId,
       name,
       size: fileBytes.byteLength,
