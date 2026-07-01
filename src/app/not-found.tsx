@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { SearchX } from 'lucide-react'
 import LandingNav from '@/components/layout/LandingNav'
 
 export default function NotFound() {
@@ -18,6 +19,10 @@ export default function NotFound() {
           </h1>
           <div className="absolute -top-3 -right-3 w-6 h-6 rounded-full" style={{ background: 'var(--c-blue)', filter: 'blur(12px)', opacity: 0.6 }} />
           <div className="absolute -bottom-2 -left-4 w-4 h-4 rounded-full" style={{ background: 'var(--c-orange)', filter: 'blur(10px)', opacity: 0.5 }} />
+        </div>
+
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--c-tag)' }}>
+          <SearchX size={22} style={{ color: 'var(--c-muted)' }} />
         </div>
 
         <p className="text-[15px] mb-2 font-medium" style={{ color: 'var(--c-text)' }}>Page not found</p>

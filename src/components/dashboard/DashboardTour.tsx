@@ -220,10 +220,6 @@ export default function DashboardTour() {
 
   if (!started || !currentStep) return null
 
-  const clipPathValue = targetRect
-    ? `polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, ${targetRect.left}px ${targetRect.top}px, ${targetRect.left}px ${targetRect.bottom}px, ${targetRect.right}px ${targetRect.bottom}px, ${targetRect.right}px ${targetRect.top}px)`
-    : 'none'
-
   return (
     <>
       <style>{`
@@ -243,21 +239,44 @@ export default function DashboardTour() {
       {/* Click catcher */}
       <div className="fixed inset-0 z-[199]" />
 
-      {/* Spotlight overlay — single seamless clip-path cutout */}
-      <div
-        className="fixed inset-0 z-[200] pointer-events-none"
-        style={{
-          background: 'rgba(0,0,0,0.55)',
-          backdropFilter: 'blur(4px)',
-          WebkitBackdropFilter: 'blur(4px)',
-          clipPath: clipPathValue,
-        }}
-      />
+      {/* 4-rectangle spotlight overlays — no clip-path, reliable backdrop-filter */}
+      {targetRect && (
+        <>
+          <div className="fixed z-[200] pointer-events-none" style={{
+            top: 0, left: 0, width: '100%', height: targetRect.top,
+            background: 'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+          }} />
+          <div className="fixed z-[200] pointer-events-none" style={{
+            top: targetRect.bottom, left: 0, width: '100%',
+            height: `calc(100% - ${targetRect.bottom}px)`,
+            background: 'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+          }} />
+          <div className="fixed z-[200] pointer-events-none" style={{
+            top: targetRect.top, left: 0,
+            width: targetRect.left, height: targetRect.height,
+            background: 'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+          }} />
+          <div className="fixed z-[200] pointer-events-none" style={{
+            top: targetRect.top, left: targetRect.right,
+            width: `calc(100% - ${targetRect.right}px)`,
+            height: targetRect.height,
+            background: 'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+          }} />
+        </>
+      )}
+
+      {!targetRect && (
+        <div className="fixed inset-0 z-[200] bg-black/55" />
+      )}
 
       {/* Highlight ring on the target element */}
       {targetRect && (
         <div
-          className="fixed pointer-events-none tour-highlight"
+          className="fixed z-[200] pointer-events-none tour-highlight"
           style={{
             top: targetRect.top,
             left: targetRect.left,

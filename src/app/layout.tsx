@@ -10,6 +10,7 @@ import AITutorPanel from '@/components/ai/AITutorPanel'
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow'
 import PageTransition from '@/components/layout/PageTransition'
 import DashboardTour from '@/components/dashboard/DashboardTour'
+import OfflineOverlay from '@/components/OfflineOverlay'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useProgressStore } from '@/store/progressStore'
 import { useTimetableStore } from '@/store/timetableStore'
@@ -200,6 +201,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {isAppPage ? <AITutorPanel /> : <LandingAIAssistant />}
         <OnboardingFlow />
         <DashboardTour />
+        <OfflineOverlay />
       </body>
     </html>
   )
