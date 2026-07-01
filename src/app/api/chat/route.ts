@@ -128,7 +128,10 @@ export async function POST(req: NextRequest) {
     if (!response.ok) {
       const errText = await response.text()
       console.error('Gemini API error:', response.status, errText)
-      return NextResponse.json({ error: 'AI service unavailable' }, { status: response.status })
+      const isAuthError = response.status === 400 || response.status === 401 || response.status === 403
+      return NextResponse.json({
+        error: isAuthError ? 'AI service key is invalid or expired' : 'AI service unavailable',
+      }, { status: response.status })
     }
 
     const data = await response.json()

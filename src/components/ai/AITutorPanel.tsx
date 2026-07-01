@@ -110,18 +110,23 @@ export default function AITutorPanel() {
         signal: controller.signal,
       })
       clearTimeout(timeout)
-      const data = await res.json()
-      const reply = data?.choices?.[0]?.message?.content || ''
       setIsTyping(false)
+      const data = await res.json()
+      if (!res.ok) {
+        addMessage({ id: generateTutorId(), role: 'assistant', content: data?.error || 'Failed to connect to server. Please try again after some time.', mode: activeMode, timestamp: Date.now() })
+        return
+      }
+      const reply = data?.choices?.[0]?.message?.content
       if (reply) {
         addMessage({ id: generateTutorId(), role: 'assistant', content: reply, mode: activeMode, timestamp: Date.now() })
       } else {
-        addMessage({ id: generateTutorId(), role: 'assistant', content: `I couldn't process that request. Please try rephrasing your question.`, mode: activeMode, timestamp: Date.now() })
+        addMessage({ id: generateTutorId(), role: 'assistant', content: 'The AI returned an empty response. Please try asking differently.', mode: activeMode, timestamp: Date.now() })
       }
-    } catch {
+    } catch (e) {
       clearTimeout(timeout)
       setIsTyping(false)
-      addMessage({ id: generateTutorId(), role: 'assistant', content: `Failed to connect to server. Please try again after some time.`, mode: activeMode, timestamp: Date.now() })
+      const msg = (e as Error)?.name === 'AbortError' ? 'Request timed out. Please try again.' : 'Failed to connect to server. Please try again after some time.'
+      addMessage({ id: generateTutorId(), role: 'assistant', content: msg, mode: activeMode, timestamp: Date.now() })
     }
   }, [isTyping, isPro, activeMode, addMessage])
 
