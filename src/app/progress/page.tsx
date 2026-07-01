@@ -68,11 +68,23 @@ export default function ProgressPage() {
   const [dailyLogs, setDailyLogs] = useState<{ date: string; studyMinutes: number }[]>([])
   const [restDays, setRestDays] = useState(1)
   const [dailyHoursInput, setDailyHoursInput] = useState(settings.dailyStudyHours || 6)
-  const [badgePopup, setBadgePopup] = useState<{ name: string; icon: string; desc: string; color: string } | null>(null)
+  const [badgePopup, setBadgePopup] = useState<{ name: string; icon: string; desc: string; color: string; owned: boolean; percentage?: number; type: 'batch' | 'achievement' } | null>(null)
+  const [badgeStats, setBadgeStats] = useState<Record<string, number>>({})
+  const [statsTotalUsers, setStatsTotalUsers] = useState(0)
 
   useEffect(() => { db.tests.toArray().then(setTests) }, [])
   useEffect(() => { db.questions.toArray().then(setQuestionEntries) }, [])
   useEffect(() => { db.dailyLogs.toArray().then(setDailyLogs) }, [])
+  useEffect(() => {
+    fetch('/api/badge-stats').then(r => r.json()).then(data => {
+      if (data?.batches) {
+        const map: Record<string, number> = {}
+        for (const b of data.batches) map[b.id] = b.percentage
+        setBadgeStats(map)
+        setStatsTotalUsers(data.totalUsers)
+      }
+    }).catch(() => {})
+  }, [])
 
   /* ─── Subject Data ─── */
   const subjectsMeta = useMemo(() =>
@@ -346,7 +358,7 @@ export default function ProgressPage() {
                   const progressInBatch = Math.min(100, ((totalDone - prevThreshold) / (b.chapters - prevThreshold)) * 100)
                   const isActive = !unlocked && totalDone >= prevThreshold
                   return (
-                    <div key={b.name} onClick={() => unlocked && setBadgePopup({ name: b.name, icon: b.icon, desc: `Complete ${b.chapters} chapters`, color: b.color })}
+                    <div key={b.name} onClick={() => setBadgePopup({ name: b.name, icon: b.icon, desc: `Complete ${b.chapters} chapters`, color: b.color, owned: unlocked, percentage: badgeStats[b.name.toLowerCase().replace(/\s+/g, '_')], type: 'batch' })}
                       className="flex items-center gap-3 p-3 rounded-[14px] transition-all cursor-pointer hover:-translate-y-[1px]" style={{
                       background: unlocked ? 'var(--c-card-alt)' : 'var(--c-card-alt)',
                       border: `1px solid ${unlocked ? b.color : 'var(--c-border-card)'}`,
@@ -363,11 +375,15 @@ export default function ProgressPage() {
                           {isActive && <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: 'rgba(35,131,226,0.15)', color: 'var(--c-blue)' }}>{totalDone}/{b.chapters} ch.</span>}
                         </div>
                         <div className="text-[10px] mb-1.5" style={{ color: 'var(--c-muted)' }}>Complete {b.chapters} chapters</div>
-                        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
+                        <div className="h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background: 'var(--c-progress-bg)' }}>
                           <div className="h-full rounded-full transition-all duration-700" style={{
                             width: `${unlocked ? 100 : isActive ? progressInBatch : 0}%`,
                             background: unlocked ? b.color : isActive ? b.color : 'var(--c-caption)',
                           }} />
+                        </div>
+                        <div className="flex items-center gap-2 text-[9px]" style={{ color: 'var(--c-caption)' }}>
+                          <span>{badgeStats[b.name.toLowerCase().replace(/\s+/g, '_')] !== undefined ? `${badgeStats[b.name.toLowerCase().replace(/\s+/g, '_')]}% of users` : ''}</span>
+                          {statsTotalUsers > 0 && <span>&middot; {statsTotalUsers} users</span>}
                         </div>
                       </div>
                     </div>
@@ -505,7 +521,7 @@ export default function ProgressPage() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {achievements.map(a => (
-              <div key={a.id} onClick={() => setBadgePopup({ name: a.name, icon: a.icon, desc: a.description, color: a.unlocked ? 'var(--c-orange)' : 'var(--c-caption)' })}
+              <div key={a.id} onClick={() => setBadgePopup({ name: a.name, icon: a.icon, desc: a.description, color: 'var(--c-orange)', owned: a.unlocked, type: 'achievement' })}
                 className="rounded-[14px] p-3 transition-all cursor-pointer hover:-translate-y-[1px]" style={{
                   background: a.unlocked ? 'var(--c-card-alt)' : 'var(--c-card-alt)',
                   border: `1px solid ${a.unlocked ? 'var(--c-orange)' : 'var(--c-border-card)'}`,
@@ -594,20 +610,44 @@ export default function ProgressPage() {
       <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}
         onClick={() => setBadgePopup(null)}>
         <div className="backdrop-blur-xl absolute inset-0" />
-        <div className="relative z-10 animate-scaleIn rounded-[18px] px-8 py-10 text-center max-w-[320px] w-[90vw]"
+        <div className="relative z-10 animate-scaleIn rounded-[18px] px-8 py-10 text-center max-w-[340px] w-[90vw]"
           style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}
           onClick={e => e.stopPropagation()}>
-          <div className="text-5xl mb-4">{badgePopup.icon}</div>
-          <h2 className="text-lg font-bold mb-2" style={{ color: badgePopup.color }}>
-            You&apos;re now a{/^[aeiou]/i.test(badgePopup.name) ? 'n' : ''} {badgePopup.name}!</h2>
-          <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>{badgePopup.desc}</p>
           <button onClick={() => setBadgePopup(null)}
-            className="px-6 py-2 rounded-[40px] text-sm font-medium text-white transition-all"
-            style={{ background: 'var(--c-btn-primary)' }}>Thanks</button>
+            className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-all hover:opacity-70"
+            style={{ background: 'var(--c-tag)', color: 'var(--c-muted)' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <div className="text-5xl mb-4 animate-bounce-in">{badgePopup.icon}</div>
+          <h2 className="text-lg font-bold mb-1" style={{ color: badgePopup.color }}>
+            {badgePopup.type === 'achievement' ? badgePopup.name : `${badgePopup.name}`}</h2>
+          <p className="text-sm mb-4" style={{ color: 'var(--c-muted)' }}>{badgePopup.desc}</p>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium mb-5" style={{
+            background: badgePopup.owned ? 'rgba(15,138,94,0.1)' : 'rgba(224,62,62,0.1)',
+            color: badgePopup.owned ? 'var(--c-green)' : 'var(--c-red)',
+          }}>
+            {badgePopup.owned ? '✓ You own this' : '✕ Not yet unlocked'}
+          </div>
+          {badgePopup.percentage !== undefined && (
+            <div className="mb-5 px-4 py-3 rounded-[12px]" style={{ background: 'var(--c-card-alt)' }}>
+              <div className="text-xs font-medium mb-1" style={{ color: 'var(--c-text)' }}>
+                {badgePopup.percentage}% of users own this
+              </div>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
+                <div className="h-full rounded-full transition-all duration-1000" style={{
+                  width: `${badgePopup.percentage}%`,
+                  background: badgePopup.owned ? 'var(--c-green)' : 'var(--c-blue)',
+                }} />
+              </div>
+            </div>
+          )}
+          <button onClick={() => setBadgePopup(null)}
+            className="px-6 py-2.5 rounded-[40px] text-sm font-medium text-white transition-all hover:opacity-90"
+            style={{ background: 'var(--c-btn-primary)' }}>Got it</button>
         </div>
       </div>
     )}
-    <style>{`@keyframes scaleIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}.animate-scaleIn{animation:scaleIn .3s ease-out}`}</style>
+    <style>{`@keyframes scaleIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}.animate-scaleIn{animation:scaleIn .3s ease-out}@keyframes bounceIn{0%{opacity:0;transform:scale(.3)}50%{transform:scale(1.08)}70%{transform:scale(.95)}100%{opacity:1;transform:scale(1)}}.animate-bounce-in{animation:bounceIn .5s ease-out}`}</style>
     </div>
   )
 }
