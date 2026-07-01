@@ -14,14 +14,14 @@ import { db } from '@/lib/db'
 import { formatDate } from '@/lib/utils'
 import { useUser } from '@/lib/useUser'
 import syllabusData from '@/data/syllabus.json'
-import type { SyllabusData, Subject, DailyPlan, PomodoroSession } from '@/types'
+import type { SyllabusData, Subject, DailyPlan } from '@/types'
 
 const syllabus = syllabusData as unknown as SyllabusData
 
-const SUBJECT_META: Record<Subject, { emoji: string; light: string }> = {
-  physics: { emoji: '⚡', light: 'var(--c-blue)' },
-  chemistry: { emoji: '🧪', light: 'var(--c-green)' },
-  maths: { emoji: '📐', light: 'var(--c-orange)' },
+const SUBJECT_META: Record<Subject, { emoji: string; light: string; label: string }> = {
+  physics: { emoji: '⚡', light: 'var(--c-blue)', label: 'Physics' },
+  chemistry: { emoji: '🧪', light: 'var(--c-green)', label: 'Chemistry' },
+  maths: { emoji: '📐', light: 'var(--c-orange)', label: 'Maths' },
 }
 
 const GREETINGS = ['Morning', 'Afternoon', 'Evening']
@@ -43,7 +43,7 @@ export default function DashboardPage() {
   const [plan, setPlan] = useState<DailyPlan | null>(null)
   const [showPlanModal, setShowPlanModal] = useState(false)
   const [planLoaded, setPlanLoaded] = useState(false)
-  const [sessions, setSessions] = useState<PomodoroSession[]>([])
+  const [dailyLogs, setDailyLogs] = useState<{ date: string; studyMinutes: number }[]>([])
   const [quote] = useState(() => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)])
 
   const today = formatDate(new Date())
@@ -58,7 +58,7 @@ export default function DashboardPage() {
       if (!p && isPro && settings.autoPlanPopup) setShowPlanModal(true)
       setPlanLoaded(true)
     })
-    db.pomodoro.toArray().then(setSessions)
+    db.dailyLogs.toArray().then(setDailyLogs)
   }, [today, isPro, settings.autoPlanPopup])
 
   const pace = useMemo(() => {
@@ -110,12 +110,11 @@ export default function DashboardPage() {
       const d = new Date()
       d.setDate(d.getDate() - i)
       const ds = formatDate(d)
-      const daySessions = sessions.filter(s => s.date === ds)
-      const totalSec = daySessions.reduce((a, s) => a + s.duration, 0)
-      days.push({ date: ds, hours: totalSec / 3600 })
+      const log = dailyLogs.find(l => l.date === ds)
+      days.push({ date: ds, hours: log ? log.studyMinutes / 60 : 0 })
     }
     return days
-  }, [sessions])
+  }, [dailyLogs])
 
   const getHeatLevel = (hours: number) => {
     if (hours === 0) return 0
@@ -138,196 +137,207 @@ export default function DashboardPage() {
       <StoragePopup isPro={isPro} />
       <ChangelogPopup />
 
-      <div className="max-w-[1000px] mx-auto px-4 md:px-6 pt-[17px] pb-6 md:pb-10 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+      <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
 
-        {/* Greeting + date */}
-        <div className="mb-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-[clamp(24px,3vw,32px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>
-                Good {greeting}, <span style={{ color: 'var(--c-blue)' }}>{settings.name || 'Champion'}</span>
-              </h1>
-              <p className="text-[14px]" style={{ color: 'var(--c-muted)' }}>
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                {plan ? ` · ${plan.hoursGoal || 0}h planned today` : ''}
-              </p>
+        {/* ─── Greeting Bar ─── */}
+        <div className="mb-7">
+          <div className="flex items-start justify-between flex-wrap gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-[clamp(24px,2.5vw,32px)] font-medium tracking-[-0.5px]" style={{ color: 'var(--c-text)' }}>
+                  Good {greeting}, <span style={{ color: 'var(--c-blue)' }}>{settings.name || 'Champion'}</span>
+                </h1>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--c-tag)', color: 'var(--c-muted)' }}>
+                    {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                  </span>
+                  {plan?.hoursGoal && (
+                    <span className="text-[11px] px-2.5 py-1 rounded-full font-medium" style={{ background: 'rgba(35,131,226,0.12)', color: 'var(--c-blue)' }}>
+                      🎯 {plan.hoursGoal}h planned
+                    </span>
+                  )}
+                </div>
+              </div>
+              <p className="text-[12px] mt-1.5 italic" style={{ color: 'var(--c-muted)' }}>{quote}</p>
+              {plan && plan.subjects && plan.subjects.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2 items-center">
+                  <span className="text-[11px] font-medium flex items-center gap-1" style={{ color: 'var(--c-blue)' }}>
+                    <span className="material-symbols-rounded text-[14px]">checklist</span> Today&apos;s Plan
+                  </span>
+                  {plan.subjects.map(s => (
+                    <span key={s.subject} className="text-[10px] px-2.5 py-0.5 rounded-full capitalize font-medium" style={{
+                      background: s.subject === 'physics' ? 'rgba(35,131,226,0.12)' : s.subject === 'chemistry' ? 'rgba(15,138,94,0.12)' : 'rgba(217,115,13,0.12)',
+                      color: s.subject === 'physics' ? 'var(--c-blue)' : s.subject === 'chemistry' ? 'var(--c-green)' : 'var(--c-orange)',
+                    }}>
+                      {SUBJECT_META[s.subject].emoji} {s.subject} {s.questions > 0 ? `· ${s.questions}q` : ''} {s.chapters.length > 0 ? `· ${s.chapters.length}ch` : ''}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-3 text-right">
-              <div>
-                <div className="text-[10px] uppercase tracking-wider font-medium" style={{ color: 'var(--c-caption)' }}>Chapters</div>
-                <div className="text-sm font-bold" style={{ color: 'var(--c-green)' }}>{done}/{total}</div>
+            <div className="flex items-center gap-4 md:gap-6 flex-shrink-0">
+              <div className="text-center">
+                <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: 'var(--c-caption)' }}>Chapters</div>
+                <div className="text-xl font-bold" style={{ color: 'var(--c-green)' }}>{done}<span className="text-sm font-normal" style={{ color: 'var(--c-muted)' }}>/{total}</span></div>
               </div>
               <div className="w-px h-8" style={{ background: 'var(--c-border)' }} />
-              <div>
-                <div className="text-[10px] uppercase tracking-wider font-medium" style={{ color: 'var(--c-caption)' }}>Days Left</div>
-                <div className="text-sm font-bold" style={{ color: 'var(--c-blue)' }}>{daysLeft}</div>
+              <div className="text-center">
+                <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: 'var(--c-caption)' }}>Days Left</div>
+                <div className="text-xl font-bold" style={{ color: 'var(--c-blue)' }}>{daysLeft}</div>
+              </div>
+              <div className="w-px h-8" style={{ background: 'var(--c-border)' }} />
+              <div className="text-center">
+                <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: 'var(--c-caption)' }}>Overall</div>
+                <div className="text-xl font-bold" style={{ color: stats ? 'var(--c-text)' : 'var(--c-muted)' }}>{stats?.overall ?? '—'}<span className="text-sm font-normal" style={{ color: 'var(--c-muted)' }}>%</span></div>
               </div>
             </div>
           </div>
-          <p className="text-[12px] italic mt-2" style={{ color: 'var(--c-muted)' }}>{quote}</p>
-          {plan && plan.subjects && plan.subjects.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-3 items-center">
-              <span className="text-[11px] font-medium" style={{ color: 'var(--c-blue)' }}>
-                <span className="material-symbols-rounded text-[14px] align-text-bottom">checklist</span> Today&apos;s Plan
-              </span>
-              {plan.hoursGoal ? <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'var(--c-tag)', color: 'var(--c-caption)' }}>🎯 {plan.hoursGoal}h goal</span> : null}
-              {plan.subjects.map(s => (
-                <span key={s.subject} className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{
-                  background: s.subject === 'physics' ? 'rgba(35,131,226,0.12)' : s.subject === 'chemistry' ? 'rgba(15,138,94,0.12)' : 'rgba(217,115,13,0.12)',
-                  color: s.subject === 'physics' ? 'var(--c-blue)' : s.subject === 'chemistry' ? 'var(--c-green)' : 'var(--c-orange)',
-                }}>
-                  {s.subject === 'physics' ? '⚡' : s.subject === 'chemistry' ? '🧪' : '📐'} {s.subject} {s.questions > 0 ? `· ${s.questions}q` : ''} {s.chapters.length > 0 ? `· ${s.chapters.length}ch` : ''}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
 
-        {/* Days left + Subject progress cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="rounded-[18px] px-[22px] py-[24px] text-center relative overflow-hidden" style={{
+        {/* ─── Subject Progress Cards ─── */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
+          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 text-center relative overflow-hidden" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <div className="absolute inset-0 bg-gradient-to-br from-[#2383e2]/10 to-transparent" />
             <div className="relative">
-              <div className="text-[clamp(36px,4vw,48px)] font-bold tracking-[-1px]" style={{ color: 'var(--c-blue)' }}>{daysLeft}</div>
-              <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--c-muted)' }}>Days to JEE</div>
+              <div className="text-[clamp(32px,3vw,44px)] font-bold tracking-[-1px] leading-none mb-1" style={{ color: 'var(--c-blue)' }}>{daysLeft}</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--c-muted)' }}>Days to JEE</div>
             </div>
           </div>
 
           {stats && (['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
-            <div key={s} className="rounded-[18px] px-[22px] py-[20px] relative overflow-hidden" style={{
+            <div key={s} className="rounded-[18px] px-5 md:px-6 py-5 md:py-[22px] relative overflow-hidden" style={{
               background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
             }}>
               <div className="relative">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--c-muted)' }}>{s}</span>
-                  <span className="text-lg">{SUBJECT_META[s].emoji}</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--c-muted)' }}>{SUBJECT_META[s].label}</span>
+                  <span className="text-lg leading-none">{SUBJECT_META[s].emoji}</span>
                 </div>
-                <div className="text-[clamp(28px,2.5vw,34px)] font-bold tracking-[-0.5px] mb-2" style={{ color: 'var(--c-text)' }}>
+                <div className="text-[clamp(24px,2.5vw,32px)] font-bold tracking-[-0.5px] mb-2 leading-none" style={{ color: 'var(--c-text)' }}>
                   {stats[s]}<span className="text-sm font-normal" style={{ color: 'var(--c-caption)' }}>%</span>
                 </div>
                 <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
-                  <div className="h-full rounded-full transition-all" style={{ width: `${stats[s]}%`, backgroundColor: SUBJECT_META[s].light }} />
+                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${stats[s]}%`, backgroundColor: SUBJECT_META[s].light }} />
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Today's Plan + Continue Studying */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div className="rounded-[18px] px-[22px] py-[24px] relative overflow-hidden" style={{
+        {/* ─── Today's Plan + Continue Studying ─── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-7">
+          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 lg:col-span-2 relative overflow-hidden" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl" style={{ background: 'var(--c-blue)' }} />
+            <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-60" style={{ background: 'var(--c-blue)' }} />
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[15px] font-semibold" style={{ color: 'var(--c-text)' }}>Today&apos;s Plan</h2>
-                {isPro ? (
-                  <button onClick={() => setShowPlanModal(true)} className="text-[10px] font-semibold uppercase tracking-wider transition-colors" style={{ color: 'var(--c-blue)' }}>
-                    {plan ? 'Edit' : 'Plan'}
-                  </button>
-                ) : (
-                  <button onClick={() => setShowPlanModal(true)} className="text-[10px] font-semibold uppercase tracking-wider transition-all flex items-center gap-1" style={{ color: 'var(--c-muted)' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                    Pro
-                  </button>
-                )}
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-rounded text-[18px]" style={{ color: 'var(--c-blue)' }}>today</span>
+                  <h2 className="text-[15px] font-semibold" style={{ color: 'var(--c-text)' }}>Today&apos;s Plan</h2>
+                </div>
+                <button onClick={() => setShowPlanModal(true)}
+                  className="text-[10px] font-semibold uppercase tracking-wider transition-all flex items-center gap-1 px-3 py-1.5 rounded-[40px]"
+                  style={{ color: isPro ? 'var(--c-blue)' : 'var(--c-muted)', border: '1px solid var(--c-border-input)' }}>
+                  {isPro ? (plan ? 'Edit Plan' : 'Create Plan') : (
+                    <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> Pro</>
+                  )}
+                </button>
               </div>
               {plan && plan.subjects && plan.subjects.length > 0 ? (
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {plan.subjects.map(s => (
-                    <div key={s.subject}>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span>{SUBJECT_META[s.subject].emoji}</span>
-                        <span className="text-xs font-medium capitalize" style={{ color: 'var(--c-text-secondary)' }}>{s.subject}</span>
-                        <span className="text-[10px] ml-auto" style={{ color: 'var(--c-caption)' }}>{s.questions}q</span>
+                    <div key={s.subject} className="rounded-[14px] p-3.5" style={{
+                      background: 'var(--c-card-alt)',
+                      border: `1px solid var(--c-border)`,
+                      borderLeft: `3px solid ${SUBJECT_META[s.subject].light}`,
+                    }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-base">{SUBJECT_META[s.subject].emoji}</span>
+                        <span className="text-xs font-semibold capitalize" style={{ color: 'var(--c-text)' }}>{s.subject}</span>
+                        <span className="text-[10px] ml-auto font-medium" style={{ color: SUBJECT_META[s.subject].light }}>{s.questions} questions</span>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {s.chapters.map((ch, i) => (
-                          <span key={ch + i} className="px-2.5 py-0.5 text-[11px] rounded-full" style={{
-                            background: 'var(--c-tag)', color: 'var(--c-text-secondary)', border: '1px solid var(--c-border)',
-                          }}>
-                            {ch}
-                          </span>
-                        ))}
-                        {s.chapters.length === 0 && (
-                          <span className="text-[11px] italic" style={{ color: 'var(--c-caption)' }}>No chapters selected</span>
-                        )}
-                      </div>
+                      {s.chapters.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {s.chapters.map((ch, i) => (
+                            <span key={ch + i} className="px-2 py-0.5 text-[10px] rounded-full font-medium" style={{
+                              background: `${SUBJECT_META[s.subject].light}12`,
+                              color: SUBJECT_META[s.subject].light,
+                            }}>
+                              {ch}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-[10px] italic" style={{ color: 'var(--c-caption)' }}>No chapters selected</span>
+                      )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-4">
-                  <div className="text-2xl mb-2">📋</div>
+                <div className="text-center py-8">
+                  <div className="text-3xl mb-3">📋</div>
                   <p className="text-sm mb-3" style={{ color: 'var(--c-muted)' }}>
-                    {isPro ? 'No plan set for today' : 'Daily planning is a Pro feature'}
+                    {isPro ? 'No plan set for today. Plan your study session!' : 'Daily planning is a Pro feature'}
                   </p>
-                  {isPro ? (
-                    <button onClick={() => setShowPlanModal(true)}
-                      className="inline-flex items-center gap-1.5 text-white text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200 hover:-translate-y-[0.5px]"
-                      style={{ background: 'var(--c-btn-primary)' }}
-                    >Plan Your Day</button>
-                  ) : (
-                    <button onClick={() => setShowPlanModal(true)}
-                      className="inline-flex items-center gap-1.5 text-white text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200 hover:-translate-y-[0.5px]"
-                      style={{ background: 'var(--c-btn-primary)' }}
-                    ><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> Upgrade to Plan</button>
-                  )}
+                  <button onClick={() => setShowPlanModal(true)}
+                    className="inline-flex items-center gap-1.5 text-white text-[12px] font-medium rounded-[40px] px-5 py-2 transition-all duration-200 hover:-translate-y-[0.5px]"
+                    style={{ background: 'var(--c-btn-primary)' }}>
+                    {isPro ? 'Plan Your Day' : <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> Upgrade to Plan</>}
+                  </button>
                 </div>
               )}
               {stats && (
-                <div className="mt-4 pt-3 border-t" style={{ borderColor: 'var(--c-border)' }}>
-                  <div className="flex items-center justify-between text-xs mb-1.5" style={{ color: 'var(--c-muted)' }}>
-                    <span>Overall Progress</span>
-                    <span className="font-semibold" style={{ color: 'var(--c-blue)' }}>{stats.overall}%</span>
+                <div className="mt-4 pt-3 border-t flex items-center gap-3" style={{ borderColor: 'var(--c-border)' }}>
+                  <span className="text-[11px]" style={{ color: 'var(--c-muted)' }}>Overall Progress</span>
+                  <div className="flex-1 max-w-[200px] h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
+                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${stats.overall}%`, backgroundColor: 'var(--c-blue)' }} />
                   </div>
-                  <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
-                    <div className="h-full rounded-full transition-all" style={{ width: `${stats.overall}%`, backgroundColor: 'var(--c-blue)' }} />
-                  </div>
+                  <span className="text-xs font-semibold" style={{ color: 'var(--c-blue)' }}>{stats.overall}%</span>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="rounded-[18px] px-[22px] py-[24px] relative overflow-hidden" style={{
+          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 relative overflow-hidden" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl" style={{ background: 'var(--c-orange)' }} />
+            <div className="absolute top-0 right-0 w-36 h-36 rounded-full blur-3xl opacity-60" style={{ background: 'var(--c-orange)' }} />
             <div className="relative">
-              <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Continue Studying</h2>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="material-symbols-rounded text-[18px]" style={{ color: 'var(--c-orange)' }}>play_circle</span>
+                <h2 className="text-[15px] font-semibold" style={{ color: 'var(--c-text)' }}>Continue Studying</h2>
+              </div>
               {continueChapter ? (
                 <div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg" style={{ background: 'var(--c-tag)' }}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-lg flex-shrink-0" style={{ background: 'var(--c-tag)' }}>
                       {SUBJECT_META[continueChapter.subject].emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate" style={{ color: 'var(--c-text)' }}>{continueChapter.chapter.name}</div>
-                      <div className="text-xs" style={{ color: 'var(--c-muted)' }}>{continueChapter.subject.charAt(0).toUpperCase() + continueChapter.subject.slice(1)} · Class {continueChapter.chapter.class}</div>
+                      <div className="text-sm font-semibold truncate" style={{ color: 'var(--c-text)' }}>{continueChapter.chapter.name}</div>
+                      <div className="text-[11px]" style={{ color: 'var(--c-muted)' }}>{SUBJECT_META[continueChapter.subject].label} · Class {continueChapter.chapter.class}</div>
                     </div>
                   </div>
-                  <div className="mb-3">
-                    <div className="flex items-center justify-between text-xs mb-1" style={{ color: 'var(--c-muted)' }}>
-                      <span>{continueChapter.doneTopics}/{continueChapter.totalTopics} topics</span>
-                      <span>{continueChapter.percent}%</span>
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between text-[11px] mb-1" style={{ color: 'var(--c-muted)' }}>
+                      <span>{continueChapter.doneTopics}/{continueChapter.totalTopics} topics done</span>
+                      <span className="font-semibold" style={{ color: SUBJECT_META[continueChapter.subject].light }}>{continueChapter.percent}%</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
-                      <div className="h-full rounded-full transition-all" style={{ width: `${continueChapter.percent}%`, backgroundColor: SUBJECT_META[continueChapter.subject].light }} />
+                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${continueChapter.percent}%`, backgroundColor: SUBJECT_META[continueChapter.subject].light }} />
                     </div>
                   </div>
-                  <button
-                    className="w-full text-center text-[12px] font-medium rounded-[40px] px-[18px] py-[7px] transition-all duration-200 hover:-translate-y-[0.5px]"
-                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}
-                  >
+                  <button className="w-full text-center text-[12px] font-medium rounded-[40px] px-4 py-2.5 transition-all duration-200 hover:-translate-y-[0.5px]"
+                    style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}>
                     Resume → {continueChapter.chapter.name}
                   </button>
                 </div>
               ) : (
-                <div className="text-center py-6">
-                  <div className="text-2xl mb-2">🎉</div>
+                <div className="text-center py-8">
+                  <div className="text-3xl mb-3">🎉</div>
                   <p className="text-sm" style={{ color: 'var(--c-muted)' }}>All caught up! Ready for the next challenge?</p>
                 </div>
               )}
@@ -335,28 +345,28 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Heatmap + Study Pace */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="rounded-[18px] px-[22px] py-[24px] md:col-span-2" style={{
+        {/* ─── Heatmap + Study Pace ─── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-7">
+          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6 lg:col-span-2" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Study Heatmap — Last 30 Days</h2>
-            <div className="overflow-x-auto pb-1">
-            <div className="grid gap-1 min-w-[360px]" style={{ gridTemplateColumns: 'repeat(30, 1fr)' }}>
-              {heatmapData.map((d, i) => {
-                const level = getHeatLevel(d.hours)
-                return (
-                  <div
-                    key={i}
-                    className="aspect-square rounded-[4px] hover:ring-1 hover:ring-black/20 dark:hover:ring-white/20 transition-all cursor-default"
-                    style={{
-                      backgroundColor: `var(--heat-${level})`,
-                    }}
-                    title={`${d.date}: ${d.hours.toFixed(1)}h`}
-                  />
-                )
-              })}
+            <div className="flex items-center gap-2 mb-4">
+              <span className="material-symbols-rounded text-[18px]" style={{ color: 'var(--c-green)' }}>local_fire_department</span>
+              <h2 className="text-[15px] font-semibold" style={{ color: 'var(--c-text)' }}>Study Heatmap — Last 30 Days</h2>
             </div>
+            <div className="overflow-x-auto pb-1">
+              <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(30, 1fr)', minWidth: '360px' }}>
+                {heatmapData.map((d, i) => {
+                  const level = getHeatLevel(d.hours)
+                  return (
+                    <div key={i}
+                      className="aspect-square rounded-[4px] hover:ring-1 hover:ring-black/20 dark:hover:ring-white/20 transition-all cursor-default"
+                      style={{ backgroundColor: `var(--heat-${level})` }}
+                      title={`${d.date}: ${d.hours.toFixed(1)}h`}
+                    />
+                  )
+                })}
+              </div>
             </div>
             <div className="flex items-center gap-2 mt-3 text-[10px]" style={{ color: 'var(--c-caption)' }}>
               <span>Less</span>
@@ -369,48 +379,52 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-[18px] px-[22px] py-[24px]" style={{
+          <div className="rounded-[18px] px-5 md:px-6 py-5 md:py-6" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
-            <h2 className="text-[15px] font-semibold mb-4" style={{ color: 'var(--c-text)' }}>Study Pace</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="material-symbols-rounded text-[18px]" style={{ color: 'var(--c-blue)' }}>speed</span>
+              <h2 className="text-[15px] font-semibold" style={{ color: 'var(--c-text)' }}>Study Pace</h2>
+            </div>
             {pace ? (
               <div className="space-y-3">
                 {(['physics', 'chemistry', 'maths'] as Subject[]).map(s => {
                   const isOnTrack = pace.paceStatus[s] === 'on_track'
                   const pct = stats ? stats[s] : 0
                   return (
-                    <div key={s} className="flex items-center gap-2">
-                      <span className="text-sm">{SUBJECT_META[s].emoji}</span>
-                      <div className="flex-1">
-                        <div className="text-xs capitalize mb-0.5" style={{ color: 'var(--c-muted)' }}>{s} — {pct}%</div>
-                        <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
-                          <div className="h-full rounded-full transition-all" style={{
-                            width: `${pct}%`,
-                            backgroundColor: isOnTrack ? 'var(--c-green)' : 'var(--c-red)',
-                          }} />
-                        </div>
+                    <div key={s}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm">{SUBJECT_META[s].emoji}</span>
+                        <span className="text-[11px] flex-1 capitalize" style={{ color: 'var(--c-muted)' }}>{s}</span>
+                        <span className={`text-[10px] font-semibold ${isOnTrack ? 'text-[var(--c-green)]' : 'text-[#e03e3e]'}`}>
+                          {isOnTrack ? 'On Track' : 'Behind'}
+                        </span>
                       </div>
-                      <span className={`text-[10px] font-medium ${isOnTrack ? 'text-[var(--c-green)]' : 'text-[#e03e3e]'}`}>
-                        {isOnTrack ? 'On Track' : 'Behind'}
-                      </span>
+                      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--c-progress-bg)' }}>
+                        <div className="h-full rounded-full transition-all duration-500" style={{
+                          width: `${pct}%`,
+                          backgroundColor: isOnTrack ? 'var(--c-green)' : 'var(--c-red)',
+                        }} />
+                      </div>
+                      <div className="text-[10px] mt-0.5 text-right" style={{ color: 'var(--c-caption)' }}>{pct}%</div>
                     </div>
                   )
                 })}
-                <div className="pt-2 mt-2 border-t text-xs text-center" style={{ borderColor: 'var(--c-border)', color: 'var(--c-muted)' }}>
-                  Phase: <span className="font-medium" style={{ color: 'var(--c-text)' }}>
+                <div className="pt-3 mt-3 border-t text-[11px] text-center" style={{ borderColor: 'var(--c-border)', color: 'var(--c-muted)' }}>
+                  Phase: <span className="font-semibold" style={{ color: 'var(--c-text)' }}>
                     {pace.currentPhase === 'foundation' ? 'Foundation' : pace.currentPhase === 'consolidation' ? 'Consolidation' : 'Final Sprint'}
                   </span>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-6 text-sm" style={{ color: 'var(--c-muted)' }}>Loading pace data...</div>
+              <div className="text-center py-8 text-sm" style={{ color: 'var(--c-muted)' }}>Loading pace data...</div>
             )}
           </div>
         </div>
 
         {/* Empty state */}
         {loaded && !stats && (
-          <div className="rounded-[18px] px-[22px] py-[32px] text-center" style={{
+          <div className="rounded-[18px] px-6 py-10 text-center" style={{
             background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)',
           }}>
             <div className="text-4xl mb-3">🚀</div>
