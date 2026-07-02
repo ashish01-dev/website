@@ -104,7 +104,7 @@ export default function PYQPage() {
       <TopBar />
       <MobileBottomNav />
       <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
-        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6" data-tour="tour-pyq">
           <div>
             <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px]" style={{ color: 'var(--c-text)' }}>📝 PYQ Practice</h1>
             <p className="text-sm mt-0.5" style={{ color: 'var(--c-muted)' }}>Topic-wise & year-wise previous year questions</p>
@@ -143,7 +143,7 @@ export default function PYQPage() {
 
           <div className="lg:col-span-3">
             {currentQ ? (
-              <div className="rounded-[18px] px-6 py-6" data-tour="tour-pyq" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+              <div className="rounded-[18px] px-6 py-6" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${SUBJECT_META[subject].color}15`, color: SUBJECT_META[subject].color }}>

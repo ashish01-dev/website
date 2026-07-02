@@ -78,7 +78,7 @@ export default function BacklogPage() {
       <TopBar />
       <MobileBottomNav />
       <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
-        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6" data-tour="tour-backlog">
           <div>
             <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px]" style={{ color: 'var(--c-text)' }}>📋 Backlog Tracker</h1>
             <p className="text-sm mt-0.5" style={{ color: 'var(--c-muted)' }}>
@@ -119,7 +119,7 @@ export default function BacklogPage() {
         </div>
 
         {showAdd && (
-          <div className="rounded-[18px] px-5 py-5 mb-4" data-tour="tour-backlog" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+          <div className="rounded-[18px] px-5 py-5 mb-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
             <div className="flex items-center gap-1.5 mb-3">
               {(['physics', 'chemistry', 'maths'] as Subject[]).map(s => (
                 <button key={s} onClick={() => setNewSubject(s)}

@@ -340,22 +340,6 @@ export default function SettingsPage() {
                 )}
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Language</div>
-                    <div className="text-xs" style={{ color: 'var(--c-muted)' }}>App interface language</div>
-                  </div>
-                  <div className="flex gap-1 p-0.5 rounded-[10px]" style={{ background: 'var(--c-card-alt)' }}>
-                    <button onClick={() => update({ language: 'en' })}
-                      className={`text-[11px] font-medium px-3 py-1 rounded-[8px] transition-all ${settings.language === 'en' ? 'text-white' : ''}`}
-                      style={{ background: settings.language === 'en' ? 'var(--c-blue)' : 'transparent', color: settings.language === 'en' ? '#fff' : 'var(--c-muted)' }}
-                    >English</button>
-                    <button onClick={() => update({ language: 'hi' })}
-                      className={`text-[11px] font-medium px-3 py-1 rounded-[8px] transition-all ${settings.language === 'hi' ? 'text-white' : ''}`}
-                      style={{ background: settings.language === 'hi' ? 'var(--c-blue)' : 'transparent', color: settings.language === 'hi' ? '#fff' : 'var(--c-muted)' }}
-                    >हिन्दी</button>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
                     <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Backlog Reminder</div>
                     <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Show reminders for pending backlog items</div>
                   </div>
