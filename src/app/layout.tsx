@@ -54,6 +54,9 @@ async function clearAllLocalData() {
     await dexie.settings.clear()
     await dexie.dailyPlans.clear()
     await dexie.questions.clear()
+    await dexie.backlog.clear()
+    await dexie.pyqAttempts.clear()
+    await dexie.studySessions.clear()
   } catch (err) { console.error('clearAllLocalData:', err) }
 }
 

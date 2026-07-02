@@ -3,7 +3,8 @@
 import { motion } from 'framer-motion'
 import { Sparkles, X } from 'lucide-react'
 
-export default function BetaPopup({ onAcknowledge }: { onAcknowledge: () => void }) {
+export default function BetaPopup({ onAcknowledge, onClose }: { onAcknowledge: () => void; onClose?: () => void }) {
+  const handleClose = onClose || onAcknowledge
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -24,7 +25,7 @@ export default function BetaPopup({ onAcknowledge }: { onAcknowledge: () => void
           boxShadow: 'var(--c-shadow-hover)',
         }}
       >
-        <button onClick={onAcknowledge}
+        <button onClick={handleClose}
           className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.1]"
           style={{ color: 'var(--c-muted)' }}>
           <X size={15} />

@@ -27,7 +27,7 @@ Complete JEEIFY with AI chat via OpenRouter, guided tour onboarding, polished fe
 - `PageTransition.tsx`: `mode="wait"`; composite-only animation; wrapped in `memo`
 - `Sidebar.tsx` & `TopBar.tsx`: memoized with `useCallback`/`useMemo` optimizations
 - `layout.tsx`: `pathname` dependency removed from auth effect
-- BetaPopup: `X` button at top-right
+- BetaPopup: `X` button at top-right (now has separate `onClose` prop)
 - AI page priority analysis: groups by subject, top 2 per subject, returns top 6
 - AI page: shell always renders; spinner only in content area
 - **Settings "View full release notes"** changed to `releases/latest`
@@ -45,15 +45,19 @@ Complete JEEIFY with AI chat via OpenRouter, guided tour onboarding, polished fe
 - **`pyqStore.ts`**: PYQ attempt recording; `load()`, `recordAttempt()`, `toggleBookmark()`, `getByChapter()`, `getStats()`
 - **`StudyTimer.tsx`**: floating pomodoro timer on all pages; focus/break modes; logs to dailyLogs + gamification store
 - **`FormulaFlashcards.tsx`**: swipeable formula card UI; subject/chapter filter; tap to flip
-- **`/pyq` page**: topic-wise PYQ browser; answer selection; correct/wrong feedback; bookmark toggle; stats display
+- **`/pyq` page**: topic-wise PYQ browser; answer selection; correct/wrong feedback; bookmark toggle; stats display; coming-soon overlay
 - **`/backlog` page**: add backlog items by subject/chapter/type; clear/remove; filter by subject and type; "due today" badges
 - **Dashboard enhanced**: gamification bar (streak, XP, level, achievements count, Flash shortcut); recent achievements showcase
 - **Sidebar updated**: added `PYQs` and `Backlog` to NAV_ITEMS
 - **Activity page enhanced**: full-year GitHub-style contribution grid above existing month calendar
 - **Tests page enhanced**: stats cards (tests taken, avg accuracy, best score, trend); score trend bar chart
-- **Settings Language toggle**: English/Hindi toggle in Preferences
+- **Settings Language toggle**: removed (was Hindi)
 - **Settings Backlog Reminder toggle**: on/off toggle in Preferences
 - **DashboardTour updated**: 16 steps covering gamification, PYQ, backlog, heatmap, formula vault, test analytics
+- **BetaPopup fix**: separated `onClose` from `onAcknowledge` — X button now dismisses without navigating to /ai
+- **Tour fix**: moved `data-tour="tour-pyq"` and `data-tour="tour-backlog"` to always-visible header elements (tour was stuck because targets were on hidden elements)
+- **APP_PATHS fix**: added `/pyq` and `/backlog` to layout.tsx so they render `AITutorPanel` instead of `LandingAIAssistant` (fixes "Ask J" → AI Tutor)
+- **Audit fixes**: added `backlog`, `pyqAttempts`, `studySessions` to `clearAllLocalData()`, Reset All Data, Delete Account handlers, and storage estimation
 
 ### In Progress
 - (none)
@@ -73,14 +77,16 @@ Complete JEEIFY with AI chat via OpenRouter, guided tour onboarding, polished fe
 - Backlog, PYQ, study sessions use dedicated IndexedDB tables + Supabase sync
 - XP formula: `BASE_XP_PER_LEVEL = 200`, `XP_GROWTH = 1.5`, `XP_PER_MINUTE = 2`
 - Tour step count increased from 12 to 16 to cover all new features
+- BetaPopup `onClose` prop added to prevent X button from navigating — separate from `onAcknowledge`
+- Tour `data-tour` targets moved to always-visible elements to prevent tour from hanging on hidden elements
 
 ## Next Steps
 1. Setup dev server and verify all new pages render correctly
 2. Test gamification streak calculation + achievement unlocks
 3. Test PYQ answer recording and bookmark sync across devices
 4. Test backlog add/clear/remove flow
-5. Test Hindi language toggle (translations will need to be implemented in future)
-6. Verify tour navigates through all 16 steps correctly
+5. Verify tour navigates through all 16 steps correctly
+6. Verify BetaPopup X button dismisses without navigating
 7. Consider adding study room / live collaboration features as next major feature
 
 ## Critical Context
@@ -93,31 +99,34 @@ Complete JEEIFY with AI chat via OpenRouter, guided tour onboarding, polished fe
 - Gamification store uses `db.settings.get('gamification')` for persistence
 - 10 achievements: `first_chapter`, `ten_chapters`, `fifty_chapters`, `seven_day_streak`, `thirty_day_streak`, `hundred_pyq`, `first_test`, `ninety_plus`, `hundred_hours`, `first_revision`
 - Build passes with 0 errors
+- `BetaPopup` has `onClose` (optional, dismiss-only) and `onAcknowledge` (required, dismiss+action) props
+- Tour `data-tour` targets must always be on visible elements — hidden/conditional elements cause the tour to hang
 
 ## Relevant Files
 - `src/app/api/chat/route.ts`: OpenRouter AI chat endpoint
 - `src/components/ai/AITutorPanel.tsx`: AI chat UI
 - `src/components/dashboard/DashboardTour.tsx`: 16-step tour with 4-rectangle spotlight overlays
 - `src/components/OfflineOverlay.tsx`: live internet monitor
-- `src/components/ai/BetaPopup.tsx`: Beta info popup with X close
+- `src/components/ai/BetaPopup.tsx`: Beta info popup with `onClose` + `onAcknowledge` props
 - `src/components/dashboard/ChangelogPopup.tsx`: Release notes with controlled open/close
 - `src/components/dashboard/StudyTimer.tsx`: Floating pomodoro timer
 - `src/components/dashboard/FormulaFlashcards.tsx`: Swipeable formula cards
-- `src/components/layout/Sidebar.tsx`: Nav with PYQ, Backlog, "What's New" button
+- `src/components/layout/Sidebar.tsx`: Nav with PYQ, Backlog, "What's New" button; BetaPopup with onClose
 - `src/components/layout/TopBar.tsx`: Header with exam countdown, memoized
 - `src/components/layout/PageTransition.tsx`: `mode="wait"` composite animation
-- `src/app/layout.tsx`: Root layout with sync table keys
+- `src/app/layout.tsx`: Root layout with APP_PATHS (includes /pyq, /backlog), sync table keys, clearAllLocalData (includes backlog/pyqAttempts/studySessions)
 - `src/app/dashboard/page.tsx`: Dashboard with gamification, heatmap, plan, pace
-- `src/app/pyq/page.tsx`: PYQ practice browser
+- `src/app/pyq/page.tsx`: PYQ practice browser with coming-soon overlay
 - `src/app/backlog/page.tsx`: Backlog tracker
 - `src/app/activity/page.tsx`: Yearly contribution grid + monthly calendar
 - `src/app/tests/page.tsx`: Test logging with analytics (trend chart, stats)
-- `src/app/settings/page.tsx`: Release notes link, tour toggle, language toggle, backlog reminder
+- `src/app/settings/page.tsx`: Release notes link, tour toggle, backlog reminder; Reset/Delete include new tables
 - `src/app/auth/page.tsx`: Real email/password auth
 - `src/types/index.ts`: All types, interfaces, `ACHIEVEMENT_DEFS`
-- `src/lib/db.ts`: Version 8, 3 new tables
+- `src/lib/db.ts`: Version 8, 3 new tables, vaultFiles/customChapters/aiRecommendations
+- `src/lib/storage.ts`: estimateStorageUsage includes all 12 synced tables
 - `src/lib/supabase-sync.ts`: ALL_TABLES extended
 - `src/store/gamificationStore.ts`: Streaks, XP, level, 10 achievements
 - `src/store/backlogStore.ts`: Backlog CRUD
 - `src/store/pyqStore.ts`: PYQ attempts, bookmark, stats
-- `src/store/settingsStore.ts`: Language, backlog reminder defaults
+- `src/store/settingsStore.ts`: Backlog reminder defaults

@@ -139,7 +139,7 @@ const Sidebar = memo(function Sidebar() {
         </button>
       </div>
 
-      {showBeta && <BetaPopup onAcknowledge={() => { setShowBeta(false); localStorage.setItem('ai_beta_acknowledged', '1'); router.push('/ai') }} />}
+      {showBeta && <BetaPopup onClose={() => setShowBeta(false)} onAcknowledge={() => { setShowBeta(false); localStorage.setItem('ai_beta_acknowledged', '1'); router.push('/ai') }} />}
       {showChangelog && <ChangelogPopup open={true} onClose={() => setShowChangelog(false)} />}
     </div>
   )

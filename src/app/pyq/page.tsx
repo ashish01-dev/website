@@ -103,8 +103,8 @@ export default function PYQPage() {
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
-      <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
-          <div className="flex items-center justify-between mb-6" data-tour="tour-pyq">
+      <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden relative" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+        <div className="flex items-center justify-between mb-6" data-tour="tour-pyq">
           <div>
             <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px]" style={{ color: 'var(--c-text)' }}>📝 PYQ Practice</h1>
             <p className="text-sm mt-0.5" style={{ color: 'var(--c-muted)' }}>Topic-wise & year-wise previous year questions</p>
@@ -196,6 +196,31 @@ export default function PYQPage() {
                 <p className="text-sm" style={{ color: 'var(--c-muted)' }}>Select a chapter to begin practicing PYQs</p>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Coming soon overlay */}
+        <div className="absolute inset-0 flex items-center justify-center" style={{
+          background: 'rgba(0,0,0,0.45)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          zIndex: 20,
+          borderRadius: '18px',
+          marginTop: '-17px',
+        }}>
+          <div className="text-center px-6 py-12">
+            <div className="w-20 h-20 mx-auto mb-5 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--c-blue), #6366f1)' }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-2" style={{ color: '#fff' }}>Coming Soon</h2>
+            <p className="text-sm mb-1 max-w-[320px] mx-auto leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              The PYQ Practice Engine is being built with chapter-wise filters, year-wise sorting, answer analysis, and performance tracking.
+            </p>
+            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              Stay tuned for the next update.
+            </p>
           </div>
         </div>
       </div>

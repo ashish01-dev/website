@@ -23,7 +23,7 @@ function bytesEstimate(obj: unknown): number {
 export async function estimateStorageUsage(isPro: boolean): Promise<StorageUsage> {
   let syncDataBytes = 0
 
-  const tables = ['progress', 'timetable', 'tests', 'errors', 'formulas', 'dailyLogs', 'pomodoro', 'dailyPlans', 'questions'] as const
+  const tables = ['progress', 'timetable', 'tests', 'errors', 'formulas', 'dailyLogs', 'pomodoro', 'dailyPlans', 'questions', 'backlog', 'pyqAttempts', 'studySessions'] as const
   for (const table of tables) {
     try {
       const data = await (db as any)[table].toArray()
