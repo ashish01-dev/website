@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSupabase } from '@/lib/supabase'
 import BetaPopup from '@/components/ai/BetaPopup'
+import ChangelogPopup from '@/components/dashboard/ChangelogPopup'
 
 export const SIDEBAR_WIDTH = 260
 
@@ -29,6 +30,7 @@ const Sidebar = memo(function Sidebar() {
   const { settings } = useSettingsStore()
   const [avatarUrl, setAvatarUrl] = useState('')
   const [showBeta, setShowBeta] = useState(false)
+  const [showChangelog, setShowChangelog] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -46,7 +48,7 @@ const Sidebar = memo(function Sidebar() {
   return (
     <div
       data-tour="tour-sidebar"
-      className="fixed top-0 left-0 h-full z-40 hidden md:block"
+      className="fixed top-0 left-0 h-full z-40 hidden md:flex flex-col"
       style={{
         width: SIDEBAR_WIDTH,
         background: 'var(--c-card)',
@@ -73,7 +75,7 @@ const Sidebar = memo(function Sidebar() {
           </div>
         </button>
       </div>
-      <div className="px-3 py-3 space-y-0.5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 68px)' }}>
+      <div className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
         {NAV_ITEMS.map(item => {
           const active = isActive(item.href)
           if (item.href === '/ai') {
@@ -118,7 +120,25 @@ const Sidebar = memo(function Sidebar() {
           )
         })}
       </div>
+
+      {/* Bottom section */}
+      <div className="px-3 pb-3">
+        <button onClick={() => setShowChangelog(true)}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm transition-all"
+          style={{
+            color: 'var(--c-text-secondary)',
+            background: 'transparent',
+          }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ color: 'var(--c-caption)' }}>
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+          <span>What&apos;s New</span>
+        </button>
+      </div>
+
       {showBeta && <BetaPopup onAcknowledge={() => { setShowBeta(false); localStorage.setItem('ai_beta_acknowledged', '1'); router.push('/ai') }} />}
+      {showChangelog && <ChangelogPopup open={true} onClose={() => setShowChangelog(false)} />}
     </div>
   )
 })

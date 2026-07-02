@@ -18,13 +18,27 @@ function formatDate(iso: string): string {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
-export default function ChangelogPopup() {
+export default function ChangelogPopup({ open: externalOpen, onClose }: { open?: boolean; onClose?: () => void }) {
   const { settings, loaded, update } = useSettingsStore()
   const [show, setShow] = useState(false)
   const [releaseData, setReleaseData] = useState<{ tag_name: string; name: string; body: string; published_at: string; html_url: string } | null>(null)
   const pathname = usePathname()
+  const isControlled = externalOpen !== undefined
+
+  const fetchRelease = async () => {
+    try {
+      const res = await fetch('https://api.github.com/repos/ashish01-dev/JEEIFY/releases/latest')
+      if (!res.ok) return null
+      const data = await res.json()
+      setReleaseData(data)
+      return data
+    } catch {
+      return null
+    }
+  }
 
   useEffect(() => {
+    if (isControlled) return
     if (!loaded) return
     if (!settings.showChangelog) return
     if (!settings.onboarded) return
@@ -33,30 +47,30 @@ export default function ChangelogPopup() {
     sessionStorage.removeItem('fromLanding')
 
     const fetchAndCompare = async () => {
-      try {
-        const res = await fetch('https://api.github.com/repos/ashish01-dev/JEEIFY/releases/latest')
-        if (!res.ok) return
-        const data = await res.json()
-        setReleaseData(data)
+      const data = await fetchRelease()
+      if (!data) return
+      const version = data.tag_name?.replace(/^v/, '') || '1.0.0'
 
-        const version = data.tag_name?.replace(/^v/, '') || '1.0.0'
+      if (fromLanding) {
+        setShow(true)
+        return
+      }
 
-        if (fromLanding) {
-          setShow(true)
-          return
-        }
-
-        if (settings.changelogSeenVersion !== version) {
-          setShow(true)
-          update({ changelogSeenVersion: version })
-        }
-      } catch {
-        // fallback — silently skip
+      if (settings.changelogSeenVersion !== version) {
+        setShow(true)
+        update({ changelogSeenVersion: version })
       }
     }
 
     fetchAndCompare()
-  }, [loaded, settings.showChangelog, settings.changelogSeenVersion, settings.onboarded, update])
+  }, [loaded, settings.showChangelog, settings.changelogSeenVersion, settings.onboarded, update, isControlled])
+
+  useEffect(() => {
+    if (isControlled && externalOpen) {
+      fetchRelease()
+      setShow(true)
+    }
+  }, [isControlled, externalOpen])
 
   useEffect(() => {
     if (pathname && !APP_PATHS.some(p => pathname.startsWith(p))) {
@@ -64,7 +78,17 @@ export default function ChangelogPopup() {
     }
   }, [pathname])
 
-  if (!show) return null
+  const active = isControlled ? (externalOpen && show) : show
+  if (!active) return null
+
+  const handleGotIt = () => {
+    if (isControlled) {
+      setShow(false)
+      onClose?.()
+    } else {
+      setShow(false)
+    }
+  }
 
   const version = (releaseData?.tag_name || 'v1.0.0').replace(/^v/, '')
   const date = releaseData?.published_at ? formatDate(releaseData.published_at) : ''
@@ -117,7 +141,7 @@ export default function ChangelogPopup() {
 
         <div className="flex justify-end mt-6">
           <button
-            onClick={() => setShow(false)}
+            onClick={handleGotIt}
             className="text-xs font-medium px-5 py-2 rounded-[40px] text-white transition-all"
             style={{ background: 'var(--c-btn-primary)' }}
           >Got it</button>

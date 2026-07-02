@@ -292,7 +292,7 @@ export default function AIPage() {
   }, [progress])
 
   const proContent = (
-    <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+    <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
@@ -531,7 +531,7 @@ Today&apos;s Recommendation
   )
 
   const proGateContent = !isPro ? (
-    <div className="max-w-[900px] mx-auto px-4 md:px-6 pt-[17px] pb-6" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any }}>
+    <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any }}>
       <div className="flex items-center gap-1.5 text-sm mb-6" style={{ color: 'var(--c-muted)' }}>
         <span className="material-symbols-rounded text-[18px]">arrow_back</span>
         Back to AI Assistant

@@ -186,7 +186,7 @@ export default function ActivityPage() {
       <TopBar />
       <MobileBottomNav />
 
-      <div className="max-w-[800px] mx-auto px-4 md:px-6 py-8" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+      <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         <div className="flex items-center justify-between mb-1">
           <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px]" style={{ color: 'var(--c-text)' }}>Activity Journal</h1>
           <button onClick={loadActivity} className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-[40px] transition-all hover:-translate-y-[0.5px]" style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}>

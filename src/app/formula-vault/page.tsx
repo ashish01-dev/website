@@ -152,7 +152,7 @@ export default function FormulaVaultPage() {
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
-      <div className="max-w-[900px] mx-auto px-4 md:px-6 py-8" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+      <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>Formula Vault</h1>
         <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>Upload and manage formula sheets, notes, and resources per chapter</p>
 

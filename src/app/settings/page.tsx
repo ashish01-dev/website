@@ -154,7 +154,8 @@ export default function SettingsPage() {
       <TopBar />
       <MobileBottomNav />
 
-      <div className="max-w-[700px] mx-auto px-4 md:px-6 py-8" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+      <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+        <div className="max-w-[700px]">
         <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-6" style={{ color: 'var(--c-text)' }}>Settings</h1>
 
         <div className="space-y-4">
@@ -304,11 +305,21 @@ export default function SettingsPage() {
                   </button>
                 </div>
                 {settings.showChangelog && (
-                  <a href="https://github.com/ashish01-dev/JEEIFY/releases/tag/Release" target="_blank" rel="noopener noreferrer"
+                  <a href="https://github.com/ashish01-dev/JEEIFY/releases/latest" target="_blank" rel="noopener noreferrer"
                     className="text-[11px] underline mt-1 inline-block" style={{ color: 'var(--c-blue)' }}>
                     View full release notes →
                   </a>
                 )}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--c-text)' }}>Feature Tour</div>
+                    <div className="text-xs" style={{ color: 'var(--c-muted)' }}>Replay the guided tour of the app</div>
+                  </div>
+                  <button onClick={() => { update({ tourCompleted: false }); router.push('/dashboard') }}
+                    className="text-xs font-medium px-4 py-1.5 rounded-[40px] text-white transition-all"
+                    style={{ background: 'var(--c-btn-primary)' }}
+                  >Start Tour</button>
+                </div>
                 {computedIsPro && (
                 <div className="flex items-center justify-between">
                   <div>
@@ -572,6 +583,7 @@ export default function SettingsPage() {
           </div>
 
         </div>
+      </div>
       </div>
     </div>
   )

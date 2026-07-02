@@ -324,7 +324,7 @@ export default function SyllabusPage() {
       <Sidebar />
       <TopBar />
       <MobileBottomNav />
-      <div className="max-w-[900px] mx-auto px-5 pt-[17px] pb-24" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
+      <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-[clamp(24px,3vw,36px)] font-medium tracking-[-1px]" style={{ color: 'var(--c-text)' }}>Syllabus</h1>
           <div className="flex items-center gap-3">
