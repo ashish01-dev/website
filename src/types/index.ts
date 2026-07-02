@@ -211,6 +211,8 @@ export interface Settings {
   isPro: boolean
   proExpiryDate?: string
   tourCompleted?: boolean
+  language?: Language
+  backlogReminder?: boolean
 }
 
 export type ChapterFilter = 'all' | 'not_started' | 'in_progress' | 'done' | 'revision_pending' | 'high_weightage' | 'weak' | 'high_priority'
@@ -238,3 +240,68 @@ export interface Achievement {
   progress: number
   target: number
 }
+
+export interface StudySession {
+  id: string
+  date: string
+  startTime: number
+  duration: number
+  subject: Subject
+  chapter?: string
+  type: 'lecture' | 'practice' | 'revision' | 'test'
+  notes?: string
+}
+
+export interface GamificationData {
+  currentStreak: number
+  longestStreak: number
+  lastStudyDate: string
+  totalStudyDays: number
+  xp: number
+  level: number
+  achievements: Achievement[]
+}
+
+export interface BacklogItem {
+  id: string
+  chapterId: string
+  chapterName: string
+  subject: Subject
+  type: 'theory' | 'pyq' | 'dpp' | 'revision'
+  createdAt: string
+  clearedAt?: string
+  dueDate: string
+  notes?: string
+}
+
+export interface PYQAttempt {
+  id: string
+  year: number
+  session: 'january' | 'april'
+  subject: Subject
+  chapterId: string
+  chapterName: string
+  question: string
+  options?: string[]
+  correctAnswer: string
+  userAnswer?: string
+  status: 'pending' | 'correct' | 'wrong' | 'bookmarked'
+  attemptedAt?: string
+  timeTaken?: number
+  topic?: string
+}
+
+export type Language = 'en' | 'hi'
+
+export const ACHIEVEMENT_DEFS: Omit<Achievement, 'unlocked' | 'unlockedAt' | 'progress'>[] = [
+  { id: 'first_chapter', name: 'First Step', description: 'Complete your first chapter', icon: '🎯', target: 1 },
+  { id: 'ten_chapters', name: 'Chapter Champion', description: 'Complete 10 chapters', icon: '📚', target: 10 },
+  { id: 'fifty_chapters', name: 'Syllabus Master', description: 'Complete 50 chapters', icon: '🏆', target: 50 },
+  { id: 'seven_day_streak', name: 'Week Warrior', description: 'Study 7 days in a row', icon: '🔥', target: 7 },
+  { id: 'thirty_day_streak', name: 'Monthly Legend', description: 'Study 30 days in a row', icon: '💎', target: 30 },
+  { id: 'hundred_pyq', name: 'PYQ Pro', description: 'Solve 100 previous year questions', icon: '📝', target: 100 },
+  { id: 'first_test', name: 'Test Taker', description: 'Log your first mock test', icon: '📋', target: 1 },
+  { id: 'ninety_plus', name: 'Top Scorer', description: 'Score 90%+ in a mock test', icon: '⭐', target: 1 },
+  { id: 'hundred_hours', name: 'Century', description: 'Study 100 hours total', icon: '⏰', target: 100 },
+  { id: 'first_revision', name: 'Revision Ready', description: 'Complete your first revision cycle', icon: '🔄', target: 1 },
+]

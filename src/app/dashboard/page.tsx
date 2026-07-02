@@ -7,8 +7,11 @@ import MobileBottomNav from '@/components/layout/MobileBottomNav'
 import DailyPlanModal from '@/components/dashboard/DailyPlanModal'
 import StoragePopup from '@/components/dashboard/StoragePopup'
 import ChangelogPopup from '@/components/dashboard/ChangelogPopup'
+import StudyTimer from '@/components/dashboard/StudyTimer'
+import FormulaFlashcards from '@/components/dashboard/FormulaFlashcards'
 import { useProgressStore } from '@/store/progressStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { useGamificationStore } from '@/store/gamificationStore'
 import { calculatePace, selectDailyTargets } from '@/lib/pacing'
 import { db } from '@/lib/db'
 import { formatDate } from '@/lib/utils'
@@ -52,7 +55,16 @@ export default function DashboardPage() {
   const [showPlanModal, setShowPlanModal] = useState(false)
   const [planLoaded, setPlanLoaded] = useState(false)
   const [dailyLogs, setDailyLogs] = useState<{ date: string; studyMinutes: number }[]>([])
+  const [showFlashcards, setShowFlashcards] = useState(false)
   const [quote] = useState(() => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)])
+
+  const gamification = useGamificationStore()
+  const { currentStreak, xp, level, achievements, load: loadGamification } = gamification
+
+  useEffect(() => { loadGamification() }, [loadGamification])
+
+  const freshAchievements = achievements.filter(a => a.unlocked && a.id === 'first_chapter' || a.id === 'first_test').slice(0, 2)
+  const recentUnlocked = achievements.filter(a => a.unlocked).slice(-3)
 
   const today = formatDate(new Date())
   const hour = new Date().getHours()
@@ -158,6 +170,8 @@ export default function DashboardPage() {
       <DailyPlanModal open={showPlanModal} onClose={() => setShowPlanModal(false)} onSave={handleSavePlan} presetSubjects={dailyTargetSubjects} isPro={isPro} />
       <StoragePopup isPro={isPro} />
       <ChangelogPopup />
+      <StudyTimer />
+      {showFlashcards && <FormulaFlashcards onClose={() => setShowFlashcards(false)} />}
 
       <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
 
@@ -212,6 +226,39 @@ export default function DashboardPage() {
                 <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: 'var(--c-caption)' }}>Overall</div>
                 <div className="text-xl font-bold" style={{ color: stats ? 'var(--c-text)' : 'var(--c-muted)' }}>{stats?.overall ?? '—'}<span className="text-sm font-normal" style={{ color: 'var(--c-muted)' }}>%</span></div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── Gamification Bar ─── */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4" data-tour="tour-gamification">
+          <div className="rounded-[14px] px-4 py-3 flex items-center gap-3" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
+            <div className="flex items-center justify-center w-10 h-10 rounded-full text-lg" style={{ background: 'rgba(255,165,0,0.15)' }}>🔥</div>
+            <div>
+              <div className="text-lg font-bold" style={{ color: 'var(--c-orange)' }}>{currentStreak}</div>
+              <div className="text-[10px]" style={{ color: 'var(--c-caption)' }}>Day Streak</div>
+            </div>
+          </div>
+          <div className="rounded-[14px] px-4 py-3 flex items-center gap-3" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
+            <div className="flex items-center justify-center w-10 h-10 rounded-full text-lg" style={{ background: 'rgba(35,131,226,0.15)' }}>⚡</div>
+            <div>
+              <div className="text-lg font-bold" style={{ color: 'var(--c-blue)' }}>{xp}</div>
+              <div className="text-[10px]" style={{ color: 'var(--c-caption)' }}>XP · Lvl {level}</div>
+            </div>
+          </div>
+          <div className="rounded-[14px] px-4 py-3 flex items-center gap-3" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
+            <div className="flex items-center justify-center w-10 h-10 rounded-full text-lg" style={{ background: 'rgba(15,138,94,0.15)' }}>🏆</div>
+            <div>
+              <div className="text-lg font-bold" style={{ color: 'var(--c-green)' }}>{achievements.filter(a => a.unlocked).length}</div>
+              <div className="text-[10px]" style={{ color: 'var(--c-caption)' }}>Achievements</div>
+            </div>
+          </div>
+          <div className="rounded-[14px] px-4 py-3 flex items-center gap-3 cursor-pointer hover:-translate-y-[0.5px] transition-all" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}
+            onClick={() => setShowFlashcards(true)}>
+            <div className="flex items-center justify-center w-10 h-10 rounded-full text-lg" style={{ background: 'rgba(217,115,13,0.15)' }}>📄</div>
+            <div>
+              <div className="text-lg font-bold" style={{ color: 'var(--c-orange)' }}>Flash</div>
+              <div className="text-[10px]" style={{ color: 'var(--c-caption)' }}>Quick review</div>
             </div>
           </div>
         </div>
@@ -366,6 +413,21 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* ─── Recent Achievements ─── */}
+        {recentUnlocked.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+            {recentUnlocked.map(a => (
+              <div key={a.id} className="rounded-[14px] px-4 py-3 flex items-center gap-3" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
+                <span className="text-2xl">{a.icon}</span>
+                <div>
+                  <div className="text-xs font-semibold" style={{ color: 'var(--c-text)' }}>{a.name}</div>
+                  <div className="text-[10px]" style={{ color: 'var(--c-muted)' }}>{a.description}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* ─── Heatmap + Study Pace ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-7">

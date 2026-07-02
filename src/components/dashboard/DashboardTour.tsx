@@ -22,6 +22,13 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     page: '/dashboard',
+    target: 'tour-gamification',
+    title: 'Gamification Hub',
+    description:
+      'Track your study streak, earn XP, level up, and unlock achievements as you hit milestones. Tap Flash to quickly review formula cards.',
+  },
+  {
+    page: '/dashboard',
     target: 'tour-plan',
     title: 'Daily Study Plan',
     description:
@@ -79,9 +86,9 @@ const TOUR_STEPS: TourStep[] = [
   {
     page: '/tests',
     target: 'tour-tests-history',
-    title: 'Test History',
+    title: 'Test Analytics',
     description:
-      'View all your logged tests with colour-coded accuracy. Track your improvement over time.',
+      'View all your logged tests with colour-coded accuracy, score trend chart, and stats like avg accuracy and best score.',
   },
   {
     page: '/questions',
@@ -96,6 +103,27 @@ const TOUR_STEPS: TourStep[] = [
     title: 'Question Breakdown',
     description:
       'Drill into your question logs by subject and chapter. See exactly where your practice hours are going.',
+  },
+  {
+    page: '/pyq',
+    target: 'tour-pyq',
+    title: 'PYQ Practice Engine',
+    description:
+      'Practice previous year JEE questions topic-wise. Answer, check correctness, and track your accuracy over time.',
+  },
+  {
+    page: '/backlog',
+    target: 'tour-backlog',
+    title: 'Backlog Tracker',
+    description:
+      'Add backlog items per chapter (theory, PYQ, DPP, revision) and mark them cleared. Use filters to stay on top of pending work.',
+  },
+  {
+    page: '/dashboard',
+    target: 'tour-heatmap',
+    title: 'Study Heatmap',
+    description:
+      'The 30-day heatmap shows your daily study intensity. Also check the full-year GitHub-style contribution grid on the Activity page.',
   },
 ]
 

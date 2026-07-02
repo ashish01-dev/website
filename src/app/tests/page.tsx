@@ -97,7 +97,64 @@ export default function TestsPage() {
 
       <div className="px-4 md:px-8 lg:px-10 pt-[17px] pb-6 overflow-x-hidden" style={{ marginLeft: 'var(--sidebar-w, 0px)' as any, transition: 'margin-left 0.3s ease' as any }}>
         <h1 className="text-[clamp(28px,3vw,36px)] font-medium tracking-[-0.5px] mb-1" style={{ color: 'var(--c-text)' }}>Tests</h1>
-        <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>Log and track your mock tests</p>
+        <p className="text-sm mb-4" style={{ color: 'var(--c-muted)' }}>Log and track your mock tests</p>
+
+        {tests.length > 0 && (() => {
+          const sorted = [...tests].sort((a, b) => a.date.localeCompare(b.date))
+          const avgAccuracy = Math.round(tests.reduce((s, t) => s + t.accuracy, 0) / tests.length)
+          const best = tests.reduce((b, t) => t.accuracy > b.accuracy ? t : b, tests[0])
+          const maxScore = Math.max(...tests.map(t => Math.round((t.score / t.total) * 100)))
+          const recent = sorted.slice(-5)
+          const trend = recent.length >= 2 ? (recent[recent.length - 1].accuracy - recent[0].accuracy) : 0
+          return (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div className="rounded-[14px] px-4 py-3" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--c-caption)' }}>Tests Taken</div>
+                  <div className="text-xl font-bold" style={{ color: 'var(--c-blue)' }}>{tests.length}</div>
+                </div>
+                <div className="rounded-[14px] px-4 py-3" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--c-caption)' }}>Avg Accuracy</div>
+                  <div className="text-xl font-bold" style={{ color: avgAccuracy >= 80 ? 'var(--c-green)' : avgAccuracy >= 60 ? 'var(--c-orange)' : 'var(--c-red)' }}>{avgAccuracy}%</div>
+                </div>
+                <div className="rounded-[14px] px-4 py-3" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--c-caption)' }}>Best Score</div>
+                  <div className="text-xl font-bold" style={{ color: 'var(--c-green)' }}>{best.score}/{best.total}<span className="text-sm font-normal" style={{ color: 'var(--c-muted)' }}> ({best.accuracy}%)</span></div>
+                </div>
+                <div className="rounded-[14px] px-4 py-3" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)' }}>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--c-caption)' }}>Trend ({recent.length})</div>
+                  <div className="text-xl font-bold" style={{ color: trend >= 0 ? 'var(--c-green)' : 'var(--c-red)' }}>
+                    {trend >= 0 ? '↗' : '↘'} {Math.abs(trend)}%
+                  </div>
+                </div>
+              </div>
+
+              {/* Score Trend Mini Chart */}
+              {sorted.length >= 2 && (
+                <div className="rounded-[18px] px-5 py-4 mb-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+                  <h3 className="text-[12px] font-semibold mb-3" style={{ color: 'var(--c-text)' }}>Score Trend</h3>
+                  <div className="flex items-end gap-1" style={{ height: '80px' }}>
+                    {sorted.map((t, i) => {
+                      const pct = Math.round((t.score / t.total) * 100)
+                      const barH = Math.max(pct * 0.8, 4)
+                      return (
+                        <div key={t.id} className="flex-1 flex flex-col items-center gap-0.5 group relative cursor-default">
+                          <div className="absolute bottom-full mb-1 text-[9px] whitespace-nowrap hidden group-hover:block" style={{ color: 'var(--c-muted)' }}>
+                            {t.date}: {t.score}/{t.total} ({pct}%)
+                          </div>
+                          <div className="w-full rounded-[4px] transition-all group-hover:opacity-80" style={{
+                            height: `${barH}px`,
+                            background: pct >= 80 ? 'var(--c-green)' : pct >= 60 ? 'var(--c-orange)' : 'var(--c-red)',
+                          }} />
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          )
+        })()}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="rounded-[18px] p-4" data-tour="tour-tests-log" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>

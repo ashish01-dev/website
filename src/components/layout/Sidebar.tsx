@@ -17,6 +17,8 @@ const NAV_ITEMS = [
   { href: '/timetable', label: 'Timetable', icon: '📅' },
   { href: '/progress', label: 'Progress', icon: '📈' },
   { href: '/completion', label: 'Completion', icon: '✅' },
+  { href: '/pyq', label: 'PYQs', icon: '📝' },
+  { href: '/backlog', label: 'Backlog', icon: '📋' },
   { href: '/activity', label: 'Journal', icon: '📓' },
   { href: '/questions', label: 'Questions', icon: '❓' },
   { href: '/tests', label: 'Tests', icon: '📝' },

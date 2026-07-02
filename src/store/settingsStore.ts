@@ -28,6 +28,8 @@ const DEFAULT_SETTINGS: Settings = {
   isPro: false,
   proExpiryDate: undefined,
   tourCompleted: false,
+  language: 'en',
+  backlogReminder: true,
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({

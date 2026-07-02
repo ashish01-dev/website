@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import type { UserProgress, TimetableData, TestEntry, ErrorEntry, FormulaEntry, DailyLog, PomodoroSession, DailyPlan, QuestionsEntry, ChapterProgress, Chapter } from '@/types'
+import type { UserProgress, TimetableData, TestEntry, ErrorEntry, FormulaEntry, DailyLog, PomodoroSession, DailyPlan, QuestionsEntry, ChapterProgress, Chapter, BacklogItem, PYQAttempt, StudySession } from '@/types'
 import { syncUpsert, syncAdd, syncDelete, syncClear } from './supabase-sync'
 
 export class JeeDatabase extends Dexie {
@@ -16,10 +16,13 @@ export class JeeDatabase extends Dexie {
   customChapters!: Table<Chapter, string>
   aiRecommendations!: Table<{ id: string; date: string; data: unknown }, string>
   vaultFiles!: Table<{ id: string; chapterId: string; fileName: string; blob: Blob; type: string; size: number }, string>
+  backlog!: Table<BacklogItem, string>
+  pyqAttempts!: Table<PYQAttempt, string>
+  studySessions!: Table<StudySession, string>
 
   constructor() {
     super('JEE2027Tracker')
-    this.version(7).stores({
+    this.version(8).stores({
       progress: '&chapterId',
       timetable: '&id',
       tests: '&id, date, subject',
@@ -33,6 +36,9 @@ export class JeeDatabase extends Dexie {
       customChapters: '&id, subject',
       aiRecommendations: '&id, date',
       vaultFiles: '&id, chapterId, fileName',
+      backlog: '&id, chapterId, subject, dueDate',
+      pyqAttempts: '&id, subject, chapterId, year, status',
+      studySessions: '&id, date, subject',
     })
   }
 }
@@ -44,6 +50,7 @@ const TABLE_KEY = {
   progress: 'chapterId', timetable: 'id', tests: 'id', errors: 'id',
   formulas: 'id', dailylogs: 'date', settings: 'id', pomodoro: 'id',
   dailyplans: 'date', questions: 'id', customchapters: 'id', airecommendations: 'id',
+  backlog: 'id', pyqattempts: 'id', studysessions: 'id',
 } as Record<string, string>
 
 function synced<T>(dexieKey: string, keyField?: string, supabaseTable?: string) {
@@ -86,6 +93,9 @@ export const db = {
   questions:         useSync ? synced<QuestionsEntry>('questions') : noop(),
   customChapters:    useSync ? synced<Chapter>('customChapters') : noop(),
   aiRecommendations: useSync ? synced<{ id: string; date: string; data: unknown }>('aiRecommendations') : noop(),
+  backlog: useSync ? synced<BacklogItem>('backlog') : noop(),
+  pyqAttempts: useSync ? synced<PYQAttempt>('pyqAttempts', 'id', 'pyqattempts') : noop(),
+  studySessions: useSync ? synced<StudySession>('studySessions', 'id', 'studysessions') : noop(),
 
 }
 

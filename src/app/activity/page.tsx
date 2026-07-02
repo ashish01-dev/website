@@ -196,6 +196,84 @@ export default function ActivityPage() {
         </div>
         <p className="text-sm mb-6" style={{ color: 'var(--c-muted)' }}>Daily breakdown of your study progress</p>
 
+        {/* ─── Yearly Contribution Grid ─── */}
+        <div className="rounded-[18px] p-4 mb-4" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-[13px] font-semibold flex items-center gap-2" style={{ color: 'var(--c-text)' }}>
+              <span className="text-lg">📅</span> Contribution Grid — {viewYear}
+            </h2>
+          </div>
+          <div className="overflow-x-auto pb-1">
+            <div className="flex gap-0.5" style={{ minWidth: '580px' }}>
+              {(() => {
+                const grid: { date: string; level: number; day: Date }[] = []
+                const start = new Date(viewYear, 0, 1)
+                const end = new Date(viewYear, 11, 31)
+                const cur = new Date(start)
+                while (cur <= end) {
+                  const key = formatDate(cur)
+                  const mins = activityByDate[key]?.studySeconds ? activityByDate[key].studySeconds / 60 : 0
+                  let level = 0
+                  if (mins > 0) level = mins < 30 ? 1 : mins < 60 ? 2 : mins < 120 ? 3 : 4
+                  grid.push({ date: key, level, day: new Date(cur) })
+                  cur.setDate(cur.getDate() + 1)
+                }
+                const weeks: typeof grid[] = []
+                for (let i = 0; i < grid.length; i += 7) weeks.push(grid.slice(i, i + 7))
+                const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                const monthLabels: { index: number; name: string }[] = []
+                for (let m = 0; m < 12; m++) {
+                  const first = new Date(viewYear, m, 1)
+                  const diff = Math.floor((first.getTime() - start.getTime()) / 86400000)
+                  const weekIndex = Math.floor(diff / 7)
+                  monthLabels.push({ index: weekIndex, name: first.toLocaleDateString('en', { month: 'short' }) })
+                }
+                return (
+                  <div className="flex gap-0.5">
+                    <div className="flex flex-col gap-0.5 pr-1 pt-5">
+                      {dayLabels.map((l, i) => (
+                        <div key={l} className="text-[8px] leading-[10px] h-[10px]" style={{ color: 'var(--c-caption)' }}>{i % 2 === 0 ? l : ''}</div>
+                      ))}
+                    </div>
+                    <div>
+                      <div className="flex gap-0.5 mb-0.5 h-4">
+                        {monthLabels.map((m, i) => (
+                          <div key={i} className="text-[8px] leading-[10px]" style={{ color: 'var(--c-caption)', marginLeft: i > 0 && m.index - monthLabels[i - 1].index > 2 ? '2px' : '0px', width: '10px' }}>{m.name}</div>
+                        ))}
+                      </div>
+                      <div className="flex gap-0.5">
+                        {weeks.map((week, wi) => (
+                          <div key={wi} className="flex flex-col gap-0.5">
+                            {week.map((day) => (
+                              <div key={day.date}
+                                className="w-[10px] h-[10px] rounded-[2px] cursor-default"
+                                style={{ backgroundColor: `var(--heat-${day.level})` }}
+                                title={`${day.date}: ${Math.round(activityByDate[day.date]?.studySeconds ? activityByDate[day.date].studySeconds / 60 : 0)} min`}
+                              />
+                            ))}
+                            {week.length < 7 && Array.from({ length: 7 - week.length }).map((_, i) => (
+                              <div key={`e${wi}${i}`} className="w-[10px] h-[10px]" />
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 mt-2 text-[9px]" style={{ color: 'var(--c-caption)' }}>
+            <span>Less</span>
+            <div className="w-2.5 h-2.5 rounded-[2px]" style={{ background: 'var(--heat-0)' }} />
+            <div className="w-2.5 h-2.5 rounded-[2px]" style={{ background: 'var(--heat-1)' }} />
+            <div className="w-2.5 h-2.5 rounded-[2px]" style={{ background: 'var(--heat-2)' }} />
+            <div className="w-2.5 h-2.5 rounded-[2px]" style={{ background: 'var(--heat-3)' }} />
+            <div className="w-2.5 h-2.5 rounded-[2px]" style={{ background: 'var(--heat-4)' }} />
+            <span>More</span>
+          </div>
+        </div>
+
         <div className="rounded-[18px] p-4 mb-6" style={{ background: 'var(--c-card)', border: '1px solid var(--c-border-card)', boxShadow: 'var(--c-shadow)' }}>
           <div className="flex items-center justify-between mb-4">
             <button onClick={prevMonth} className="text-xs font-medium px-3 py-1.5 rounded-[40px]" style={{ border: '1px solid var(--c-border-input)', color: 'var(--c-text-secondary)' }}>&larr; Prev</button>

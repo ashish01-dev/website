@@ -87,7 +87,7 @@ export async function syncClear(tableName: string) {
 
 /* ─── Supabase pull (cloud → local sync on sign-in) ─── */
 
-const ALL_TABLES = ['progress', 'timetable', 'tests', 'errors', 'formulas', 'dailylogs', 'settings', 'pomodoro', 'dailyplans', 'questions'] as const
+const ALL_TABLES = ['progress', 'timetable', 'tests', 'errors', 'formulas', 'dailylogs', 'settings', 'pomodoro', 'dailyplans', 'questions', 'backlog', 'pyqattempts', 'studysessions'] as const
 
 export async function syncPullAll(): Promise<Record<string, unknown[]>> {
   if (!userId) return {}
